@@ -1,9 +1,5 @@
 require "./spec_helper"
 
-describe Opentelemetry::Integrations do
-  # TODO: Write tests
+describe OpenTelemetry::Instrumentation do
 
-  it "works" do
-    false.should eq(true)
-  end
 end
