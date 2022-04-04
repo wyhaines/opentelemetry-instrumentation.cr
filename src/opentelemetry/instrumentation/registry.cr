@@ -25,7 +25,7 @@ module OpenTelemetry
       def self.registry
         @name_to_class_map
       end
-  
+
       def self.[](key)
         get(key)
       end
@@ -33,7 +33,7 @@ module OpenTelemetry
       def self.get(key)
         @@name_to_class_map[key]
       end
-  
+
       def self.instrument_names
         @@name_to_class_map.keys
       end
@@ -41,7 +41,6 @@ module OpenTelemetry
       def self.instruments
         @@name_to_class_map.values
       end
-
     end
   end
 end

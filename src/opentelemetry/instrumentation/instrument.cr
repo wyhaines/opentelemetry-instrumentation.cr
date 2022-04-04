@@ -1,7 +1,7 @@
 require "tracer"
 
 module OpenTelemetry
-  module Instrumentation    
+  module Instrumentation
     abstract class Instrument
       macro inherited
         Registry.register(self)

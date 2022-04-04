@@ -2,6 +2,11 @@ require "./instrument"
 require "tracer"
 require "defined"
 
+unless_defined?("HTTP::Server", <<-ECODE)
+{% puts "---------- PRE-WTF? ----------" %}
+puts "***********  WTF?  ***********"
+ECODE
+
 if_defined?("HTTP::Server", <<-ECODE)
 module OpenTelemetry::Instrumentation
   class CrystalHttpServer < OpenTelemetry::Instrumentation::Instrument

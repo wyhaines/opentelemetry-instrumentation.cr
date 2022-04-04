@@ -1,1 +1,3 @@
-require "./opentelemetry/instrumentation/*"
+macro finished
+  require "./opentelemetry/instrumentation/*"
+end
