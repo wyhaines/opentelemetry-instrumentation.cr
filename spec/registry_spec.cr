@@ -4,13 +4,10 @@ require "./registry_spec/bad_spec_instrument"
 
 describe OpenTelemetry::Instrumentation::Registry do
   it "will register an included instrumentation class" do
-    OpenTelemetry::Instrumentation::Registry.instruments.should eq [OpenTelemetry::Instrumentation::GoodSpecInstrument,
-    OpenTelemetry::Instrumentation::BadSpecInstrument]
-    OpenTelemetry::Instrumentation::Registry.instrument_names.should eq ["goodspecinstrument", "badspecinstrument"]
-  end
-
-  it "can determine the names of the currently available instruments" do
-    OpenTelemetry::Instrumentation::Registry.instrument_names.should eq ["goodspecinstrument", "badspecinstrument"]
+    OpenTelemetry::Instrumentation::Registry.instruments.includes?(OpenTelemetry::Instrumentation::GoodSpecInstrument).should be_true
+    OpenTelemetry::Instrumentation::Registry.instruments.includes?(OpenTelemetry::Instrumentation::BadSpecInstrument)
+    OpenTelemetry::Instrumentation::Registry.instrument_names.includes?("goodspecinstrument").should be_true
+    OpenTelemetry::Instrumentation::Registry.instrument_names.includes?("badspecinstrument").should be_true
   end
 
   it "can get a specific instrument class, by name" do
