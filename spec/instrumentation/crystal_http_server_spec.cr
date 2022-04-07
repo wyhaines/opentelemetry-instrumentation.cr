@@ -14,7 +14,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       config.service_version = "1.0.0"
       config.exporter = OpenTelemetry::Exporter.new(variant: :stdout) do |exporter|
         exporter.as(OpenTelemetry::Exporter::Stdout)
-      end    
+      end
     end
 
     address = nil
@@ -24,7 +24,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
         context.response.content_type = "text/plain"
         context.response.print "Hello world!"
       end
-      
+
       spawn(name: "Kill Server") do
         sleep 2
         server.close
@@ -35,9 +35,9 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       server.listen
     end
 
-    200.times do
-      pp HTTP::Client.get("http://127.0.0.1:8080")
+    2.times do
+      HTTP::Client.get("http://127.0.0.1:8080")
     end
-    sleep 5
+    sleep 2
   end
 end
