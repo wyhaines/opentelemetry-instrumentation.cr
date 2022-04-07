@@ -10,9 +10,19 @@ if_defined?("HTTP::Server") do
 
   if_version?("Crystal", :>=, "1.0.0") do
     class HTTP::Request
+      def full_url
+        local_addr = local_address
+        port = if local_addr && local_addr.is_a?(Socket::IPAddress)
+                 ":#{local_addr.port}"
+               else
+                 ""
+               end
+        "#{scheme}://#{hostname}#{port}#{resource}"
+      end
+
       def scheme
-        if uri = @uri
-          uri.scheme.to_s
+        if u = uri
+          u.scheme.to_s.empty? ? version.split("/").first.downcase : u.scheme.to_s.downcase
         else
           ""
         end
@@ -28,13 +38,16 @@ if_defined?("HTTP::Server") do
         trace = OpenTelemetry.trace
         trace.in_span("HTTP::Server connection") do |span|
           span.kind = OpenTelemetry::Span::Kind::Server
-          local_addr = io.as(TCPSocket).local_address
           remote_addr = io.as(TCPSocket).remote_address
           span["net.peer.ip"] = remote_addr.address
           span["net.peer.port"] = remote_addr.port
           # Without parsing the request, we do not yet know the hostname, so the span will be started
           # with what is known, the IP, and the actual hostname can be backfilled later, after it is
           # parsed.
+          if (local_addr = io.as(TCPSocket).local_address) && io.as(TCPSocket).local_address.is_a?(Socket::IPAddress)
+            span["net.peer.ip"] = local_addr.address
+            span["net.peer.port"] = local_addr.port
+          end
           span["http.host"] = local_addr.address
           previous_def
         end
@@ -83,22 +96,32 @@ if_defined?("HTTP::Server") do
                 if content_length = request.content_length
                   span["http.response_content_length"] = content_length
                 end
+                span["http.url"] = request.full_url
               end
 
-              Log.with_context do
-                @handler.call(context)
-              rescue ex : ClientError
-                Log.debug(exception: ex.cause) { ex.message }
-              rescue ex
-                Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
-                unless response.closed?
-                  unless response.wrote_headers?
-                    response.respond_with_status(:internal_server_error)
+              OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
+                Log.with_context do
+                  @handler.call(context)
+                rescue ex : ClientError
+                  Log.debug(exception: ex.cause) { ex.message }
+                  handler_span.add_event("ClientError") do |event|
+                    event["message"] = ex.message.to_s
                   end
+                rescue ex
+                  Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
+                  handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
+                    event["message"] = ex.message.to_s
+                  end
+                  unless response.closed?
+                    unless response.wrote_headers?
+                      span["http.status_code"] = HTTP::Status::INTERNAL_SERVER_ERROR.value if span
+                      response.respond_with_status(:internal_server_error)
+                    end
+                  end
+                  return
+                ensure
+                  response.output.close
                 end
-                return
-              ensure
-                response.output.close
               end
 
               output.flush
