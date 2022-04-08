@@ -9,6 +9,20 @@ if_defined?("HTTP::Server") do
   end
 
   if_version?("Crystal", :>=, "1.0.0") do
+    module HTTP::Handler
+      trace("call_next") do
+        if next_handler = @next
+          OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{next_handler.class.name}") do |handler_span|
+            previous_def
+          end
+        else
+          span = OpenTelemetry::Trace.current_span
+          span["http.status_code"] = HTTP::Status::NOT_FOUND.value if span
+          previous_def
+        end
+      end
+    end
+
     class HTTP::Request
       def full_url
         local_addr = local_address
