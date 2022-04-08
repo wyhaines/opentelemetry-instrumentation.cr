@@ -12,7 +12,7 @@ if_defined?("HTTP::Server") do
     module HTTP::Handler
       trace("call_next") do
         if next_handler = @next
-          OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{next_handler.class.name}") do |handler_span|
+          OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{next_handler.class.name}") do |_handler_span|
             previous_def
           end
         else

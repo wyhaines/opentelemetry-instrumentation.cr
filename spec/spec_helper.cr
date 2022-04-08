@@ -34,8 +34,8 @@ class FindJson
     end
 
     json = @buffer[start_pos..pos]
-    @buffer = @buffer[pos+1..-1]
-    
-    return json
+    @buffer = @buffer[pos + 1..-1]
+
+    json
   end
 end

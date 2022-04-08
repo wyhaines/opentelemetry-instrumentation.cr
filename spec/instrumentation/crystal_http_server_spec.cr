@@ -39,7 +39,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       HTTP::Client.get("http://127.0.0.1:8080")
       sleep((rand() * 100) / 1000)
     end
-    
+
     memory.rewind
     strings = memory.gets_to_end
     json_finder = FindJson.new(strings)
