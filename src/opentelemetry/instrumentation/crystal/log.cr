@@ -68,7 +68,10 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
               event["source"] = entry.source if !entry.source.empty?
               event["timestamp"] = entry.timestamp.to_s
             end
-            previous_def { entry }
+           
+            return unless backend
+
+            backend.dispatch entry
           else
             previous_def {|e| yield e}
           end
