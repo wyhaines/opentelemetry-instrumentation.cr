@@ -1,4 +1,5 @@
 require "tracer"
+require "defined"
 
 module OpenTelemetry
   module Instrumentation

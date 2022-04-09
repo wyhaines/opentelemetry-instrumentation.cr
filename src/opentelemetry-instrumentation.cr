@@ -1,5 +1,5 @@
 require "opentelemetry-api"
 
 macro finished
-  require "./opentelemetry/instrumentation/*"
+  require "./opentelemetry/instrumentation/**"
 end

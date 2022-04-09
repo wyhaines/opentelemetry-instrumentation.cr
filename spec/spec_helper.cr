@@ -39,3 +39,17 @@ class FindJson
     json
   end
 end
+
+# This helper macro can be used to selectively run only specific specs by turning on their
+# focus in response to an environment variable.
+macro it_may_focus_and_it(description, tags = "", &block)
+{% if env("SPEC_ENABLE_FOCUS") %}
+it {{ description.stringify }}, tags: {{ tags }}, focus: true do
+  {{ block.body }}
+end
+{% else %}
+it {{ description.stringify }}, tags: {{ tags }} do
+  {{ block.body }}
+end
+{% end %}
+end

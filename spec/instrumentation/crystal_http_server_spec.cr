@@ -1,12 +1,12 @@
 require "../spec_helper"
 require "http/server"
 require "http/client"
-require "../../src/opentelemetry/instrumentation/crystal_http_server"
+require "../../src/opentelemetry/instrumentation/crystal/http_server"
 require "io/memory"
 require "json"
 
 describe HTTP::Server, tags: ["HTTP::Server"] do
-  it "should have instrumented HTTP::Server" do
+  it_may_focus_and_it "should have instrumented HTTP::Server" do
     Tracer::TRACED_METHODS_BY_RECEIVER[HTTP::Server]?.should be_truthy
   end
 
@@ -21,20 +21,25 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
     address = nil
 
     spawn(name: "HTTP Server") do
+      # Create a simple little server, with a simple little handler.
       server = HTTP::Server.new do |context|
         context.response.content_type = "text/plain"
         context.response.print "Hello world!"
       end
 
+      # Ensure that the server is shut down, even if something weird happens and
+      # the specs are slow to run or get stuck or something.
       spawn(name: "Kill Server") do
         sleep 2
         server.close
       end
 
+      # Start the server.
       address = server.bind_tcp 8080
       server.listen
     end
 
+    # Send requests to the server. These will generate OTel traces.
     2.times do
       HTTP::Client.get("http://127.0.0.1:8080")
       sleep((rand() * 100) / 1000)
@@ -42,6 +47,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
 
     memory.rewind
     strings = memory.gets_to_end
+    puts strings
     json_finder = FindJson.new(strings)
 
     traces = [] of JSON::Any
@@ -50,13 +56,13 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
     end
 
     traces[0]["spans"][0]["name"].should eq "HTTP::Server connection"
-    traces[0]["spans"][0]["attributes"]["service.name"].should eq "Crystal OTel Instrumentation - HTTP::Server"
-    traces[0]["spans"][0]["kind"].should eq "SERVER"
-    traces[0]["spans"][0]["attributes"]["service.version"].should eq "1.0.0"
+    traces[0]["resource"]["service.name"].should eq "Crystal OTel Instrumentation - HTTP::Server"
+    traces[0]["spans"][0]["kind"].should eq 2 # Unspecified = 0 | Internal = 1 | Server = 2 | Client = 3 | Producer = 4 | Consumer = 5
+    traces[0]["resource"]["service.version"].should eq "1.0.0"
     traces[0]["spans"][0]["attributes"]["http.method"].should eq "GET"
     traces[0]["spans"][0]["attributes"]["http.scheme"].should eq "http"
 
     traces[0]["spans"][1]["name"].should eq "Invoke handler Proc(HTTP::Server::Context, Nil)"
-    traces[0]["spans"][1]["kind"].should eq "INTERNAL"
+    traces[0]["spans"][1]["kind"].should eq 1
   end
 end
