@@ -19,6 +19,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install dependencies
       run: shards install
+    - name: Install SQLite
+      run: sudo apt-get -qy install libsqlite3-dev
     - name: Run tests
       run: crystal spec -t -s
     - name: Run Ameba
