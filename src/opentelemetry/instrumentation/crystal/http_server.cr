@@ -2,7 +2,7 @@ require "../instrument"
 
 # # OpenTelemetry::Instrumentation::CrystalHttpServer
 #
-# ### Instruments: 
+# ### Instruments:
 #   * HTTP::Server
 #   * HTTP::Handler
 #   * HTTP::RequestProcessor

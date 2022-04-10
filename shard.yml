@@ -1,5 +1,5 @@
 name: opentelemetry-instrumentation
-version: 0.1.0
+version: 0.2.0
 
 authors:
   - Kirk Haines <wyhaines@gmail.com>
@@ -20,4 +20,6 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.14
+    version: ~> 1.0.0
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3

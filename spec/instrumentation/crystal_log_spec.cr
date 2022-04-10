@@ -4,7 +4,7 @@ require "log"
 require "../../src/opentelemetry/instrumentation/crystal/log"
 require "json"
 
-describe Log do
+describe Log, tags: "Log" do
   it "can log as normal when there isn't an active span." do
     backend = Log::MemoryBackend.new
     message = "I am a message, and there is no span."
@@ -26,13 +26,13 @@ describe Log do
     Log.setup(:info, backend)
 
     trace = OpenTelemetry.trace
-    trace.in_span("logging test span") do |span|
-      Log.info {message }
+    trace.in_span("logging test span") do |_span|
+      Log.info { message }
     end
 
     backend.entries.first.message.should eq message
     json = JSON.parse(memory.rewind.gets_to_end)
-    
+
     json["spans"][0]["name"].should eq "logging test span"
     json["spans"][0]["events"][0]["name"].should eq "Log.INFO"
     json["spans"][0]["events"][0]["attributes"]["message"].as_s.should contain(message)

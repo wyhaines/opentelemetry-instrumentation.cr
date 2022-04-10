@@ -47,7 +47,6 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
 
     memory.rewind
     strings = memory.gets_to_end
-    puts strings
     json_finder = FindJson.new(strings)
 
     traces = [] of JSON::Any

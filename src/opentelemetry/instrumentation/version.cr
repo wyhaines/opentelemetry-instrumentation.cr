@@ -2,7 +2,7 @@ module OpenTelemetry
   module Instrumentation
     {% begin %}
     # Pull the version directly from Git.
-    VERSION = {{ `git describe --tags --always`.chomp.split(/-/).first.stringify }}
+    VERSION = {{ read_file("#{__DIR__}/../../../VERSION").chomp }}
     {% end %}
   end
 end
