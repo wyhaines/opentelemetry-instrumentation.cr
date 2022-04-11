@@ -34,7 +34,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
 
     if_version?(Crystal, :>=, "1.0.0") do
       class DB::Statement
-        # :nodoc:
         private def _normalize_scheme_(scheme)
           case scheme
           when "postgres"
@@ -47,10 +46,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
           end
         end
 
-        # :nodoc:
-        # This primarily exists to set some reasonable attributes for databases that are
-        # using Unix socket based connections. It should also be modified to handle it when
-        # a database like MySQL or PostgreSQL is being connected to via a Unix socket.
         private def _normalize_transport_data_(connection_uri)
           scheme = _normalize_scheme_(connection_uri.scheme)
           case scheme
