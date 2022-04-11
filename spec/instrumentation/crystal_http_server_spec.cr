@@ -60,7 +60,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
     traces[0]["resource"]["service.version"].should eq "1.0.0"
     traces[0]["spans"][0]["attributes"]["net.peer.ip"].should eq "127.0.0.1"
 
-    traces[1]["spans"][0]["name"].should eq "HTTP Request Received"
+    traces[1]["spans"][0]["name"].should eq "GET /"
     traces[1]["spans"][0]["attributes"]["http.method"].should eq "GET"
     traces[1]["spans"][0]["attributes"]["http.scheme"].should eq "http"
 

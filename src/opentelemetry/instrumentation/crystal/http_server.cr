@@ -104,11 +104,10 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   max_headers_size: max_headers_size,
                 )
 
+                break unless request
                 trace = OpenTelemetry.trace
-                trace.in_span("HTTP Request Received") do |span|
-                  # EOF
-                  break unless request
-
+                trace_name = request.is_a?(HTTP::Request) ? "#{request.method} #{request.path}" : "ERROR #{request.code}"
+                trace.in_span(trace_name) do |span|
                   response.reset
 
                   if request.is_a?(HTTP::Status)
@@ -171,6 +170,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                     return
                   end
                 end
+                break unless request
                 break unless request.as(HTTP::Request).keep_alive?
 
                 # Don't continue if the handler set `Connection` header to `close`
