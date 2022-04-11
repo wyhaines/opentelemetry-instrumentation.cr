@@ -86,8 +86,8 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
               span["net.peer.port"] = local_addr.port
             end
             span["http.host"] = local_addr.address
-            previous_def
           end
+          previous_def
         end
 
         # If the RequestProcessor were refactored a little bit, this could be much cleaner.
@@ -104,73 +104,75 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   max_headers_size: max_headers_size,
                 )
 
-                # EOF
-                break unless request
+                trace = OpenTelemetry.trace
+                trace.in_span("HTTP Request Received") do |span|
+                  # EOF
+                  break unless request
 
-                response.reset
+                  response.reset
 
-                span = OpenTelemetry::Trace.current_span
-                if request.is_a?(HTTP::Status)
-                  if span
-                    span["http.status_code"] = request.code
-                    span.add_event("Malformed Request or Error") do |event|
-                      event["http.status_code"] = request.code
-                    end
-                  end
-                  response.respond_with_status(request)
-                  return
-                end
-
-                response.version = request.version
-                response.headers["Connection"] = "keep-alive" if request.keep_alive?
-                context = Context.new(request, response)
-
-                if span
-                  span["http.host"] = request.hostname.to_s
-                  span["http.method"] = request.method
-                  span["http.flavor"] = request.version.split("/").last
-                  span["http.scheme"] = request.scheme
-                  if content_length = request.content_length
-                    span["http.response_content_length"] = content_length
-                  end
-                  span["http.url"] = request.full_url
-                end
-
-                OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
-                  Log.with_context do
-                    @handler.call(context)
-                  rescue ex : ClientError
-                    Log.debug(exception: ex.cause) { ex.message }
-                    handler_span.add_event("ClientError") do |event|
-                      event["message"] = ex.message.to_s
-                    end
-                  rescue ex
-                    Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
-                    handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
-                      event["message"] = ex.message.to_s
-                    end
-                    unless response.closed?
-                      unless response.wrote_headers?
-                        span["http.status_code"] = HTTP::Status::INTERNAL_SERVER_ERROR.value if span
-                        response.respond_with_status(:internal_server_error)
+                  span = OpenTelemetry::Trace.current_span
+                  if request.is_a?(HTTP::Status)
+                    if span
+                      span["http.status_code"] = request.code
+                      span.add_event("Malformed Request or Error") do |event|
+                        event["http.status_code"] = request.code
                       end
                     end
+                    response.respond_with_status(request)
                     return
-                  ensure
-                    response.output.close
+                  end
+
+                  response.version = request.version
+                  response.headers["Connection"] = "keep-alive" if request.keep_alive?
+                  context = Context.new(request, response)
+
+                  if span
+                    span["http.host"] = request.hostname.to_s
+                    span["http.method"] = request.method
+                    span["http.flavor"] = request.version.split("/").last
+                    span["http.scheme"] = request.scheme
+                    if content_length = request.content_length
+                      span["http.response_content_length"] = content_length
+                    end
+                    span["http.url"] = request.full_url
+                  end
+
+                  OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
+                    Log.with_context do
+                      @handler.call(context)
+                    rescue ex : ClientError
+                      Log.debug(exception: ex.cause) { ex.message }
+                      handler_span.add_event("ClientError") do |event|
+                        event["message"] = ex.message.to_s
+                      end
+                    rescue ex
+                      Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
+                      handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
+                        event["message"] = ex.message.to_s
+                      end
+                      unless response.closed?
+                        unless response.wrote_headers?
+                          span["http.status_code"] = HTTP::Status::INTERNAL_SERVER_ERROR.value if span
+                          response.respond_with_status(:internal_server_error)
+                        end
+                      end
+                      return
+                    ensure
+                      response.output.close
+                    end
+                  end
+
+                  output.flush
+
+                  # If there is an upgrade handler, hand over
+                  # the connection to it and return
+                  if upgrade_handler = response.upgrade_handler
+                    upgrade_handler.call(output)
+                    return
                   end
                 end
-
-                output.flush
-
-                # If there is an upgrade handler, hand over
-                # the connection to it and return
-                if upgrade_handler = response.upgrade_handler
-                  upgrade_handler.call(output)
-                  return
-                end
-
-                break unless request.keep_alive?
+                break unless request.as(HTTP::Request).keep_alive?
 
                 # Don't continue if the handler set `Connection` header to `close`
                 break unless HTTP.keep_alive?(response)
@@ -178,7 +180,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                 # The request body is either FixedLengthContent or ChunkedContent.
                 # In case it has not entirely been consumed by the handler, the connection is
                 # closed the connection even if keep alive was requested.
-                case body = request.body
+                case body = request.as(HTTP::Request).body
                 when FixedLengthContent
                   if body.read_remaining > 0
                     # Close the connection if there are bytes remaining

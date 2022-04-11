@@ -58,10 +58,13 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
     traces[0]["resource"]["service.name"].should eq "Crystal OTel Instrumentation - HTTP::Server"
     traces[0]["spans"][0]["kind"].should eq 2 # Unspecified = 0 | Internal = 1 | Server = 2 | Client = 3 | Producer = 4 | Consumer = 5
     traces[0]["resource"]["service.version"].should eq "1.0.0"
-    traces[0]["spans"][0]["attributes"]["http.method"].should eq "GET"
-    traces[0]["spans"][0]["attributes"]["http.scheme"].should eq "http"
+    traces[0]["spans"][0]["attributes"]["net.peer.ip"].should eq "127.0.0.1"
 
-    traces[0]["spans"][1]["name"].should eq "Invoke handler Proc(HTTP::Server::Context, Nil)"
-    traces[0]["spans"][1]["kind"].should eq 1
+    traces[1]["spans"][0]["name"].should eq "HTTP Request Received"
+    traces[1]["spans"][0]["attributes"]["http.method"].should eq "GET"
+    traces[1]["spans"][0]["attributes"]["http.scheme"].should eq "http"
+
+    traces[1]["spans"][1]["name"].should eq "Invoke handler Proc(HTTP::Server::Context, Nil)"
+    traces[1]["spans"][1]["kind"].should eq 1
   end
 end
