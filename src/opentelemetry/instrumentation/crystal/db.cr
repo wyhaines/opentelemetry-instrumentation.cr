@@ -23,9 +23,12 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
   if_defined?(DB::Statement) do
     module OpenTelemetry::Instrumentation
       class CrystalDB < OpenTelemetry::Instrumentation::Instrument
+        {% begin %}
+        alias DB::Types = {% for type in DB::Any.union_types %}Array({{ type.id }}) | {% end %}DB::Any
+        {% end %}
         # One can add their own procs to this array (prepend them to the array) to add other data filtration"
         ArgFilters = [
-          ->(arg : DB::Any) do
+          ->(arg : DB::Types) do
             arg.inspect
           end,
         ]
