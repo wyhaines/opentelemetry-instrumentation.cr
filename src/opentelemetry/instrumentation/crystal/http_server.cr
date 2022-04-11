@@ -111,7 +111,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
 
                   response.reset
 
-                  span = OpenTelemetry::Trace.current_span
                   if request.is_a?(HTTP::Status)
                     if span
                       span["http.status_code"] = request.code
