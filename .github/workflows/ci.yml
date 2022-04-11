@@ -17,6 +17,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: apt update
+      run: apt update
     - name: Install SQLite
       run: apt-get -qy install libsqlite3-dev
     - name: Install dependencies
