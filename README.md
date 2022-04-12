@@ -41,9 +41,11 @@ If the array is empty, then no instrumentation was installed. You can require in
 require "opentelemetry-instrumentation/src/instrumentation/crystal/db"
 ```
 
-## Development
+## Documentation
 
-TODO: Write development instructions here
+The generated docs can all be found here:
+
+[https://wyhaines.github.io/opentelemetry-instrumentation.cr/](https://wyhaines.github.io/opentelemetry-instrumentation.cr/)
 
 ## Contributing
 
