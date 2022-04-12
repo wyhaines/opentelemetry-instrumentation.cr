@@ -1,4 +1,4 @@
-![OpenTelemetry CI](https://img.shields.io/github/workflow/status/wyhaines/opentelemetry-instrumentation.cr/OpenTelemetry%20CI?style=for-the-badge&logo=GitHub)
+![OpenTelemetry CI](https://img.shields.io/github/workflow/status/wyhaines/opentelemetry-instrumentation.cr/OpenTelemetry%20Instrumentation%20CI?style=for-the-badge&logo=GitHub)
 [![GitHub release](https://img.shields.io/github/release/wyhaines/opentelemetry-instrumentation.cr.svg?style=for-the-badge)](https://github.com/wyhaines/opentelemetry-instrumentation.cr/releases)
 ![GitHub commits since latest release (by SemVer)](https://img.shields.io/github/commits-since/wyhaines/opentelemetry-instrumentation.cr/latest?style=for-the-badge)
 
@@ -38,7 +38,8 @@ OpenTelemetry::Instrumentation::CrystalLog]
 If the array is empty, then no instrumentation was installed. You can require instrumentation manually by requiring the relevant file. For instance, to manually install the DB instrumentation (assuming that DB has been previously required):
 
 ```crystal
-require "opentelemetry-instrumentation/
+require "opentelemetry-instrumentation/src/instrumentation/crystal/db"
+```
 
 ## Development
 
