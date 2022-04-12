@@ -36,7 +36,8 @@ require "../instrument"
 #
 # That is all that you should need to do. If your environment has an appropriate license key
 # in the *NEW_RELIC_LICENSE_KEY* environment variable, the OpenTelemetry exporter will send
-# the traces to New Relic.
+# the traces to New Relic. A similar setup should work with any provider that supports OTLP/HTTP
+# ingest of OpenTelemetry.
 #
 # ## Methods Affected
 #
