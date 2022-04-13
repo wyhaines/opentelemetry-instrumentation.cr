@@ -1,5 +1,4 @@
 require "../instrument"
-require "io/memory"
 
 # # OpenTelemetry::Instrumentation::CrystalLog
 #
@@ -57,10 +56,9 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
                 dsl.emit(result.to_s)
               end
             backend = @backend
-            io = IO::Memory.new
-            ShortFormat.format(entry, io)
+            message = String.build { |io| ShortFormat.format(entry, io) }
             span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
-              event["message"] = io.rewind.gets_to_end
+              event["message"] = message
               if exception = entry.exception
                 event["exception"] = exception.to_s
                 if backtrace = exception.backtrace?.try(&.join('\n'))

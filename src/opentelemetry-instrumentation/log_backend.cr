@@ -1,5 +1,4 @@
 require "opentelemetry-api"
-require "io/memory"
 require "log"
 require "log/backend"
 
@@ -16,9 +15,7 @@ require "log/backend"
 class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
   def write(entry : ::Log::Entry)
     if (span = OpenTelemetry::Trace.current_span)
-      io = IO::Memory.new
-      ::Log::ShortFormat.format(entry, io)
-
+      message = String.build { |io| ::Log::ShortFormat.format(entry, io) }
       span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
         entry.context.each do |key, value|
           if (raw = value.raw).is_a?(ValueTypes)
@@ -26,7 +23,7 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
           end
         end
 
-        event["message"] = io.rewind.gets_to_end
+        event["message"] = message
         if exception = entry.exception
           event["exception"] = exception.to_s
           if backtrace = exception.backtrace?.try(&.join('\n'))
