@@ -1,7 +1,7 @@
 require "colorize"
 
 class ActionController
-  VERSION = "4.7.2"
+  VERSION = "4.7.3"
 
   class Context
   end
