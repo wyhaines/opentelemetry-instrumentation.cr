@@ -27,6 +27,3 @@ jobs:
       run: crystal spec -t -s
     - name: Run Ameba
       run: bin/ameba
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
