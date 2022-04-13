@@ -59,7 +59,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
             backend = @backend
             io = IO::Memory.new
             ShortFormat.format(entry, io)
-            span.add_event("Log.#{entry.severity.label}#{!entry.source.empty? ? " - #{entry.source}" : ""}") do |event|
+            span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
               event["message"] = io.rewind.gets_to_end
               if exception = entry.exception
                 event["exception"] = exception.to_s

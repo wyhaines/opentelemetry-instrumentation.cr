@@ -19,7 +19,7 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
       io = IO::Memory.new
       ::Log::ShortFormat.format(entry, io)
 
-      span.add_event("Log.#{entry.severity.label}#{!entry.source.empty? ? " - #{entry.source}" : ""}") do |event|
+      span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
         # TODO: Add context
         # event.attributes = entry.context.each_with_object({} of String => ValueTypes) do |(key, value), attributes|
         #   if value.is_a? ValueTypes
@@ -30,7 +30,9 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
         event["message"] = io.rewind.gets_to_end
         if exception = entry.exception
           event["exception"] = exception.to_s
-          event["backtrace"] = exception.backtrace.join("\n")
+          if backtrace = exception.backtrace?.try(&.join('\n'))
+            event["backtrace"] = backtrace
+          end
         end
         event["source"] = entry.source if !entry.source.empty?
         event["timestamp"] = entry.timestamp.to_s
