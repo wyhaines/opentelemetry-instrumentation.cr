@@ -13,7 +13,7 @@ This package provides both the base functionality needed to build instrumentatio
    ```yaml
    dependencies:
      opentelemetry-instrumentation:
-       github: your-github-user/opentelemetry-instrumentation.cr
+       github: wyhaines/opentelemetry-instrumentation.cr
    ```
 
 2. Run `shards install`
