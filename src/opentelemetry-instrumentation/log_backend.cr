@@ -1,5 +1,3 @@
-require "./instrument"
-
 require "opentelemetry-api"
 require "io/memory"
 require "log"
@@ -10,6 +8,11 @@ require "log/backend"
 # Provides a simple implementation of `Log::Backend`.
 #
 # If a `Log` call takes place within a span, the log and its context are added as an event.
+#
+# ```
+# require "opentelemetry-instrumentation/log_backend"
+# Log.builder.bind("*", Log::Severity::Warn, OpenTelemetry::Instrumentation::LogBackend.new)
+# ```
 class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
   def write(entry : ::Log::Entry)
     if (span = OpenTelemetry::Trace.current_span)

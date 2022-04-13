@@ -1,5 +1,5 @@
-require "../spec_helper"
-require "../../src/opentelemetry/instrumentation/log_backend"
+require "./spec_helper"
+require "../src/opentelemetry-instrumentation/log_backend"
 
 describe OpenTelemetry::Instrumentation::LogBackend do
   it "should add the log to the existing span" do
