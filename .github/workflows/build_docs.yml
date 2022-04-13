@@ -2,11 +2,7 @@ name: OpenTelemetry Instrumentation Docs Build
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    - cron:  '0 30 0/6 * *'
 
 jobs:
   build:
