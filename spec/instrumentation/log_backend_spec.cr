@@ -10,12 +10,13 @@ describe OpenTelemetry::Instrumentation::LogBackend do
       config.exporter = OpenTelemetry::Exporter.new(variant: :io, io: memory)
     end
 
-    Log.builder.bind(source: "test-opentelemetry", level: Log::Severity::Warn, backend: OpenTelemetry::Instrumentation::LogBackend.new)
+    random_source = Random::DEFAULT.base64
+    Log.builder.bind(source: random_source, level: Log::Severity::Warn, backend: OpenTelemetry::Instrumentation::LogBackend.new)
 
     trace = OpenTelemetry.trace
     trace.in_span("Fake Span") do |_span|
       exception = Exception.new("Oh no!")
-      Log.for("test-opentelemetry").warn(exception: exception, &.emit("Oh no!", user_id: 42))
+      Log.for(random_source).warn(exception: exception, &.emit("Oh no!", user_id: 42))
     end
 
     memory.rewind
