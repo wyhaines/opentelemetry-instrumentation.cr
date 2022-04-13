@@ -63,7 +63,9 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
               event["message"] = io.rewind.gets_to_end
               if exception = entry.exception
                 event["exception"] = exception.to_s
-                event["backtrace"] = exception.backtrace.join("\n")
+                if backtrace = exception.backtrace?.try(&.join('\n'))
+                  event["backtrace"] = backtrace
+                end
               end
               event["source"] = entry.source if !entry.source.empty?
               event["timestamp"] = entry.timestamp.to_s
@@ -73,7 +75,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
 
             backend.dispatch entry
           else
-            previous_def {|e| yield e}
+            previous_def { |e| yield e }
           end
         end
         {% end %}
