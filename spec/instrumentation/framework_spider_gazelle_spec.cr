@@ -2,7 +2,7 @@ require "../spec_helper"
 require "./framework_spider_gazelle/mocks"
 require "../../src/opentelemetry/instrumentation/frameworks/spider-gazelle"
 
-describe Lucky::RouteHandler do
+describe ActionController::Router::RouteHandler do
   it "should have installed the Lucky instrumetation" do
     OpenTelemetry::Instrumentation::Registry.instruments.includes?(OpenTelemetry::Instrumentation::Framework::SpiderGazelle).should be_true
   end
