@@ -1,4 +1,5 @@
 require "../instrument"
+require "../../../opentelemetry-instrumentation/log_backend"
 
 # # OpenTelemetry::Instrumentation::CrystalLog
 #
@@ -56,17 +57,8 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
                 dsl.emit(result.to_s)
               end
             backend = @backend
-            message = String.build { |io| ShortFormat.format(entry, io) }
             span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
-              event["message"] = message
-              if exception = entry.exception
-                event["exception"] = exception.to_s
-                if backtrace = exception.backtrace?.try(&.join('\n'))
-                  event["backtrace"] = backtrace
-                end
-              end
-              event["source"] = entry.source if !entry.source.empty?
-              event["timestamp"] = entry.timestamp.to_s
+              OpenTelemetry::Instrumentation::LogBackend.apply_log_entry(entry, event)
             end
 
             return unless backend

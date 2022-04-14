@@ -11,12 +11,15 @@ describe OpenTelemetry::Instrumentation::LogBackend do
     end
 
     random_source = Random::DEFAULT.base64
-    Log.builder.bind(source: random_source, level: Log::Severity::Warn, backend: OpenTelemetry::Instrumentation::LogBackend.new)
+    ::Log.setup(sources: random_source, level: Log::Severity::Trace, backend: OpenTelemetry::Instrumentation::LogBackend.new)
 
     trace = OpenTelemetry.trace
     trace.in_span("Fake Span") do |_span|
       exception = Exception.new("Oh no!")
-      Log.for(random_source).warn(exception: exception, &.emit("Oh no!", user_id: 42))
+      ::Log.with_context do
+        ::Log.context.set(context: 42)
+        ::Log.for(random_source).warn(exception: exception, &.emit("Oh no!", data: "stuff"))
+      end
     end
 
     memory.rewind
@@ -30,6 +33,7 @@ describe OpenTelemetry::Instrumentation::LogBackend do
 
     traces[0]["spans"][0]["kind"].should eq 1
     traces[0]["spans"][0]["name"].should eq "Fake Span"
-    # traces[0]["spans"][0]["attributes"]["user_id"].should eq 42
+    traces[0]["spans"][0]["events"][0]["attributes"]["data"].should eq "stuff"
+    traces[0]["spans"][0]["events"][0]["attributes"]["context"].should eq 42
   end
 end
