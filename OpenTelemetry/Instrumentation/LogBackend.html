@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="opentelemetry-instrumentation">
-  <title>OpenTelemetry::InstrumentationDocumentation::CrystalLog - opentelemetry-instrumentation main</title>
+  <title>OpenTelemetry::Instrumentation::LogBackend - opentelemetry-instrumentation main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -61,7 +61,7 @@
       
         <ul>
   
-  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation" data-name="opentelemetry::instrumentation">
+  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation" data-name="opentelemetry::instrumentation">
       <a href="../../OpenTelemetry/Instrumentation.html">Instrumentation</a>
       
         <ul>
@@ -86,7 +86,7 @@
       
     </li>
   
-  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation/LogBackend" data-name="opentelemetry::instrumentation::logbackend">
+  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation/LogBackend" data-name="opentelemetry::instrumentation::logbackend">
       <a href="../../OpenTelemetry/Instrumentation/LogBackend.html">LogBackend</a>
       
     </li>
@@ -101,7 +101,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation" data-name="opentelemetry::instrumentationdocumentation">
+  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation" data-name="opentelemetry::instrumentationdocumentation">
       <a href="../../OpenTelemetry/InstrumentationDocumentation.html">InstrumentationDocumentation</a>
       
         <ul>
@@ -116,7 +116,7 @@
       
     </li>
   
-  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/CrystalLog" data-name="opentelemetry::instrumentationdocumentation::crystallog">
+  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/CrystalLog" data-name="opentelemetry::instrumentationdocumentation::crystallog">
       <a href="../../OpenTelemetry/InstrumentationDocumentation/CrystalLog.html">CrystalLog</a>
       
     </li>
@@ -165,12 +165,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">struct</span> OpenTelemetry::InstrumentationDocumentation::CrystalLog
+  <span class="kind">class</span> OpenTelemetry::Instrumentation::LogBackend
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/InstrumentationDocumentation/CrystalLog.html">OpenTelemetry::InstrumentationDocumentation::CrystalLog</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/Instrumentation/LogBackend.html">OpenTelemetry::Instrumentation::LogBackend</a></li><li class="superclass">Log::Backend</li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -184,40 +184,14 @@
     Overview
   </h2>
 
-  <h1><a id="open-telemetryinstrumentationcrystal-log" class="anchor" href="#open-telemetryinstrumentationcrystal-log">  <svg class="octicon-link" aria-hidden="true">
+  <h1><a id="open-telemetryinstrumentationlog-backend" class="anchor" href="#open-telemetryinstrumentationlog-backend">  <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>OpenTelemetry::Instrumentation::CrystalLog</h1>
-<h3><a id="instruments" class="anchor" href="#instruments">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Instruments</h3>
-<ul>
-<li>Log</li>
-</ul>
-<h3><a id="reference-httpscrystal-lang.orgapi1.4.0log.html" class="anchor" href="#reference-httpscrystal-lang.orgapi1.4.0log.html">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Reference: <a href="https://crystal-lang.org/api/1.4.0/Log.html">https://crystal-lang.org/api/1.4.0/Log.html</a></h3>
-<p>This instrument will record logs generated with <code><a href="../../Log.html">Log</a></code> as events in the current span. If there
-is no current span, the instrument is a NOP. In either case, configured logging then procedes
-as expected.</p>
-<h2><a id="methods-affected" class="anchor" href="#methods-affected">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Methods Affected</h2>
-<ul>
-<li>Log#trace</li>
-<li>Log#debug</li>
-<li>Log#info</li>
-<li>Log#notice</li>
-<li>Log#warn</li>
-<li>Log#error</li>
-<li>Log#fatal</li>
-</ul>
+</a>OpenTelemetry::Instrumentation::LogBackend</h1>
+<p>Provides a simple implementation of <code>Log::Backend</code>.</p>
+<p>If a <code><a href="../../Log.html">Log</a></code> call takes place within a span, the log and its context are added as an event.</p>
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;opentelemetry-instrumentation/log_backend&quot;</span>
+<span class="t">Log</span>.builder.bind(<span class="s">&quot;*&quot;</span>, <span class="t">Log</span><span class="t">::</span><span class="t">Severity</span><span class="t">::</span><span class="t">Warn</span>, <span class="t">OpenTelemetry</span><span class="t">::</span><span class="t">Instrumentation</span><span class="t">::</span><span class="t">LogBackend</span>.<span class="k">new</span>)</code></pre>
 
 
 
@@ -242,8 +216,8 @@ as expected.</p>
   </h2>
   
     
-      <a href="https://github.com/wyhaines/opentelemetry-instrumentation.cr/blob/aff45ef9cd200b591fbb4214ae82110fab76f73d/src/opentelemetry/instrumentation/crystal/log.cr#L25" target="_blank">
-        opentelemetry/instrumentation/crystal/log.cr
+      <a href="https://github.com/wyhaines/opentelemetry-instrumentation.cr/blob/aff45ef9cd200b591fbb4214ae82110fab76f73d/src/opentelemetry-instrumentation/log_backend.cr#L15" target="_blank">
+        opentelemetry-instrumentation/log_backend.cr
       </a>
     
     <br/>
@@ -253,24 +227,24 @@ as expected.</p>
 
 
 
+
+
   <h2>
-    <a id="constructors" class="anchor" href="#constructors">
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Constructors
+    Class Method Summary
   </h2>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        <a href="#apply_log_entry%28entry%2Cevent%29-class-method" class="signature"><strong>.apply_log_entry</strong>(entry, event)</a>
         
       </li>
     
   </ul>
-
-
 
 
 
@@ -285,7 +259,9 @@ as expected.</p>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
+        <a href="#write%28entry%3ALog%3A%3AEntry%29-instance-method" class="signature"><strong>#write</strong>(entry : Log::Entry)</a>
+        
+          <div class="summary"><p>Writes the <em>entry</em> to this backend.</p></div>
         
       </li>
     
@@ -330,33 +306,33 @@ as expected.</p>
 </div>
 
 
+
+
   <h2>
-    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Constructor Detail
+    Class Method Detail
   </h2>
   
-    <div class="entry-detail" id="new-class-method">
+    <div class="entry-detail" id="apply_log_entry(entry,event)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>
+        def self.<strong>apply_log_entry</strong>(entry, event)
 
-        <a class="method-permalink" href="#new-class-method">#</a>
+        <a class="method-permalink" href="#apply_log_entry%28entry%2Cevent%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/wyhaines/opentelemetry-instrumentation.cr/blob/aff45ef9cd200b591fbb4214ae82110fab76f73d/src/opentelemetry/instrumentation/crystal/log.cr#L25" target="_blank">View source</a>]
+          [<a href="https://github.com/wyhaines/opentelemetry-instrumentation.cr/blob/aff45ef9cd200b591fbb4214ae82110fab76f73d/src/opentelemetry-instrumentation/log_backend.cr#L16" target="_blank">View source</a>]
         
       </div>
     </div>
   
-
-
 
 
 
@@ -369,18 +345,27 @@ as expected.</p>
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="initialize-instance-method">
+    <div class="entry-detail" id="write(entry:Log::Entry)-instance-method">
       <div class="signature">
         
-        def <strong>initialize</strong>
+        def <strong>write</strong>(entry : Log::Entry)
 
-        <a class="method-permalink" href="#initialize-instance-method">#</a>
+        <a class="method-permalink" href="#write%28entry%3ALog%3A%3AEntry%29-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Log::Backend
+            </div>
+          
+          <p>Writes the <em>entry</em> to this backend.</p>
+        </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/wyhaines/opentelemetry-instrumentation.cr/blob/aff45ef9cd200b591fbb4214ae82110fab76f73d/src/opentelemetry/instrumentation/crystal/log.cr#L25" target="_blank">View source</a>]
+          [<a href="https://github.com/wyhaines/opentelemetry-instrumentation.cr/blob/aff45ef9cd200b591fbb4214ae82110fab76f73d/src/opentelemetry-instrumentation/log_backend.cr#L40" target="_blank">View source</a>]
         
       </div>
     </div>
