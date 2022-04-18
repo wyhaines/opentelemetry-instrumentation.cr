@@ -139,19 +139,16 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
                     Log.with_context do
                       @handler.call(context)
-                      span.status.ok!
                     rescue ex : ClientError
                       Log.debug(exception: ex.cause) { ex.message }
                       handler_span.add_event("ClientError") do |event|
                         event["message"] = ex.message.to_s
                       end
-                      span.status.error!(ex.message)
                     rescue ex
                       Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
                       handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
                         event["message"] = ex.message.to_s
                       end
-                      span.status.error!(ex.message)
                       unless response.closed?
                         unless response.wrote_headers?
                           span["http.status_code"] = HTTP::Status::INTERNAL_SERVER_ERROR.value if span
@@ -161,6 +158,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                       return
                     ensure
                       response.output.close
+                      span.status.ok!
                     end
                   end
 
