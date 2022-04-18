@@ -98,7 +98,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
 
             begin
               until @wants_close
-                input.peek # This is here because there there was sometimes inexplicable input corruption unless I did this. It makes no sense.
                 request = HTTP::Request.from_io(
                   input,
                   max_request_line_size: max_request_line_size,
