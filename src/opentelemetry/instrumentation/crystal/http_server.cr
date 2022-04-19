@@ -116,6 +116,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                       span.add_event("Malformed Request or Error") do |event|
                         event["http.status_code"] = request.code
                       end
+                      span.status.error!("Malformed Request or Error: #{request.code} -> #{request.description}")
                     end
                     response.respond_with_status(request)
                     return
@@ -157,8 +158,10 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                       end
                       return
                     ensure
+                      if response.status_code >= 400
+                        span.status.error!("HTTP Error: #{response.status.code} -> #{response.status.description}")
+                      end
                       response.output.close
-                      span.status.ok!
                     end
                   end
 
