@@ -74,7 +74,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
         trace("handle_client") do
           trace = OpenTelemetry.trace
           trace.in_span("HTTP::Server connection") do |span|
-            span.kind = OpenTelemetry::Span::Kind::Server
+            span.server!
             remote_addr = io.as(TCPSocket).remote_address
             span["net.peer.ip"] = remote_addr.address
             span["net.peer.port"] = remote_addr.port
@@ -108,6 +108,8 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                 trace = OpenTelemetry.trace
                 trace_name = request.is_a?(HTTP::Request) ? "#{request.method} #{request.path}" : "ERROR #{request.code}"
                 trace.in_span(trace_name) do |span|
+                  span.server!
+                  # TODO: When Span Links are supported, add a Link to the span that instrumented the actual connection.
                   response.reset
 
                   if request.is_a?(HTTP::Status)
