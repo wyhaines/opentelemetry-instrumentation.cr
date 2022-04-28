@@ -64,7 +64,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE")
         end
       end
 
-      class ActionController::Base
+      abstract class ActionController::Base
         before_action :set_opentelemetry_trace_header
 
         # The trace_id should be propagated to upstream services to enable Distributed Tracing
