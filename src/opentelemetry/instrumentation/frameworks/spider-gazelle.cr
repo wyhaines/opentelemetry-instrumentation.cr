@@ -44,6 +44,13 @@ require "../instrument"
 #
 # * ActionController::Router::RouteHandler#process_request
 #
+# ## Distributed Tracing
+#
+# A callback, `set_opentelemetry_trace_header`, is added to propagate the `traceparent`
+# header between services to enable distributed traces.
+#
+# TODO: Add the ability to configure the propagation header via `OpenTelemetry::Provider::Configuration`
+#
 struct OpenTelemetry::InstrumentationDocumentation::Framework::SpiderGazelle
 end
 
@@ -54,6 +61,28 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE")
     if_version?(ActionController, :>=, "4.7.3") do
       module OpenTelemetry::Instrumentation::Framework
         class SpiderGazelle < OpenTelemetry::Instrumentation::Instrument
+        end
+      end
+
+      class ActionController::Base
+        before_action :set_opentelemetry_trace_header
+
+        # The trace_id should be propagated to upstream services to enable Distributed Tracing
+        protected def set_opentelemetry_trace_header
+          if request.headers.has_key?("traceparent")
+            trace_id = request.headers["traceparent"]
+          end
+
+          if trace_id.nil?
+            # Fetch the current trace's trace_id
+            trace_id = OpenTelemetry::Trace.trace.trace_id
+          else
+            # Propagate the trace_id from the request headers
+            OpenTelemetry::Trace.trace.trace_id = trace_id
+          end
+
+          # Set trace header in response
+          response.headers["traceparent"] = trace_id
         end
       end
 
