@@ -70,7 +70,11 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE")
         # The trace_id should be propagated to upstream services to enable Distributed Tracing
         protected def set_opentelemetry_trace_header
           if request.headers.has_key?("traceparent")
-            trace_id = request.headers["traceparent"]
+            begin
+              trace_id = request.headers["traceparent"].hexbytes
+            rescue ArgumentError
+              trace_id = request.headers["traceparent"].to_slice
+            end
           end
 
           if trace_id.nil?
@@ -82,7 +86,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE")
           end
 
           # Set trace header in response
-          response.headers["traceparent"] = trace_id
+          response.headers["traceparent"] = trace_id.hexstring
         end
       end
 
