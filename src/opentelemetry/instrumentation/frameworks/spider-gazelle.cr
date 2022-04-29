@@ -65,28 +65,30 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE")
       end
 
       abstract class ActionController::Base
-        before_action :set_opentelemetry_trace_header
+        macro inherited
+          before_action :set_opentelemetry_trace_header
 
-        # The trace_id should be propagated to upstream services to enable Distributed Tracing
-        protected def set_opentelemetry_trace_header
-          if request.headers.has_key?("traceparent")
-            begin
-              trace_id = request.headers["traceparent"].hexbytes
-            rescue ArgumentError
-              trace_id = request.headers["traceparent"].to_slice
+          # The trace_id should be propagated to upstream services to enable Distributed Tracing
+          protected def set_opentelemetry_trace_header
+            if request.headers.has_key?("traceparent")
+              begin
+                trace_id = request.headers["traceparent"].hexbytes
+              rescue ArgumentError
+                trace_id = request.headers["traceparent"].to_slice
+              end
             end
-          end
 
-          if trace_id.nil?
-            # Fetch the current trace's trace_id
-            trace_id = OpenTelemetry::Trace.trace.trace_id
-          else
-            # Propagate the trace_id from the request headers
-            OpenTelemetry::Trace.trace.trace_id = trace_id
-          end
+            if trace_id.nil?
+              # Fetch the current trace's trace_id
+              trace_id = OpenTelemetry::Trace.trace.trace_id
+            else
+              # Propagate the trace_id from the request headers
+              OpenTelemetry::Trace.trace.trace_id = trace_id
+            end
 
-          # Set trace header in response
-          response.headers["traceparent"] = trace_id.hexstring
+            # Set trace header in response
+            response.headers["traceparent"] = trace_id.hexstring
+          end
         end
       end
 
