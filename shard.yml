@@ -1,5 +1,5 @@
 name: opentelemetry-instrumentation
-version: 0.2.8
+version: 0.2.9
 
 authors:
   - Kirk Haines <wyhaines@gmail.com>
