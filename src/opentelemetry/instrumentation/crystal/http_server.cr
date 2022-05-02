@@ -108,9 +108,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                 trace = OpenTelemetry.trace
                 trace_name = request.is_a?(HTTP::Request) ? "#{request.method} #{request.path}" : "ERROR #{request.code}"
                 if request.is_a?(HTTP::Request) && (tp_header = request.headers["traceparent"]?)
-                  puts "()()()()()() traceparent header: #{tp_header}"
                   traceparent = OpenTelemetry::Propagation::TraceContext::TraceParent.from_string(tp_header)
-                  puts "()()()()()() Set Parent TraceID -- #{traceparent.trace_id.hexstring}"
                   trace.trace_id = traceparent.trace_id
                   trace.span_context.trace_id = traceparent.trace_id
                 end
@@ -121,14 +119,12 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                       pspan.is_recording = false
 
                       pspan.context = OpenTelemetry::Propagation::TraceContext.new(span.context).extract(request.headers).not_nil!
-                      puts request.headers["traceparent"]?
                       request.headers.delete("traceparent")
                       request.headers.delete("tracestate")
                     end
 
                     # if span.parent.nil?
                     span.parent = parent
-                    puts "  setting parent span id: #{parent.context.span_id.hexstring}"
                     # end
                   end
 
