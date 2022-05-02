@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="opentelemetry-instrumentation">
-  <title>OpenTelemetry::InstrumentationDocumentation::CrystalDB - opentelemetry-instrumentation 0.2.8</title>
+  <title>OpenTelemetry::Instrumentation::CrystalHttpClient - opentelemetry-instrumentation 0.2.8</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -61,7 +61,7 @@
       
         <ul>
   
-  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation" data-name="opentelemetry::instrumentation">
+  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation" data-name="opentelemetry::instrumentation">
       <a href="../../OpenTelemetry/Instrumentation.html">Instrumentation</a>
       
         <ul>
@@ -71,7 +71,7 @@
       
     </li>
   
-  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation/CrystalHttpClient" data-name="opentelemetry::instrumentation::crystalhttpclient">
+  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation/CrystalHttpClient" data-name="opentelemetry::instrumentation::crystalhttpclient">
       <a href="../../OpenTelemetry/Instrumentation/CrystalHttpClient.html">CrystalHttpClient</a>
       
     </li>
@@ -106,12 +106,12 @@
       
     </li>
   
-  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation" data-name="opentelemetry::instrumentationdocumentation">
+  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation" data-name="opentelemetry::instrumentationdocumentation">
       <a href="../../OpenTelemetry/InstrumentationDocumentation.html">InstrumentationDocumentation</a>
       
         <ul>
   
-  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/CrystalDB" data-name="opentelemetry::instrumentationdocumentation::crystaldb">
+  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/CrystalDB" data-name="opentelemetry::instrumentationdocumentation::crystaldb">
       <a href="../../OpenTelemetry/InstrumentationDocumentation/CrystalDB.html">CrystalDB</a>
       
     </li>
@@ -175,51 +175,15 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">struct</span> OpenTelemetry::InstrumentationDocumentation::CrystalDB
+  <span class="kind">class</span> OpenTelemetry::Instrumentation::CrystalHttpClient
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/InstrumentationDocumentation/CrystalDB.html">OpenTelemetry::InstrumentationDocumentation::CrystalDB</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/Instrumentation/CrystalHttpClient.html">OpenTelemetry::Instrumentation::CrystalHttpClient</a></li><li class="superclass"><a href="../../OpenTelemetry/Instrumentation/Instrument.html">OpenTelemetry::Instrumentation::Instrument</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
-
-  <h2>
-    <a id="overview" class="anchor" href="#overview">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Overview
-  </h2>
-
-  <h1><a id="open-telemetryinstrumentationcrystal-db" class="anchor" href="#open-telemetryinstrumentationcrystal-db">  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>OpenTelemetry::Instrumentation::CrystalDB</h1>
-<h3><a id="instruments" class="anchor" href="#instruments">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Instruments</h3>
-<ul>
-<li>DB::Statement</li>
-</ul>
-<h3><a id="reference-httpspath.topackage-documentation.html" class="anchor" href="#reference-httpspath.topackage-documentation.html">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Reference: <a href="https://path.to/package_documentation.html">https://path.to/package_documentation.html</a></h3>
-<p>Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.</p>
-<h2><a id="methods-affected" class="anchor" href="#methods-affected">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Methods Affected</h2>
-<p>No methods are being overridden. The DB package provides a built-in way of wrapping queries, via
-the <code>DB::Statement#def_around_query_or_exec</code> macro. This functionality simply leverages that.</p>
-<p><a href="http://crystal-lang.github.io/crystal-db/api/latest/DB/Statement.html#def_around_query_or_exec(&amp;block)-macro">http://crystal-lang.github.io/crystal-db/api/latest/DB/Statement.html</a></p>
 
 
 
@@ -244,7 +208,7 @@ the <code>DB::Statement#def_around_query_or_exec</code> macro. This functionalit
   </h2>
   
     
-      opentelemetry/instrumentation/crystal/db.cr
+      opentelemetry/instrumentation/crystal/http_client.cr
     
     <br/>
   
@@ -253,43 +217,9 @@ the <code>DB::Statement#def_around_query_or_exec</code> macro. This functionalit
 
 
 
-  <h2>
-    <a id="constructors" class="anchor" href="#constructors">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructors
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
-        
-      </li>
-    
-  </ul>
 
 
 
-
-
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -304,6 +234,15 @@ the <code>DB::Statement#def_around_query_or_exec</code> macro. This functionalit
 
 
     
+
+  <h3>Class methods inherited from class <code><a href="../../OpenTelemetry/Instrumentation/Instrument.html">OpenTelemetry::Instrumentation::Instrument</a></code></h3>
+  
+  
+    <a href="../../OpenTelemetry/Instrumentation/Instrument.html#instrument_name-class-method" class="tooltip">
+      <span>instrument_name</span>
+    instrument_name</a>
+    
+  
 
 
   
@@ -330,57 +269,9 @@ the <code>DB::Statement#def_around_query_or_exec</code> macro. This functionalit
 </div>
 
 
-  <h2>
-    <a id="constructor-detail" class="anchor" href="#constructor-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructor Detail
-  </h2>
-  
-    <div class="entry-detail" id="new-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>
-
-        <a class="method-permalink" href="#new-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
 
 
 
-
-
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="initialize-instance-method">
-      <div class="signature">
-        
-        def <strong>initialize</strong>
-
-        <a class="method-permalink" href="#initialize-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
 
 
 
