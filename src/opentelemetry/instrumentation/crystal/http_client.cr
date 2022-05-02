@@ -117,12 +117,14 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
 
             response = yield request
 
-            span["http.status_code"] = response.status_code
-            if response.success?
-              # span.status.ok!
-            else
-              span.status.error!
-              span["http.status_message"] = response.status_message.to_s
+            if response.is_a?(HTTP::Client::Response)
+              span["http.status_code"] = response.status_code
+              if response.success?
+                # span.status.ok!
+              else
+                span.status.error!
+                span["http.status_message"] = response.status_message.to_s
+              end
             end
 
             response
