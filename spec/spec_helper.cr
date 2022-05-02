@@ -1,6 +1,10 @@
 require "spec"
 require "../src/opentelemetry-instrumentation"
 
+def datapath(*components)
+  File.join("spec", "data", *components)
+end
+
 class FindJson
   @buffer : String = ""
 
