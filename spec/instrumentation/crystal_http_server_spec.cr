@@ -39,8 +39,10 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       server.listen
     end
 
+    sleep 1
+
     # Send requests to the server. These will generate OTel traces.
-    2.times do
+    1.times do
       HTTP::Client.get("http://127.0.0.1:8080")
       sleep((rand() * 100) / 1000)
     end
@@ -54,17 +56,33 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       traces << JSON.parse(json)
     end
 
-    traces[0]["spans"][0]["name"].should eq "HTTP::Server connection"
-    traces[0]["resource"]["service.name"].should eq "Crystal OTel Instrumentation - HTTP::Server"
-    traces[0]["spans"][0]["kind"].should eq 2 # Unspecified = 0 | Internal = 1 | Server = 2 | Client = 3 | Producer = 4 | Consumer = 5
-    traces[0]["resource"]["service.version"].should eq "1.0.0"
-    traces[0]["spans"][0]["attributes"]["net.peer.ip"].should eq "127.0.0.1"
+    client_traces = traces.select { |t| t["spans"][0]["kind"] == 3 }
+    server_traces = traces.reject { |t| t["spans"][0]["kind"] == 3 }
 
-    traces[1]["spans"][0]["name"].should eq "GET /"
-    traces[1]["spans"][0]["attributes"]["http.method"].should eq "GET"
-    traces[1]["spans"][0]["attributes"]["http.scheme"].should eq "http"
+    {% begin %}
+    {% if flag? :DEBUG %}
+    pp client_traces
+    pp "---------------"
+    pp server_traces
+    {% end %}
+    {% end %}
 
-    traces[1]["spans"][1]["name"].should eq "Invoke handler Proc(HTTP::Server::Context, Nil)"
-    traces[1]["spans"][1]["kind"].should eq 1
+    client_traces[0]["spans"][0]["name"].should eq("HTTP::Client GET")
+    client_traces[0]["spans"][0]["kind"].should eq 3
+    client_traces[0]["spans"][0]["attributes"]["http.url"].should eq "http://127.0.0.1:8080/"
+
+    server_traces[0]["spans"][0]["name"].should eq "HTTP::Server connection"
+    server_traces[0]["resource"]["service.name"].should eq "Crystal OTel Instrumentation - HTTP::Server"
+    server_traces[0]["spans"][0]["kind"].should eq 2 # Unspecified = 0 | Internal = 1 | Server = 2 | Client = 3 | Producer = 4 | Consumer = 5
+    server_traces[0]["resource"]["service.version"].should eq "1.0.0"
+    server_traces[0]["spans"][0]["attributes"]["net.peer.ip"].should eq "127.0.0.1"
+
+    server_traces[1]["spans"][0]["name"].should eq "GET /"
+    server_traces[1]["spans"][0]["attributes"]["http.method"].should eq "GET"
+    server_traces[1]["spans"][0]["attributes"]["http.scheme"].should eq "http"
+    server_traces[1]["spans"][0]["parentSpanId"].should eq client_traces[0]["spans"][0]["spanId"]
+
+    server_traces[1]["spans"][1]["name"].should eq "Invoke handler Proc(HTTP::Server::Context, Nil)"
+    server_traces[1]["spans"][1]["kind"].should eq 1
   end
 end

@@ -107,7 +107,31 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                 break unless request
                 trace = OpenTelemetry.trace
                 trace_name = request.is_a?(HTTP::Request) ? "#{request.method} #{request.path}" : "ERROR #{request.code}"
+                if request.is_a?(HTTP::Request) && (tp_header = request.headers["traceparent"]?)
+                  puts "()()()()()() traceparent header: #{tp_header}"
+                  traceparent = OpenTelemetry::Propagation::TraceContext::TraceParent.from_string(tp_header)
+                  puts "()()()()()() Set Parent TraceID -- #{traceparent.trace_id.hexstring}"
+                  trace.trace_id = traceparent.trace_id
+                  trace.span_context.trace_id = traceparent.trace_id
+                end
+
                 trace.in_span(trace_name) do |span|
+                  if request.is_a?(HTTP::Request) && request.headers["traceparent"]?
+                    parent = OpenTelemetry::Span.build do |pspan|
+                      pspan.is_recording = false
+
+                      pspan.context = OpenTelemetry::Propagation::TraceContext.new(span.context).extract(request.headers).not_nil!
+                      puts request.headers["traceparent"]?
+                      request.headers.delete("traceparent")
+                      request.headers.delete("tracestate")
+                    end
+
+                    # if span.parent.nil?
+                    span.parent = parent
+                    puts "  setting parent span id: #{parent.context.span_id.hexstring}"
+                    # end
+                  end
+
                   span.server!
                   # TODO: When Span Links are supported, add a Link to the span that instrumented the actual connection.
                   response.reset
@@ -137,6 +161,12 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                       span["http.response_content_length"] = content_length
                     end
                     span["http.url"] = request.full_url
+                    # span["http.target"] = request.resource
+                    if span_parent = span.parent
+                      span["parentId"] = span_parent.span_id.hexstring
+                      span["parent.id"] = span_parent.span_id.hexstring
+                    end
+                    span["guid"] = span.span_id.hexstring
                   end
 
                   OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
@@ -162,6 +192,8 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                     ensure
                       if response.status_code >= 400
                         span.status.error!("HTTP Error: #{response.status.code} -> #{response.status.description}")
+                      else
+                        # span.status.ok!
                       end
                       response.output.close
                     end
