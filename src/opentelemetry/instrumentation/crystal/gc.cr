@@ -1,5 +1,7 @@
 require "../instrument"
 
+# TODO: This may not be possible....
+#
 # # OpenTelemetry::Instrumentation::CrystalGC
 #
 # ### Instruments
@@ -11,7 +13,7 @@ require "../instrument"
 #
 # ## Methods Affected
 #
-# * GC.collect
+# * 
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalGC
 end
@@ -29,17 +31,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
 
   if_version?(Crystal, :>=, "1.0.0") do
     module GC
-      def self.collect
-        OpenTelemetry.trace.in_span("GC.collect") do |span|
-          stats = GC.stats
-          span["GC.bytes_since_gc"] = stats.bytes_since_gc
-          span["GC.free_bytes"] = stats.free_bytes
-          span["GC.heap_size"] = stats.heap_size
-          span["GC.total_bytes"] = stats.total_bytes
-          span["GC.unmapped_bytes"] = stats.unmapped_bytes
-          previous_def
-        end
-      end
     end
   end
 end
