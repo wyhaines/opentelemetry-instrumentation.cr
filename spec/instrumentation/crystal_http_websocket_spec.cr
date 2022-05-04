@@ -6,6 +6,9 @@ require "../support/fibers"
 require "../support/ssl"
 require "./socket_spec_helper.cr"
 
+# These specs were copied from the main Crystal codebase. It seemed like the simplest way to
+# be certain that Websocket behavior is unchanged by the instrumentation.
+
 private def assert_text_packet(packet, size, final = false)
   assert_packet packet, HTTP::WebSocket::Protocol::Opcode::TEXT, size, final: final
 end
@@ -37,7 +40,7 @@ private class MalformerHandler
   end
 end
 
-describe HTTP::WebSocket do
+describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
   describe "receive" do
     it "can read a small text packet" do
       data = Bytes[0x81, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f]
@@ -482,6 +485,13 @@ describe HTTP::WebSocket do
   end
 
   it "doesn't compress upgrade response body" do
+    memory = IO::Memory.new
+    OpenTelemetry.configure do |config|
+      config.service_name = "Crystal OTel Instrumentation - HTTP::Server"
+      config.service_version = "1.0.0"
+      config.exporter = OpenTelemetry::Exporter.new(variant: :io, io: memory)
+    end
+
     compress_handler = HTTP::CompressHandler.new
     ws_handler = HTTP::WebSocketHandler.new do |ws, ctx|
       ws.on_message do |str|
@@ -503,6 +513,28 @@ describe HTTP::WebSocket do
       client.run
       message.should eq("hello")
     end
+
+    sleep 1
+
+    memory.rewind
+    strings = memory.gets_to_end
+    json_finder = FindJson.new(strings)
+
+    traces = [] of JSON::Any
+    while json = json_finder.pull_json
+      traces << JSON.parse(json)
+    end
+
+    client_traces = traces.select { |t| t["spans"][0]["kind"] == 3 }
+    server_traces = traces.reject { |t| t["spans"][0]["kind"] == 3 }
+
+    {% begin %}
+    {% if flag? :DEBUG %}
+    pp client_traces
+    pp "---------------"
+    pp server_traces
+    {% end %}
+    {% end %}
   end
 
   describe "handshake fails if server does not verify Sec-WebSocket-Key" do
