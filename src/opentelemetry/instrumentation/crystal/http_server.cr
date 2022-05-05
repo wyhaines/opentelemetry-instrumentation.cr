@@ -35,7 +35,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
       module HTTP::Handler
         trace("call_next") do
           if next_handler = @next
-            OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{next_handler.class.name}") do |_handler_span|
+            OpenTelemetry.trace.in_span("Invoke handler #{next_handler.class.name}") do |_handler_span|
               previous_def
             end
           else
@@ -72,20 +72,30 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
         # versions, but this is entirely untested.
         # Wrap the start of request handling, the call to handle_client, in top-level-instrumentation.
         trace("handle_client") do
-          trace = OpenTelemetry.trace
-          trace.in_span("HTTP::Server connection") do |span|
+          OpenTelemetry.trace.in_span("HTTP::Server connection") do |span|
             span.server!
-            remote_addr = io.as(TCPSocket).remote_address
-            span["net.peer.ip"] = remote_addr.address
-            span["net.peer.port"] = remote_addr.port
+            if io.responds_to?(:remote_address)
+              if remote_addr = io.remote_address
+                if remote_addr.is_a?(Socket::IPAddress)
+                  span["net.peer.ip"] = remote_addr.address
+                  span["net.peer.port"] = remote_addr.port
+                end
+              end
+            end
             # Without parsing the request, we do not yet know the hostname, so the span will be started
             # with what is known, the IP, and the actual hostname can be backfilled later, after it is
             # parsed.
-            if (local_addr = io.as(TCPSocket).local_address) && io.as(TCPSocket).local_address.is_a?(Socket::IPAddress)
-              span["net.peer.ip"] = local_addr.address
-              span["net.peer.port"] = local_addr.port
+            #            if (local_addr = io.as(TCPSocket).local_address) && io.as(TCPSocket).local_address.is_a?(Socket::IPAddress)
+
+            if io.responds_to?(:local_address)
+              if local_addr = io.local_address
+                if local_addr.is_a?(Socket::IPAddress)
+                  span["http.host"] = local_addr.address
+                  span["net.peer.ip"] = local_addr.address
+                  span["net.peer.port"] = local_addr.port
+                end
+              end
             end
-            span["http.host"] = local_addr.address
           end
           previous_def
         end

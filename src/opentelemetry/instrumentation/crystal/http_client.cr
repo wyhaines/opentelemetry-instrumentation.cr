@@ -24,7 +24,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
   # actually exist. It should be possible to require all instrumentation, regardless of whether
   # a given class/package is actually used, as the instrumentation should not attempt to install
   # itself if that installation will fail.
-  if_defined?(HTTP::Client) do
+  if_defined?(::HTTP::Client) do
     # This exists to record the instrumentation in the OpenTelemetry::Instrumentation::Registry,
     # which may be used by other code/tools to introspect the installed instrumentation.
     module OpenTelemetry::Instrumentation
