@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="opentelemetry-instrumentation">
-  <title>OpenTelemetry::InstrumentationDocumentation::Framework - opentelemetry-instrumentation 0.3.0</title>
+  <title>OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket - opentelemetry-instrumentation 0.3.0</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -131,7 +131,7 @@
       
     </li>
   
-  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/CrystalHttpWebSocket" data-name="opentelemetry::instrumentationdocumentation::crystalhttpwebsocket">
+  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/CrystalHttpWebSocket" data-name="opentelemetry::instrumentationdocumentation::crystalhttpwebsocket">
       <a href="../../OpenTelemetry/InstrumentationDocumentation/CrystalHttpWebSocket.html">CrystalHttpWebSocket</a>
       
     </li>
@@ -141,7 +141,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/Framework" data-name="opentelemetry::instrumentationdocumentation::framework">
+  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/Framework" data-name="opentelemetry::instrumentationdocumentation::framework">
       <a href="../../OpenTelemetry/InstrumentationDocumentation/Framework.html">Framework</a>
       
         <ul>
@@ -185,13 +185,70 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">module</span> OpenTelemetry::InstrumentationDocumentation::Framework
+  <span class="kind">struct</span> OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket
 
 </h1>
 
 
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/InstrumentationDocumentation/CrystalHttpWebSocket.html">OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <h1><a id="open-telemetryinstrumentationcrystal-http-web-socket" class="anchor" href="#open-telemetryinstrumentationcrystal-http-web-socket">  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>OpenTelemetry::Instrumentation::CrystalHttpWebSocket</h1>
+<h3><a id="instruments" class="anchor" href="#instruments">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Instruments</h3>
+<ul>
+<li>HTTP::WebSocket</li>
+</ul>
+<h3><a id="reference-httpscrystal-lang.orgapi1.4.0httpweb-socket.html" class="anchor" href="#reference-httpscrystal-lang.orgapi1.4.0httpweb-socket.html">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Reference: <a href="https://crystal-lang.org/api/1.4.0/HTTP/WebSocket.html">https://crystal-lang.org/api/1.4.0/HTTP/WebSocket.html</a></h3>
+<p>This instrumentation package instruments both client and server use of HTTP::WebSocket. As of 0.3.0 of
+of <code><a href="../../OpenTelemetry/Instrumentation.html">OpenTelemetry::Instrumentation</a></code>, the package first monkey patches HTTP::WebSocket to rewrite it into a
+refactored version that reduces the <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity">cyclomatic complexity</a>
+of the <code>#run</code> method while also making it easier to inject tracing. Those refactors are being presented back
+to the main Crystal project as a proposed PR, and if they are accepted, a large chunk of the code in this
+instrumentation package can be removed.</p>
+<p>The remaining instrumentation wraps the client methods, <code>#send</code>, <code>#ping</code>, <code>#pong</code>, <code>#stream</code>, and <code>#close</code>,
+as well as the refactored handler methods that <code>#run</code> depends on, <code>#handle_ping</code>, <code>#handle_pong</code>, <code>#handle_text</code>,
+<code>#handle_binary</code>, <code>#handle_close</code>, and <code>#handle_continuation</code>.</p>
+<h2><a id="methods-affected" class="anchor" href="#methods-affected">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Methods Affected</h2>
+<ul>
+<li><code><a href="../../HTTP/WebSocket.html#run%3ANil-instance-method">HTTP::WebSocket#run</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#send%28message%29%3ANil-instance-method">HTTP::WebSocket#send</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#ping%28message%3Dnil%29-instance-method">HTTP::WebSocket#ping</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#pong%28message%3Dnil%29%3ANil-instance-method">HTTP::WebSocket#pong</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#stream%28binary%3Dtrue%2Cframe_size%3D1024%29-instance-method">HTTP::WebSocket#stream</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#close%28code%3ACloseCode%7CInt%7CNil%3Dnil%2Cmessage%3Dnil%29%3ANil-instance-method">HTTP::WebSocket#close</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#handle_ping%28info%29-instance-method">HTTP::WebSocket#handle_ping</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#handle_pong%28info%29-instance-method">HTTP::WebSocket#handle_pong</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#handle_text%28info%29-instance-method">HTTP::WebSocket#handle_text</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#handle_binary%28info%29-instance-method">HTTP::WebSocket#handle_binary</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#handle_close%28info%29-instance-method">HTTP::WebSocket#handle_close</a></code></li>
+<li><code><a href="../../HTTP/WebSocket.html#handle_continuation%28info%29-instance-method">HTTP::WebSocket#handle_continuation</a></code></li>
+</ul>
 
 
 
@@ -216,7 +273,7 @@
   </h2>
   
     
-      opentelemetry/instrumentation/frameworks/lucky.cr
+      opentelemetry/instrumentation/crystal/http_websocket.cr
     
     <br/>
   
@@ -225,9 +282,43 @@
 
 
 
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        
+      </li>
+    
+  </ul>
 
 
 
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -235,12 +326,90 @@
 
 <div class="methods-inherited">
   
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
 </div>
 
 
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
 
 
 
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="initialize-instance-method">
+      <div class="signature">
+        
+        def <strong>initialize</strong>
+
+        <a class="method-permalink" href="#initialize-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
 
 
 
