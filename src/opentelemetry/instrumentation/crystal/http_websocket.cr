@@ -20,18 +20,18 @@ require "../instrument"
 #
 # ## Methods Affected
 #
-# * `HTTP::WebSocket#run`
-# * `HTTP::WebSocket#send`
-# * `HTTP::WebSocket#ping`
-# * `HTTP::WebSocket#pong`
-# * `HTTP::WebSocket#stream`
-# * `HTTP::WebSocket#close`
-# * `HTTP::WebSocket#handle_ping`
-# * `HTTP::WebSocket#handle_pong`
-# * `HTTP::WebSocket#handle_text`
-# * `HTTP::WebSocket#handle_binary`
-# * `HTTP::WebSocket#handle_close`
-# * `HTTP::WebSocket#handle_continuation`
+# * HTTP::WebSocket#run
+# * HTTP::WebSocket#send
+# * HTTP::WebSocket#ping
+# * HTTP::WebSocket#pong
+# * HTTP::WebSocket#stream
+# * HTTP::WebSocket#close
+# * HTTP::WebSocket#handle_ping
+# * HTTP::WebSocket#handle_pong
+# * HTTP::WebSocket#handle_text
+# * HTTP::WebSocket#handle_binary
+# * HTTP::WebSocket#handle_close
+# * HTTP::WebSocket#handle_continuation
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket
 end
