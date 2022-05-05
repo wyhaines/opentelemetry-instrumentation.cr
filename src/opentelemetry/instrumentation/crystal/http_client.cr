@@ -128,7 +128,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
             end
 
             response
-          end.not_nil!
+          end
         end
       end
     end
