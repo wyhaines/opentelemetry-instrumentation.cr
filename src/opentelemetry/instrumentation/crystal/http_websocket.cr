@@ -3,15 +3,35 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::CrystalHttpWebSocket
 #
 # ### Instruments
-#   *
+#   * HTTP::WebSocket
 #
-# ### Reference: [https://path.to/package_documentation.html](https://path.to/package_documentation.html)
+# ### Reference: [https://crystal-lang.org/api/1.4.0/HTTP/WebSocket.html](https://crystal-lang.org/api/1.4.0/HTTP/WebSocket.html)
 #
-# Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.
+# This instrumentation package instruments both client and server use of HTTP::WebSocket. As of 0.3.0 of
+# of `OpenTelemetry::Instrumentation`, the package first monkey patches HTTP::WebSocket to rewrite it into a
+# refactored version that reduces the [cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)
+# of the `#run` method while also making it easier to inject tracing. Those refactors are being presented back
+# to the main Crystal project as a proposed PR, and if they are accepted, a large chunk of the code in this
+# instrumentation package can be removed.
+#
+# The remaining instrumentation wraps the client methods, `#send`, `#ping`, `#pong`, `#stream`, and `#close`,
+# as well as the refactored handler methods that `#run` depends on, `#handle_ping`, `#handle_pong`, `#handle_text`,
+# `#handle_binary`, `#handle_close`, and `#handle_continuation`.
 #
 # ## Methods Affected
 #
-# *
+# * `HTTP::WebSocket#run`
+# * `HTTP::WebSocket#send`
+# * `HTTP::WebSocket#ping`
+# * `HTTP::WebSocket#pong`
+# * `HTTP::WebSocket#stream`
+# * `HTTP::WebSocket#close`
+# * `HTTP::WebSocket#handle_ping`
+# * `HTTP::WebSocket#handle_pong`
+# * `HTTP::WebSocket#handle_text`
+# * `HTTP::WebSocket#handle_binary`
+# * `HTTP::WebSocket#handle_close`
+# * `HTTP::WebSocket#handle_continuation`
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket
 end
