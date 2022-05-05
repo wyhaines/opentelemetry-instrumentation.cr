@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="opentelemetry-instrumentation">
-  <title>OpenTelemetry::Instrumentation::Registry - opentelemetry-instrumentation 0.3.0</title>
+  <title>OpenTelemetry::InstrumentationDocumentation::RethinkDB - opentelemetry-instrumentation 0.3.0</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -61,7 +61,7 @@
       
         <ul>
   
-  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation" data-name="opentelemetry::instrumentation">
+  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation" data-name="opentelemetry::instrumentation">
       <a href="../../OpenTelemetry/Instrumentation.html">Instrumentation</a>
       
         <ul>
@@ -101,7 +101,7 @@
       
     </li>
   
-  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation/Registry" data-name="opentelemetry::instrumentation::registry">
+  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/Instrumentation/Registry" data-name="opentelemetry::instrumentation::registry">
       <a href="../../OpenTelemetry/Instrumentation/Registry.html">Registry</a>
       
     </li>
@@ -111,7 +111,7 @@
       
     </li>
   
-  <li class="parent " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation" data-name="opentelemetry::instrumentationdocumentation">
+  <li class="parent open current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation" data-name="opentelemetry::instrumentationdocumentation">
       <a href="../../OpenTelemetry/InstrumentationDocumentation.html">InstrumentationDocumentation</a>
       
         <ul>
@@ -161,7 +161,7 @@
       
     </li>
   
-  <li class=" " data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/RethinkDB" data-name="opentelemetry::instrumentationdocumentation::rethinkdb">
+  <li class=" current" data-id="opentelemetry-instrumentation/OpenTelemetry/InstrumentationDocumentation/RethinkDB" data-name="opentelemetry::instrumentationdocumentation::rethinkdb">
       <a href="../../OpenTelemetry/InstrumentationDocumentation/RethinkDB.html">RethinkDB</a>
       
     </li>
@@ -190,15 +190,67 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> OpenTelemetry::Instrumentation::Registry
+  <span class="kind">struct</span> OpenTelemetry::InstrumentationDocumentation::RethinkDB
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/Instrumentation/Registry.html">OpenTelemetry::Instrumentation::Registry</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../OpenTelemetry/InstrumentationDocumentation/RethinkDB.html">OpenTelemetry::InstrumentationDocumentation::RethinkDB</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <h1><a id="open-telemetryinstrumentationrethink-db" class="anchor" href="#open-telemetryinstrumentationrethink-db">  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>OpenTelemetry::Instrumentation::RethinkDB</h1>
+<h3><a id="instruments" class="anchor" href="#instruments">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Instruments</h3>
+<ul>
+<li>RethinkDB::Connection</li>
+<li>RethinkDB::Connection::ResponseStream</li>
+</ul>
+<h3><a id="reference-httpsgithub.comkingsleyhcrystal-rethinkdb" class="anchor" href="#reference-httpsgithub.comkingsleyhcrystal-rethinkdb">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Reference: <a href="https://github.com/kingsleyh/crystal-rethinkdb">https://github.com/kingsleyh/crystal-rethinkdb</a></h3>
+<h2><a id="methods-affected" class="anchor" href="#methods-affected">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Methods Affected</h2>
+<ul>
+<li>
+<p><code>RethinkDB::Connection#connect</code></p>
+<p>Trace the connection establishment to the database</p>
+</li>
+<li>
+<p><code>RethinkDB::Connection#authorise</code></p>
+<p>Trace authorisation with the database</p>
+</li>
+<li>
+<p><code>RethinkDB::Connection::ResponseStream#query_term</code></p>
+<p><code>query_term</code> sends a ReQL query to the database and reads the response.</p>
+</li>
+<li>
+<p><code>RethinkDB::Connection::ResponseStream#query_continue</code></p>
+<p><code>query_continue</code> follows a <code>query_term</code> and is primarily for lazily fetching
+results from the query curso</p>
+</li>
+</ul>
 
 
 
@@ -223,7 +275,7 @@
   </h2>
   
     
-      opentelemetry/instrumentation/registry.cr
+      opentelemetry/instrumentation/shards/rethinkdb.cr
     
     <br/>
   
@@ -232,61 +284,43 @@
 
 
 
-
-
   <h2>
-    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+    <a id="constructors" class="anchor" href="#constructors">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Class Method Summary
+    Constructors
   </h2>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#%5B%5D%28key%29-class-method" class="signature"><strong>.[]</strong>(key)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#%5B%5D%3D%28name%2Cklass%29-class-method" class="signature"><strong>.[]=</strong>(name, klass)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#get%28key%29-class-method" class="signature"><strong>.get</strong>(key)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#instrument_names-class-method" class="signature"><strong>.instrument_names</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#instruments-class-method" class="signature"><strong>.instruments</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#register%28klass%29-class-method" class="signature"><strong>.register</strong>(klass)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#registry-class-method" class="signature"><strong>.registry</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#set%28name%2Cklass%29-class-method" class="signature"><strong>.set</strong>(name, klass)</a>
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
         
       </li>
     
   </ul>
 
 
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#initialize-instance-method" class="signature"><strong>#initialize</strong></a>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -314,26 +348,62 @@
 
 
   
+    
+
+
+    
+
+
+    
+
+
+  
 </div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+
 
 
 
 
   <h2>
-    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Class Method Detail
+    Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="[](key)-class-method">
+    <div class="entry-detail" id="initialize-instance-method">
       <div class="signature">
         
-        def self.<strong>[]</strong>(key)
+        def <strong>initialize</strong>
 
-        <a class="method-permalink" href="#%5B%5D%28key%29-class-method">#</a>
+        <a class="method-permalink" href="#initialize-instance-method">#</a>
       </div>
       
       <br/>
@@ -342,106 +412,6 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="[]=(name,klass)-class-method">
-      <div class="signature">
-        
-        def self.<strong>[]=</strong>(name, klass)
-
-        <a class="method-permalink" href="#%5B%5D%3D%28name%2Cklass%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="get(key)-class-method">
-      <div class="signature">
-        
-        def self.<strong>get</strong>(key)
-
-        <a class="method-permalink" href="#get%28key%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="instrument_names-class-method">
-      <div class="signature">
-        
-        def self.<strong>instrument_names</strong>
-
-        <a class="method-permalink" href="#instrument_names-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="instruments-class-method">
-      <div class="signature">
-        
-        def self.<strong>instruments</strong>
-
-        <a class="method-permalink" href="#instruments-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="register(klass)-class-method">
-      <div class="signature">
-        
-        def self.<strong>register</strong>(klass)
-
-        <a class="method-permalink" href="#register%28klass%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="registry-class-method">
-      <div class="signature">
-        
-        def self.<strong>registry</strong>
-
-        <a class="method-permalink" href="#registry-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="set(name,klass)-class-method">
-      <div class="signature">
-        
-        def self.<strong>set</strong>(name, klass)
-
-        <a class="method-permalink" href="#set%28name%2Cklass%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-
-
 
 
 
