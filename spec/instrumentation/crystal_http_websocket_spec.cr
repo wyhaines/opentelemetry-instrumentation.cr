@@ -215,8 +215,8 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
     it "sends continuous data and splits it to frames" do
       io = IO::Memory.new
       ws = HTTP::WebSocket::Protocol.new(io)
-      ws.stream do |io| # default frame size of 1024
-        3.times { io.write(("a" * 512).to_slice) }
+      ws.stream do |io_2| # default frame size of 1024
+        3.times { io_2.write(("a" * 512).to_slice) }
       end
 
       bytes = io.to_slice
@@ -246,7 +246,7 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
     it "sets opcode of first frame to binary if stream is called with binary = true" do
       io = IO::Memory.new
       ws = HTTP::WebSocket::Protocol.new(io)
-      ws.stream(binary: true) { |io| }
+      ws.stream(binary: true) { |_io| }
 
       bytes = io.to_slice
       (bytes[0] & 0x0f).should eq(0x2) # BINARY frame
@@ -337,7 +337,7 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
     end
   end
 
-  each_ip_family do |family, _, any_address|
+  each_ip_family do |_family, _, any_address|
     it "negotiates over HTTP correctly" do
       address_chan = Channel(Socket::IPAddress).new
       close_chan = Channel({Int32, String}).new
@@ -462,7 +462,7 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
 
   it "ignores body in upgrade response (malformed)" do
     malformer = MalformerHandler.new
-    ws_handler = HTTP::WebSocketHandler.new do |ws, ctx|
+    ws_handler = HTTP::WebSocketHandler.new do |ws, _ctx|
       ws.on_message do |str|
         ws.send(str)
       end
@@ -493,7 +493,7 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
     end
 
     compress_handler = HTTP::CompressHandler.new
-    ws_handler = HTTP::WebSocketHandler.new do |ws, ctx|
+    ws_handler = HTTP::WebSocketHandler.new do |ws, _ctx|
       ws.on_message do |str|
         ws.send(str)
       end
