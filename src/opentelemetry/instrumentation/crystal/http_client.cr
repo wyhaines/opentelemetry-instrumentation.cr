@@ -27,6 +27,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
   if_defined?(::HTTP::Client) do
     # This exists to record the instrumentation in the OpenTelemetry::Instrumentation::Registry,
     # which may be used by other code/tools to introspect the installed instrumentation.
+    # :nodoc:
     module OpenTelemetry::Instrumentation
       class CrystalHttpClient < OpenTelemetry::Instrumentation::Instrument
       end

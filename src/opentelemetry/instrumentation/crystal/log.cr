@@ -27,6 +27,7 @@ end
 
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
   if_defined?(::Log) do
+    # :nodoc:
     module OpenTelemetry::Instrumentation
       class CrystalLog < OpenTelemetry::Instrumentation::Instrument
       end
