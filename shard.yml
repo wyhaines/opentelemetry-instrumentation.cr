@@ -22,3 +22,6 @@ development_dependencies:
     version: ~> 1.0.0
   sqlite3:
     github: crystal-lang/crystal-sqlite3
+  redis:
+    github: stefanwille/crystal-redis
+    branch: master

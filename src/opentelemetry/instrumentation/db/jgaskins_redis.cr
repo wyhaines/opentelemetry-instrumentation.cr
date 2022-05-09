@@ -3,7 +3,7 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::JGaskinsRedis
 #
 # ### Instruments
-#   * 
+#   *
 #
 # ### Reference: [https://path.to/package_documentation.html](https://path.to/package_documentation.html)
 #
@@ -11,7 +11,7 @@ require "../instrument"
 #
 # ## Methods Affected
 #
-# * 
+# *
 #
 struct OpenTelemetry::InstrumentationDocumentation::JGaskinsRedis
 end
@@ -35,13 +35,13 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_JGASKINS_REDIS") do
             span.client!
             span["net.peer.name"] = @uri.host
             span["net.transport"] = case socket = @socket
-            when UNIXSocket
-              "Unix"
-            when TCPSocket, OpenSSL::SSL::Socket::Client
-              "ip_tcp"
-            else
-              @socket.class.name # Generic fallback, but is unlikely to happen
-            end
+                                    when UNIXSocket
+                                      "Unix"
+                                    when TCPSocket, OpenSSL::SSL::Socket::Client
+                                      "ip_tcp"
+                                    else
+                                      @socket.class.name # Generic fallback, but is unlikely to happen
+                                    end
 
             span["db.system"] = "redis"
             span["db.statement"] = command.map(&.inspect_unquoted).join(' ')

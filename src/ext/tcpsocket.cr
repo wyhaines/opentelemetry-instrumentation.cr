@@ -7,7 +7,7 @@ class TCPSocket
   # make sense to lose that information. Many of the semantic conventions for various types
   # of spans really want to have this information.
   def initialize(host, port, dns_timeout = nil, connect_timeout = nil, blocking = false)
-    @hostname = URI::Punycode.decode(host)
+    @hostname = host.to_s
     previous_def
   end
 end
