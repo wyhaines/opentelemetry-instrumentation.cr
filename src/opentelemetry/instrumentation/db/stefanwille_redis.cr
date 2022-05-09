@@ -34,21 +34,16 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
       # Monkeypatch a few things so that useful information is available for the spans.
       # TODO: See if the maintainers would like some version of these patches contributed back to the main project.
-      class Redis::Connection
+      class Redis
         getter database : Int32?
         getter uri : URI?
-        @host : String = "localhost"
-        @port : Int32 = 6379
-        @ssl : Bool = false
-        @reconnect : Bool = true
-        @command_timeout : Time::Span? = nil
 
         def initialize(@host = "localhost", @port = 6379, @unixsocket : String? = nil, @password : String? = nil,
                        @database : Int32? = nil, url = nil, @ssl = false, @ssl_context : OpenSSL::SSL::Context::Client? = nil,
                        @dns_timeout : Time::Span? = nil, @connect_timeout : Time::Span? = nil, @reconnect = true, @command_timeout : Time::Span? = nil,
                        @namespace : String = "")
           if url
-            @uri = URI.parse(url)
+            uri = @uri = URI.parse(url)
             path = uri.path
             @database = path[1..-1].to_i if path && path.size > 1
           end
@@ -72,7 +67,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
       class Redis::Strategy::SingleStatement
         trace("command") do
-          OpenTelemetry.trace.in_span("Redis #{request[0..1]?.join(' ')}") do |span|
+          OpenTelemetry.trace.in_span("Redis #{request[0..1]? ? request[0..1].join(' ') : ""}") do |span|
             span.client!
             socket = @connection.@socket
             span["net.peer.name"] = case socket
@@ -90,7 +85,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
                                     when TCPSocket, OpenSSL::SSL::Socket::Client
                                       "ip_tcp"
                                     else
-                                      @socket.class.name # Generic fallback, but is unlikely to happen
+                                      socket.class.name # Generic fallback, but is unlikely to happen
                                     end
 
             span["db.system"] = "redis"
