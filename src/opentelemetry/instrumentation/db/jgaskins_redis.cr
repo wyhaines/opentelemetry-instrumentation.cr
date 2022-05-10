@@ -30,8 +30,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_JGASKINS_REDIS") do
     if_version?(Redis, :>=, "0.3.1") do
       class Redis::Connection
         trace("run") do
-          span_name = command[0..1].join(' ')
-
           OpenTelemetry.trace.in_span("Redis #{command[0..1]?.join(' ')}") do |span|
             span.client!
             span["net.peer.name"] = @uri.host
@@ -41,7 +39,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_JGASKINS_REDIS") do
                                     when TCPSocket, OpenSSL::SSL::Socket::Client
                                       "ip_tcp"
                                     else
-                                      @socket.class.name # Generic fallback, but is unlikely to happen
+                                      socket.class.name # Generic fallback, but is unlikely to happen
                                     end
 
             span["db.system"] = "redis"

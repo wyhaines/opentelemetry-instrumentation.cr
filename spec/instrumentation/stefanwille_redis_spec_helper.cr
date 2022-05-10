@@ -13,7 +13,7 @@ def sort(a)
 end
 
 def convert_to_string_array(a)
-  a.map { |item| item.to_s }
+  a.map(&.to_s)
 end
 
 # Same as `sort` except sorting feature
