@@ -13,6 +13,7 @@ require "../instrument"
 #
 # *
 #
+
 struct OpenTelemetry::InstrumentationDocumentation::JGaskinsRedis
 end
 

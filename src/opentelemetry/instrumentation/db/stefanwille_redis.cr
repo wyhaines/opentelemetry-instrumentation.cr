@@ -16,21 +16,14 @@ require "../instrument"
 struct OpenTelemetry::InstrumentationDocumentation::StefanWilleRedis
 end
 
-pp Redis
-
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
-  pp "Pass 1"
   if_defined?(Redis::Strategy::Transaction) do
     module OpenTelemetry::Instrumentation
       class InstrumentName < OpenTelemetry::Instrumentation::Instrument
       end
     end
 
-    pp "Pass 2"
-
-    if_defined?(Redis::VERSION) do
-      pp "GO STEFAN"
-
+    unless_defined?(Redis::VERSION) do
       # Monkeypatch a few things so that useful information is available for the spans.
       # TODO: See if the maintainers would like some version of these patches contributed back to the main project.
       class Redis

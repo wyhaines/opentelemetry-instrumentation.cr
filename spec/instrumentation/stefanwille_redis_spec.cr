@@ -1,4 +1,5 @@
 require "./stefanwille_redis_spec_helper"
+require "../../src/opentelemetry/instrumentation/db/stefanwille_redis"
 
 describe Redis do
   Spec.before_suite do
