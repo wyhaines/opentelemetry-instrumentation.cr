@@ -516,17 +516,7 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
 
     sleep 1
 
-    memory.rewind
-    strings = memory.gets_to_end
-    json_finder = FindJson.new(strings)
-
-    traces = [] of JSON::Any
-    while json = json_finder.pull_json
-      traces << JSON.parse(json)
-    end
-
-    client_traces = traces.select { |t| t["spans"][0]["kind"] == 3 }
-    server_traces = traces.reject { |t| t["spans"][0]["kind"] == 3 }
+    client_traces, server_traces = FindJson.from_io(memory)
 
     {% begin %}
     {% if flag? :DEBUG %}

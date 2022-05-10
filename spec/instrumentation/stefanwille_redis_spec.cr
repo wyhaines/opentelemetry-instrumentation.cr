@@ -8,13 +8,19 @@ rescue
   redis_is_running = false
 end
 
+memory = IO::Memory.new
+
 describe Redis do
-  Spec.before_suite do
+  before_all do
     OpenTelemetry.configure do |config|
-      config.service_name = "Crystal OTel Instrumentation - Stefan Wille Redis"
-      config.service_version = "1.0.0"
-      config.exporter = OpenTelemetry::Exporter.new(variant: :stdout)
+      config.service_name = "Crystal OTel Instrumentation - Stefan Wille Redis Driver Test"
+      config.service_version = OpenTelemetry::VERSION
+      config.exporter = OpenTelemetry::Exporter.new(variant: :io, io: memory)
     end
+  end
+
+  after_each do
+    memory.clear
   end
 
   describe ".new" do
@@ -255,6 +261,14 @@ describe Redis do
             redis.not_nil!.set("bar", "world")
             redis.not_nil!.renamenx("foo", "bar").should eq(0)
             redis.not_nil!.get("bar").should eq("world")
+
+            client_traces, _server_traces = FindJson.from_io(memory)
+            # Spot Check some traces here...
+            client_traces.size.should eq 4
+            client_traces[0]["spans"][0]["name"].should eq "Redis: GET #{[namespace, "bar"].compact!.join("::")}"
+            client_traces[0]["spans"][0]["attributes"]["db.system"].should eq "redis"
+            client_traces[0]["spans"][0]["attributes"]["db.statement"].should eq "GET #{[namespace, "bar"].compact!.join("::")}"
+            client_traces[0]["spans"][0]["attributes"]["net.transport"].should eq "ip_tcp"
           end
         else
           pending ":redis is not running: #renamenx"
@@ -1687,6 +1701,14 @@ describe Redis do
             end
             results[1].should eq("new value")
             futures[0].value.should eq("new value")
+
+            _client_traces, server_traces = FindJson.from_io(memory)
+            server_traces[0]["spans"][0]["name"].should eq "Redis: SET #{[namespace, "foo"].compact.join("::")}"
+            server_traces[2]["spans"][0]["name"].should eq "Redis::Future#value="
+            server_traces[2]["spans"][0]["attributes"]["db.redis.future.value"].should eq "OK"
+            server_traces[2]["spans"][0]["parentSpanId"].should eq server_traces[0]["spans"][0]["spanId"]
+            server_traces[3]["spans"][0]["attributes"]["db.redis.future.value"].should eq "new value"
+            server_traces[3]["spans"][0]["parentSpanId"].should eq server_traces[1]["spans"][0]["spanId"]
           end
         else
           pending ":redis is not running: executes the commands in the block and returns the results"

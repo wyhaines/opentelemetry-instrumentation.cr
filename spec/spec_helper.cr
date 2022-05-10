@@ -8,6 +8,23 @@ end
 class FindJson
   @buffer : String = ""
 
+  def self.from_io(io : IO::Memory)
+    io.rewind
+
+    json_finder = FindJson.new(io.gets_to_end)
+    io.clear
+
+    traces = [] of JSON::Any
+    while json = json_finder.pull_json
+      traces << JSON.parse(json)
+    end
+
+    client_traces = traces.select { |t| t["spans"][0]["kind"] == 3 }
+    server_traces = traces.reject { |t| t["spans"][0]["kind"] == 3 }
+
+    {client_traces, server_traces}
+  end
+
   def initialize(@buffer)
   end
 

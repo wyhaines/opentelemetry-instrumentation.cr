@@ -51,6 +51,39 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
             cnxn.database = @database
           end
         end
+
+        # :nodoc:
+        @[AlwaysInline]
+        def self.span_name(request)
+          "Redis: #{request[0..1]? ? request[0..1].join(' ') : ""}"
+        end
+
+        # :nodoc:
+        @[AlwaysInline]
+        def self.span_attributes(span, connection, request)
+          socket = connection.@socket.@socket
+          span["net.peer.name"] = case socket
+                                  when UNIXSocket
+                                    socket.path.to_s
+                                  when TCPSocket, OpenSSL::SSL::Socket::Client
+                                    socket.hostname.presence.to_s || socket.remote_address.as(Socket::IPAddress).address
+                                  else
+                                    ""
+                                  end
+
+          span["net.transport"] = case socket
+                                  when UNIXSocket
+                                    "Unix"
+                                  when TCPSocket, OpenSSL::SSL::Socket::Client
+                                    "ip_tcp"
+                                  else
+                                    socket.class.name # Generic fallback, but is unlikely to happen
+                                  end
+
+          span["db.system"] = "redis"
+          span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
+          span["db.redis.database_index"] = (connection.@uri.try(&.path.presence) || "/")[1..].presence.to_s
+        end
       end
 
       class Redis::Connection
@@ -64,31 +97,28 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
       class Redis::Strategy::SingleStatement
         trace("command") do
-          OpenTelemetry.trace.in_span("Redis #{request[0..1]? ? request[0..1].join(' ') : ""}") do |span|
+          OpenTelemetry.trace.in_span(Redis.span_name request) do |span|
             span.client!
-            socket = @connection.@socket
-            span["net.peer.name"] = case socket
-                                    when UNIXSocket
-                                      socket.path
-                                    when TCPSocket, OpenSSL::SSL::Socket::Client
-                                      socket.hostname.presence || socket.remote_address.address
-                                    else
-                                      ""
-                                    end
+            Redis.span_attributes(span, @connection, request)
 
-            span["net.transport"] = case socket
-                                    when UNIXSocket
-                                      "Unix"
-                                    when TCPSocket, OpenSSL::SSL::Socket::Client
-                                      "ip_tcp"
-                                    else
-                                      socket.class.name # Generic fallback, but is unlikely to happen
-                                    end
+            previous_def
+          end
+        end
+      end
 
-            span["db.system"] = "redis"
-            span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
-            span["db.redis.database_index"] = (@connection.@uri.try(&.path.presence) || "/")[1..].presence.to_s
+      class Redis::Strategy::PauseDuringPipeline
+        trace("command") do
+          OpenTelemetry.trace.in_span(Redis.span_name(request)) do |span|
+            Redis.span_attributes(span, @connection, request)
+            previous_def
+          end
+        end
+      end
 
+      class Redis::Strategy::PauseDuringTransaction
+        trace("command") do
+          OpenTelemetry.trace.in_span(Redis.span_name(request)) do |span|
+            Redis.span_attributes(span, @connection, request)
             previous_def
           end
         end
@@ -96,30 +126,9 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
       class Redis::Strategy::Pipeline
         trace("command") do
-          OpenTelemetry.trace.in_span("Redis #{request[0..1]? ? request[0..1].join(' ') : ""}") do |span|
+          OpenTelemetry.trace.in_span(Redis.span_name request) do |span|
             span.producer!
-            socket = @connection.@socket
-            span["net.peer.name"] = case socket
-                                    when UNIXSocket
-                                      socket.path
-                                    when TCPSocket, OpenSSL::SSL::Socket::Client
-                                      socket.hostname.presence || socket.remote_address.address
-                                    else
-                                      ""
-                                    end
-
-            span["net.transport"] = case socket
-                                    when UNIXSocket
-                                      "Unix"
-                                    when TCPSocket, OpenSSL::SSL::Socket::Client
-                                      "ip_tcp"
-                                    else
-                                      socket.class.name # Generic fallback, but is unlikely to happen
-                                    end
-
-            span["db.system"] = "redis"
-            span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
-            span["db.redis.database_index"] = (@connection.@uri.try(&.path.presence) || "/")[1..].presence.to_s
+            Redis.span_attributes(span, @connection, request)
 
             future = previous_def
 
@@ -132,7 +141,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
       class Redis::Future
         trace("value=") do
-          OpenTelemetry.trace.in_span("Redis Result Returned") do |span|
+          OpenTelemetry.trace.in_span("Redis::Future#value=") do |span|
             span.consumer!
             parent = OpenTelemetry::Span.build do |pspan|
               pspan.is_recording = false
@@ -146,6 +155,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
               end
             end
             span.parent = parent
+            span["db.redis.future.value"] = new_value.to_s.inspect_unquoted
 
             previous_def
           end
