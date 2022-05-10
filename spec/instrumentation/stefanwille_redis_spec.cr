@@ -1,8 +1,17 @@
 require "./stefanwille_redis_spec_helper"
 require "../../src/opentelemetry/instrumentation/db/stefanwille_redis"
 
+redis_is_running = false
+
 describe Redis do
   Spec.before_suite do
+    begin
+      Redis.new
+      redis_is_running = true
+    rescue
+      redis_is_running = false
+    end
+
     OpenTelemetry.configure do |config|
       config.service_name = "Crystal OTel Instrumentation - Stefan Wille Redis"
       config.service_version = "1.0.0"
@@ -11,36 +20,60 @@ describe Redis do
   end
 
   describe ".new" do
-    it "connects to default host and port" do
-      Redis.new
+    if redis_is_running
+      it "connects to default host and port" do
+        Redis.new
+      end
+    else
+      pending ":redis is not running: connects to default host and port"
     end
 
-    it "connects to specific port and host / disconnects" do
-      Redis.new(host: "localhost", port: 6379)
+    if redis_is_running
+      it "connects to specific port and host / disconnects" do
+        Redis.new(host: "localhost", port: 6379)
+      end
+    else
+      pending ":redis is not running: connects to specific port and host"
     end
 
-    it "connects to a specific database" do
-      redis = Redis.new(host: "localhost", port: 6379, database: 1)
-      redis.url.should eq("redis://localhost:6379/1")
+    if redis_is_running
+      it "connects to a specific database" do
+        redis = Redis.new(host: "localhost", port: 6379, database: 1)
+        redis.not_nil!.url.should eq("redis://localhost:6379/1")
+      end
+    else
+      pending ":redis is not running: connects to a specific database"
     end
 
-    it "connects to Unix domain sockets" do
-      redis = Redis.new(unixsocket: TEST_UNIXSOCKET)
-      redis.url.should eq("redis://#{TEST_UNIXSOCKET}/0")
-      redis.ping.should eq "PONG"
+    if redis_is_running
+      it "connects to Unix domain sockets" do
+        redis = Redis.new(unixsocket: TEST_UNIXSOCKET)
+        redis.not_nil!.url.should eq("redis://#{TEST_UNIXSOCKET}/0")
+        redis.not_nil!.ping.should eq "PONG"
+      end
+    else
+      pending ":redis is not running: connects to Unix domain sockets"
     end
 
     context "when url argument is given" do
-      it "connects using given URL" do
-        redis = Redis.new(url: "redis://127.0.0.1", host: "host.to.be.ignored", port: 1234)
-        redis.url.should eq("redis://127.0.0.1:6379/0")
+      if redis_is_running
+        it "connects using given URL" do
+          redis = Redis.new(url: "redis://127.0.0.1", host: "host.to.be.ignored", port: 1234)
+          redis.not_nil!.url.should eq("redis://127.0.0.1:6379/0")
+        end
+      else
+        pending ":redis is not running: connects using given URL"
       end
     end
 
     context "when url argument with trailing slash is given" do
-      it "connects using given URL" do
-        redis = Redis.new(url: "redis://127.0.0.1/")
-        redis.url.should eq("redis://127.0.0.1:6379/0")
+      if redis_is_running
+        it "connects using given URL" do
+          redis = Redis.new(url: "redis://127.0.0.1/")
+          redis.not_nil!.url.should eq("redis://127.0.0.1:6379/0")
+        end
+      else
+        pending ":redis is not running: connects using given URL"
       end
     end
 
@@ -51,1600 +84,2367 @@ describe Redis do
     end
 
     describe "#close" do
-      it "closes the connection" do
-        redis = Redis.new
-        redis.close
+      if redis_is_running
+        it "closes the connection" do
+          redis = Redis.new
+          redis.not_nil!.close
+        end
+      else
+        pending ":redis is not running: closes the connection"
       end
 
-      it "tolerates a duplicate call" do
-        redis = Redis.new
-        redis.close
-        redis.close
+      if redis_is_running
+        it "tolerates a duplicate call" do
+          redis = Redis.new
+          redis.not_nil!.close
+          redis.not_nil!.close
+        end
+      else
+        pending ":redis is not running: tolerates a duplicate call"
       end
     end
   end
 
   describe ".open" do
-    it "connects to the Redis server using the given connection params, yields its block and disconnects" do
-      Redis.open(host: "localhost", port: 6379) do |redis|
-        redis.ping
+    if redis_is_running
+      it "connects to the Redis server using the given connection params, yields its block and disconnects" do
+        Redis.open(host: "localhost", port: 6379) do |redis|
+          redis.not_nil!.ping
+        end
       end
+    else
+      pending ":redis is not running: connects to the Redis server using the given connection params, yields its block and disconnects"
     end
 
-    it "connects to the Redis using the given url, yields its block and disconnects" do
-      Redis.open(url: "redis://127.0.0.1") do |redis|
-        redis.ping
+    if redis_is_running
+      it "connects to the Redis using the given url, yields its block and disconnects" do
+        Redis.open(url: "redis://127.0.0.1") do |redis|
+          redis.not_nil!.ping
+        end
       end
+    else
+      pending ":redis is not running: connects to the Redis using the given url, yields its block and disconnects"
     end
   end
 
   describe "#url" do
-    it "returns the server url" do
+    if redis_is_running
+      it "returns the server url" do
+        Redis.open do |redis|
+          redis.not_nil!.url.should eq("redis://localhost:6379/0")
+        end
+        Redis.open(url: "redis://127.0.0.1") do |redis|
+          redis.not_nil!.url.should eq("redis://127.0.0.1:6379/0")
+        end
+      end
+    else
+      pending ":redis is not running: returns the server url"
+    end
+  end
+
+  if redis_is_running
+    it "#ping" do
       Redis.open do |redis|
-        redis.url.should eq("redis://localhost:6379/0")
-      end
-      Redis.open(url: "redis://127.0.0.1") do |redis|
-        redis.url.should eq("redis://127.0.0.1:6379/0")
+        redis.not_nil!.ping.should eq("PONG")
       end
     end
+  else
+    pending ":redis is not running: #ping"
   end
 
-  it "#ping" do
-    Redis.open do |redis|
-      redis.ping.should eq("PONG")
-    end
-  end
-
-  it "#echo" do
-    Redis.open do |redis|
-      redis.echo("Ciao").should eq("Ciao")
-    end
-  end
-
-  it "#quit" do
-    Redis.open do |redis|
-      redis.quit.should eq("OK")
-    end
-  end
-
-  it "#flushdb" do
-    Redis.open do |redis|
-      redis.set("foo", "test")
-      redis.get("foo").should eq("test")
-
-      redis.flushdb.should eq("OK")
-
-      redis.get("foo").should eq(nil)
-    end
-  end
-
-  it "#select" do
-    Redis.open do |redis|
-      redis.select(0).should eq("OK")
-    end
-  end
-
-  it "#auth" do
-    Redis.open do |redis|
-      expect_raises(Redis::Error, "ERR AUTH <password> called without any password configured for the default user") do
-        redis.auth("some-password").should eq("OK")
+  if redis_is_running
+    it "#echo" do
+      Redis.open do |redis|
+        redis.not_nil!.echo("Ciao").should eq("Ciao")
       end
     end
+  else
+    pending ":redis is not running: #echo"
+  end
+
+  if redis_is_running
+    it "#quit" do
+      Redis.open do |redis|
+        redis.not_nil!.quit.should eq("OK")
+      end
+    end
+  else
+    pending ":redis is not running: #quit"
+  end
+
+  if redis_is_running
+    it "#flushdb" do
+      Redis.open do |redis|
+        redis.not_nil!.set("foo", "test")
+        redis.not_nil!.get("foo").should eq("test")
+
+        redis.not_nil!.flushdb.should eq("OK")
+
+        redis.not_nil!.get("foo").should eq(nil)
+      end
+    end
+  else
+    pending ":redis is not running: #flushdb"
+  end
+
+  if redis_is_running
+    it "#select" do
+      Redis.open do |redis|
+        redis.not_nil!.select(0).should eq("OK")
+      end
+    end
+  else
+    pending ":redis is not running: #select"
+  end
+
+  if redis_is_running
+    it "#auth" do
+      Redis.open do |redis|
+        expect_raises(Redis::Error, "ERR AUTH <password> called without any password configured for the default user") do
+          redis.not_nil!.auth("some-password").should eq("OK")
+        end
+      end
+    end
+  else
+    pending ":redis is not running: #auth"
   end
 
   {nil, "my_namespace"}.each do |namespace|
     context "(namespace: #{namespace})" do
       describe "keys" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#del" do
-          redis.set("foo", "test")
-          redis.del("foo")
-          redis.get("foo").should eq(nil)
-
-          redis.mset({"foo1" => "bar1", "foo2" => "bar2"})
-          redis.del(["foo1", "foo2"]).should eq(2)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "converts keys to strings" do
-          redis.set(:foo, "hello")
-          redis.set(123456, 7)
-          redis.get("foo").should eq("hello")
-          redis.get("123456").should eq("7")
+        if redis_is_running
+          it "#del" do
+            redis.not_nil!.set("foo", "test")
+            redis.not_nil!.del("foo")
+            redis.not_nil!.get("foo").should eq(nil)
+
+            redis.not_nil!.mset({"foo1" => "bar1", "foo2" => "bar2"})
+            redis.not_nil!.del(["foo1", "foo2"]).should eq(2)
+          end
+        else
+          pending ":redis is not running: #del"
         end
 
-        it "#rename" do
-          redis.del("foo", "bar")
-          redis.set("foo", "test")
-          redis.rename("foo", "bar")
-          redis.get("bar").should eq("test")
+        if redis_is_running
+          it "converts keys to strings" do
+            redis.not_nil!.set(:foo, "hello")
+            redis.not_nil!.set(123456, 7)
+            redis.not_nil!.get("foo").should eq("hello")
+            redis.not_nil!.get("123456").should eq("7")
+          end
+        else
+          pending ":redis is not running: converts keys to strings"
         end
 
-        it "#renamenx" do
-          redis.set("foo", "Hello")
-          redis.set("bar", "world")
-          redis.renamenx("foo", "bar").should eq(0)
-          redis.get("bar").should eq("world")
+        if redis_is_running
+          it "#rename" do
+            redis.not_nil!.del("foo", "bar")
+            redis.not_nil!.set("foo", "test")
+            redis.not_nil!.rename("foo", "bar")
+            redis.not_nil!.get("bar").should eq("test")
+          end
+        else
+          pending ":redis is not running: #rename"
         end
 
-        it "#randomkey" do
-          redis.set("foo", "Hello")
-          redis.randomkey.should_not be_nil
+        if redis_is_running
+          it "#renamenx" do
+            redis.not_nil!.set("foo", "Hello")
+            redis.not_nil!.set("bar", "world")
+            redis.not_nil!.renamenx("foo", "bar").should eq(0)
+            redis.not_nil!.get("bar").should eq("world")
+          end
+        else
+          pending ":redis is not running: #renamenx"
         end
 
-        it "#exists" do
-          redis.del("foo")
-          redis.exists("foo").should eq(0)
-          redis.set("foo", "test")
-          redis.exists("foo").should eq(1)
+        if redis_is_running
+          it "#randomkey" do
+            redis.not_nil!.set("foo", "Hello")
+            redis.not_nil!.randomkey.should_not be_nil
+          end
+        else
+          pending ":redis is not running: #randomkey"
         end
 
-        it "#keys" do
-          redis.set("callmemaybe", 1)
-          redis.keys("callmemaybe").should eq(["callmemaybe"])
+        if redis_is_running
+          it "#exists" do
+            redis.not_nil!.del("foo")
+            redis.not_nil!.exists("foo").should eq(0)
+            redis.not_nil!.set("foo", "test")
+            redis.not_nil!.exists("foo").should eq(1)
+          end
+        else
+          pending ":redis is not running: #exists"
+        end
+
+        if redis_is_running
+          it "#keys" do
+            redis.not_nil!.set("callmemaybe", 1)
+            redis.not_nil!.keys("callmemaybe").should eq(["callmemaybe"])
+          end
+        else
+          pending ":redis is not running: #keys"
         end
 
         describe "#sort" do
-          it "sorts the container" do
-            redis.del("mylist")
-            redis.rpush("mylist", "1", "3", "2")
-            redis.sort("mylist").should eq(["1", "2", "3"])
-            redis.sort("mylist", order: "DESC").should eq(["3", "2", "1"])
+          if redis_is_running
+            it "sorts the container" do
+              redis.not_nil!.del("mylist")
+              redis.not_nil!.rpush("mylist", "1", "3", "2")
+              redis.not_nil!.sort("mylist").should eq(["1", "2", "3"])
+              redis.not_nil!.sort("mylist", order: "DESC").should eq(["3", "2", "1"])
+            end
+          else
+            pending ":redis is not running: sorts the container"
           end
 
-          it "limit" do
-            redis.del("mylist")
-            redis.rpush("mylist", "1", "3", "2")
-            redis.sort("mylist", limit: [1, 2]).should eq(["2", "3"])
+          if redis_is_running
+            it "limit" do
+              redis.not_nil!.del("mylist")
+              redis.not_nil!.rpush("mylist", "1", "3", "2")
+              redis.not_nil!.sort("mylist", limit: [1, 2]).should eq(["2", "3"])
+            end
+          else
+            pending ":redis is not running: limit"
           end
 
-          it "by" do
-            redis.del("mylist", "objects", "weights")
-            redis.rpush("mylist", "1", "3", "2")
-            redis.mset({"weight_1" => 1, "weight_2" => 2, "weight_3" => 3})
-            redis.sort("mylist", by: "weights_*").should eq(["1", "2", "3"])
+          if redis_is_running
+            it "by" do
+              redis.not_nil!.del("mylist", "objects", "weights")
+              redis.not_nil!.rpush("mylist", "1", "3", "2")
+              redis.not_nil!.mset({"weight_1" => 1, "weight_2" => 2, "weight_3" => 3})
+              redis.not_nil!.sort("mylist", by: "weights_*").should eq(["1", "2", "3"])
+            end
+          else
+            pending ":redis is not running: by"
           end
 
-          it "alpha" do
-            redis.del("mylist")
-            redis.rpush("mylist", "c", "a", "b")
-            redis.sort("mylist", alpha: true).should eq(["a", "b", "c"])
+          if redis_is_running
+            it "alpha" do
+              redis.not_nil!.del("mylist")
+              redis.not_nil!.rpush("mylist", "c", "a", "b")
+              redis.not_nil!.sort("mylist", alpha: true).should eq(["a", "b", "c"])
+            end
+          else
+            pending ":redis is not running: alpha"
           end
 
-          it "store" do
-            redis.del("mylist", "destination")
-            redis.rpush("mylist", "1", "3", "2")
-            redis.sort("mylist", store: "destination")
-            redis.lrange("destination", 0, 2).should eq(["1", "2", "3"])
+          if redis_is_running
+            it "store" do
+              redis.not_nil!.del("mylist", "destination")
+              redis.not_nil!.rpush("mylist", "1", "3", "2")
+              redis.not_nil!.sort("mylist", store: "destination")
+              redis.not_nil!.lrange("destination", 0, 2).should eq(["1", "2", "3"])
+            end
+          else
+            pending ":redis is not running: store"
           end
         end
 
-        it "#dump / #restore" do
-          Redis.open do |redis|
-            redis.set("foo", "9")
-            serialized_value = redis.dump("foo")
-            # puts "**** ser: #{serialized_value.size}"
-            # redis.del("foo")
-            # redis.restore("foo", 0, serialized_value).should eq("OK")
-            # redis.get("foo").should eq("9")
-            # redis.ttl("foo").should eq(-1)
+        if redis_is_running
+          it "#dump / #restore" do
+            Redis.open do |redis|
+              redis.not_nil!.set("foo", "9")
+              serialized_value = redis.not_nil!.dump("foo")
+              # puts "**** ser: #{serialized_value.size}"
+              # redis.not_nil!.del("foo")
+              # redis.not_nil!.restore("foo", 0, serialized_value).should eq("OK")
+              # redis.not_nil!.get("foo").should eq("9")
+              # redis.not_nil!.ttl("foo").should eq(-1)
+            end
           end
+        else
+          pending ":redis is not running: #dump / #restore"
         end
       end
 
       describe "select database" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "select database when connect" do
-          redis1 = Redis.new(host: "localhost", port: 6379, database: 1, namespace: namespace || "")
-          redis2 = Redis.new(host: "localhost", port: 6379, database: 2, namespace: namespace || "")
-
-          redis1.del("test_database")
-          redis2.del("test_database")
-
-          redis1.set("test_database", "1")
-          redis2.set("test_database", "2")
-
-          redis1.get("test_database").should eq "1"
-          redis2.get("test_database").should eq "2"
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "select database by command" do
-          redis1 = Redis.new(host: "localhost", port: 6379, database: 1, namespace: namespace || "")
-          redis2 = Redis.new(host: "localhost", port: 6379, database: 2, namespace: namespace || "")
+        if redis_is_running
+          it "select database when connect" do
+            redis1 = Redis.new(host: "localhost", port: 6379, database: 1, namespace: namespace || "")
+            redis2 = Redis.new(host: "localhost", port: 6379, database: 2, namespace: namespace || "")
 
-          redis1.del("test_database")
-          redis2.del("test_database")
+            redis1.del("test_database")
+            redis2.del("test_database")
 
-          redis1.set("test_database", "1")
-          redis2.set("test_database", "2")
+            redis1.set("test_database", "1")
+            redis2.set("test_database", "2")
 
-          redis.select(1)
-          redis.get("test_database").should eq "1"
-
-          redis.select(2)
-          redis.get("test_database").should eq "2"
+            redis1.get("test_database").should eq "1"
+            redis2.get("test_database").should eq "2"
+          end
+        else
+          pending ":redis is not running: select database when connect"
         end
 
-        it "does nothing if current database is the same as given one" do
-          redis.select(2).should eq "OK"
-          redis.select(1).should eq "OK"
-          redis.select(1).should eq "OK"
-          # There is no good way to assert that no command was sent
+        if redis_is_running
+          it "select database by command" do
+            redis1 = Redis.new(host: "localhost", port: 6379, database: 1, namespace: namespace || "")
+            redis2 = Redis.new(host: "localhost", port: 6379, database: 2, namespace: namespace || "")
+
+            redis1.del("test_database")
+            redis2.del("test_database")
+
+            redis1.set("test_database", "1")
+            redis2.set("test_database", "2")
+
+            redis.not_nil!.select(1)
+            redis.not_nil!.get("test_database").should eq "1"
+
+            redis.not_nil!.select(2)
+            redis.not_nil!.get("test_database").should eq "2"
+          end
+        else
+          pending ":redis is not running: select database by command"
+        end
+
+        if redis_is_running
+          it "does nothing if current database is the same as given one" do
+            redis.not_nil!.select(2).should eq "OK"
+            redis.not_nil!.select(1).should eq "OK"
+            redis.not_nil!.select(1).should eq "OK"
+            # There is no good way to assert that no command was sent
+          end
+        else
+          pending ":redis is not running: does nothing if current database is the same as given one"
         end
       end
 
       describe "strings" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#set / #get" do
-          redis.set("foo", "test")
-          redis.get("foo").should eq("test")
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#set options" do
-          redis.set("foo", "test", ex: 7)
-          redis.ttl("foo").should eq(7)
-
-          redis.set("foo", "test", px: 7)
-          redis.ttl("foo").should eq(0)
-
-          redis.set("foo", "test", nx: true)
-
-          redis.set("foo", "test", xx: true)
+        if redis_is_running
+          it "#set / #get" do
+            redis.not_nil!.set("foo", "test")
+            redis.not_nil!.get("foo").should eq("test")
+          end
+        else
+          pending ":redis is not running: #set / #get"
         end
 
-        it "#mget" do
-          redis.set("foo1", "test1")
-          redis.set("foo2", "test2")
-          redis.mget("foo1", "foo2").should eq(["test1", "test2"])
-          redis.mget(["foo2", "foo1"]).should eq(["test2", "test1"])
+        if redis_is_running
+          it "#set options" do
+            redis.not_nil!.set("foo", "test", ex: 7)
+            redis.not_nil!.ttl("foo").should eq(7)
+
+            redis.not_nil!.set("foo", "test", px: 7)
+            redis.not_nil!.ttl("foo").should eq(0)
+
+            redis.not_nil!.set("foo", "test", nx: true)
+
+            redis.not_nil!.set("foo", "test", xx: true)
+          end
+        else
+          pending ":redis is not running: #set options"
         end
 
-        it "#mset" do
-          redis.mset({"foo1" => "bar1", "foo2" => "bar2"})
-          redis.get("foo1").should eq("bar1")
-          redis.get("foo2").should eq("bar2")
+        if redis_is_running
+          it "#mget" do
+            redis.not_nil!.set("foo1", "test1")
+            redis.not_nil!.set("foo2", "test2")
+            redis.not_nil!.mget("foo1", "foo2").should eq(["test1", "test2"])
+            redis.not_nil!.mget(["foo2", "foo1"]).should eq(["test2", "test1"])
+          end
+        else
+          pending ":redis is not running: #mget"
         end
 
-        it "#getset" do
-          redis.set("foo", "old")
-          redis.getset("foo", "new").should eq("old")
-          redis.get("foo").should eq("new")
+        if redis_is_running
+          it "#mset" do
+            redis.not_nil!.mset({"foo1" => "bar1", "foo2" => "bar2"})
+            redis.not_nil!.get("foo1").should eq("bar1")
+            redis.not_nil!.get("foo2").should eq("bar2")
+          end
+        else
+          pending ":redis is not running: #mset"
         end
 
-        it "#setex" do
-          redis.setex("foo", 3, "setexed")
-          redis.get("foo").should eq("setexed")
+        if redis_is_running
+          it "#getset" do
+            redis.not_nil!.set("foo", "old")
+            redis.not_nil!.getset("foo", "new").should eq("old")
+            redis.not_nil!.get("foo").should eq("new")
+          end
+        else
+          pending ":redis is not running: #getset"
         end
 
-        it "#psetex" do
-          redis.psetex("foo", 3000, "psetexed")
-          redis.get("foo").should eq("psetexed")
+        if redis_is_running
+          it "#setex" do
+            redis.not_nil!.setex("foo", 3, "setexed")
+            redis.not_nil!.get("foo").should eq("setexed")
+          end
+        else
+          pending ":redis is not running: #setex"
         end
 
-        it "#setnx" do
-          redis.del("foo")
-          redis.setnx("foo", "setnxed").should eq(1)
-          redis.get("foo").should eq("setnxed")
-          redis.setnx("foo", "setnxed2").should eq(0)
-          redis.get("foo").should eq("setnxed")
+        if redis_is_running
+          it "#psetex" do
+            redis.not_nil!.psetex("foo", 3000, "psetexed")
+            redis.not_nil!.get("foo").should eq("psetexed")
+          end
+        else
+          pending ":redis is not running: #psetex"
         end
 
-        it "#msetnx" do
-          redis.del("key1", "key2", "key3")
-          redis.msetnx({"key1": "hello", "key2": "there"}).should eq(1)
-          redis.get("key1").should eq("hello")
-          redis.get("key2").should eq("there")
-          redis.msetnx({"key2": "keep", "key3": "singing"}).should eq(0)
-          redis.get("key1").should eq("hello")
-          redis.get("key2").should eq("there")
-          redis.get("key3").should eq(nil)
+        if redis_is_running
+          it "#setnx" do
+            redis.not_nil!.del("foo")
+            redis.not_nil!.setnx("foo", "setnxed").should eq(1)
+            redis.not_nil!.get("foo").should eq("setnxed")
+            redis.not_nil!.setnx("foo", "setnxed2").should eq(0)
+            redis.not_nil!.get("foo").should eq("setnxed")
+          end
+        else
+          pending ":redis is not running: #setnx"
         end
 
-        it "#incr" do
-          redis.set("foo", "3")
-          redis.incr("foo").should eq(4)
+        if redis_is_running
+          it "#msetnx" do
+            redis.not_nil!.del("key1", "key2", "key3")
+            redis.not_nil!.msetnx({"key1": "hello", "key2": "there"}).should eq(1)
+            redis.not_nil!.get("key1").should eq("hello")
+            redis.not_nil!.get("key2").should eq("there")
+            redis.not_nil!.msetnx({"key2": "keep", "key3": "singing"}).should eq(0)
+            redis.not_nil!.get("key1").should eq("hello")
+            redis.not_nil!.get("key2").should eq("there")
+            redis.not_nil!.get("key3").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #msetnx"
         end
 
-        it "#decr" do
-          redis.set("foo", "3")
-          redis.decr("foo").should eq(2)
+        if redis_is_running
+          it "#incr" do
+            redis.not_nil!.set("foo", "3")
+            redis.not_nil!.incr("foo").should eq(4)
+          end
+        else
+          pending ":redis is not running: #incr"
         end
 
-        it "#incrby" do
-          redis.set("foo", "10")
-          redis.incrby("foo", 4).should eq(14)
+        if redis_is_running
+          it "#decr" do
+            redis.not_nil!.set("foo", "3")
+            redis.not_nil!.decr("foo").should eq(2)
+          end
+        else
+          pending ":redis is not running: #decr"
         end
 
-        it "#decrby" do
-          redis.set("foo", "10")
-          redis.decrby("foo", 4).should eq(6)
+        if redis_is_running
+          it "#incrby" do
+            redis.not_nil!.set("foo", "10")
+            redis.not_nil!.incrby("foo", 4).should eq(14)
+          end
+        else
+          pending ":redis is not running: #incrby"
         end
 
-        it "#incrbyfloat" do
-          redis.set("foo", "10")
-          redis.incrbyfloat("foo", 2.5).should eq("12.5")
+        if redis_is_running
+          it "#decrby" do
+            redis.not_nil!.set("foo", "10")
+            redis.not_nil!.decrby("foo", 4).should eq(6)
+          end
+        else
+          pending ":redis is not running: #decrby"
         end
 
-        it "#append" do
-          redis.set("foo", "hello")
-          redis.append("foo", " world")
-          redis.get("foo").should eq("hello world")
+        if redis_is_running
+          it "#incrbyfloat" do
+            redis.not_nil!.set("foo", "10")
+            redis.not_nil!.incrbyfloat("foo", 2.5).should eq("12.5")
+          end
+        else
+          pending ":redis is not running: #incrbyfloat"
         end
 
-        it "#strlen" do
-          redis.set("foo", "Hello world")
-          redis.strlen("foo").should eq(11)
-          redis.del("foo")
-          redis.strlen("foo").should eq(0)
+        if redis_is_running
+          it "#append" do
+            redis.not_nil!.set("foo", "hello")
+            redis.not_nil!.append("foo", " world")
+            redis.not_nil!.get("foo").should eq("hello world")
+          end
+        else
+          pending ":redis is not running: #append"
         end
 
-        it "#getrange" do
-          redis.set("foo", "This is a string")
-          redis.getrange("foo", 0, 3).should eq("This")
-          redis.getrange("foo", -3, -1).should eq("ing")
+        if redis_is_running
+          it "#strlen" do
+            redis.not_nil!.set("foo", "Hello world")
+            redis.not_nil!.strlen("foo").should eq(11)
+            redis.not_nil!.del("foo")
+            redis.not_nil!.strlen("foo").should eq(0)
+          end
+        else
+          pending ":redis is not running: #strlen"
         end
 
-        it "#setrange" do
-          redis.set("foo", "Hello world")
-          redis.setrange("foo", 6, "Redis").should eq(11)
-          redis.get("foo").should eq("Hello Redis")
+        if redis_is_running
+          it "#getrange" do
+            redis.not_nil!.set("foo", "This is a string")
+            redis.not_nil!.getrange("foo", 0, 3).should eq("This")
+            redis.not_nil!.getrange("foo", -3, -1).should eq("ing")
+          end
+        else
+          pending ":redis is not running: #getrange"
+        end
+
+        if redis_is_running
+          it "#setrange" do
+            redis.not_nil!.set("foo", "Hello world")
+            redis.not_nil!.setrange("foo", 6, "Redis").should eq(11)
+            redis.not_nil!.get("foo").should eq("Hello Redis")
+          end
+        else
+          pending ":redis is not running: #setrange"
         end
 
         describe "#scan" do
-          it "no options" do
-            redis.set("foo", "Hello world")
-            new_cursor, keys = redis.scan(0)
-            new_cursor = new_cursor.as(String)
-            new_cursor.to_i.should be > 0
-            keys.is_a?(Array).should be_true
+          if redis_is_running
+            it "no options" do
+              redis.not_nil!.set("foo", "Hello world")
+              new_cursor, keys = redis.not_nil!.scan(0)
+              new_cursor = new_cursor.as(String)
+              new_cursor.to_i.should be > 0
+              keys.is_a?(Array).should be_true
+            end
+          else
+            pending ":redis is not running: no options"
           end
 
-          it "with match" do
-            redis.set("scan.match1", "1")
-            redis.set("scan.match2", "2")
-            new_cursor, keys = redis.scan(0, "scan.match*")
-            new_cursor = new_cursor.as(String)
-            new_cursor.to_i.should be > 0
-            keys.is_a?(Array).should be_true
-            # Here `keys.size` should be 0 or 1 or 2, but I don't know how to test it.
+          if redis_is_running
+            it "with match" do
+              redis.not_nil!.set("scan.match1", "1")
+              redis.not_nil!.set("scan.match2", "2")
+              new_cursor, keys = redis.not_nil!.scan(0, "scan.match*")
+              new_cursor = new_cursor.as(String)
+              new_cursor.to_i.should be > 0
+              keys.is_a?(Array).should be_true
+              # Here `keys.size` should be 0 or 1 or 2, but I don't know how to test it.
+            end
+          else
+            pending ":redis is not running: with match"
           end
 
-          it "with match and count" do
-            redis.set("scan.match1", "1")
-            redis.set("scan.match2", "2")
-            new_cursor, keys = redis.scan(0, "scan.match*", 1)
-            new_cursor = new_cursor.as(String)
-            new_cursor.to_i.should be > 0
-            keys.is_a?(Array).should be_true
-            # Here `keys.size` should be 0 or 1, but I don't know how to test it.
+          if redis_is_running
+            it "with match and count" do
+              redis.not_nil!.set("scan.match1", "1")
+              redis.not_nil!.set("scan.match2", "2")
+              new_cursor, keys = redis.not_nil!.scan(0, "scan.match*", 1)
+              new_cursor = new_cursor.as(String)
+              new_cursor.to_i.should be > 0
+              keys.is_a?(Array).should be_true
+              # Here `keys.size` should be 0 or 1, but I don't know how to test it.
+            end
+          else
+            pending ":redis is not running: with match and count"
           end
 
-          it "with match and count at once" do
-            redis.set("scan.match1", "1")
-            redis.set("scan.match2", "2")
-            # assumes that current Redis instance has at most 10M entries
-            new_cursor, keys = redis.scan(0, "scan.match*", 10_000_000)
-            new_cursor.should eq("0")
-            array(keys).sort.should eq(["scan.match1", "scan.match2"])
+          if redis_is_running
+            it "with match and count at once" do
+              redis.not_nil!.set("scan.match1", "1")
+              redis.not_nil!.set("scan.match2", "2")
+              # assumes that current Redis instance has at most 10M entries
+              new_cursor, keys = redis.not_nil!.scan(0, "scan.match*", 10_000_000)
+              new_cursor.should eq("0")
+              array(keys).sort.should eq(["scan.match1", "scan.match2"])
+            end
+          else
+            pending ":redis is not running: with match and count at once"
           end
         end
       end
 
       describe "bit operations" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#bitcount" do
-          redis.set("foo", "foobar")
-          redis.bitcount("foo", 0, 0).should eq(4)
-          redis.bitcount("foo", 1, 1).should eq(6)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#bitop" do
-          redis.set("key1", "foobar")
-          redis.set("key2", "abcdef")
-          redis.bitop("and", "dest", "key1", "key2").should eq(6)
-          redis.get("dest").should eq("`bc`ab")
+        if redis_is_running
+          it "#bitcount" do
+            redis.not_nil!.set("foo", "foobar")
+            redis.not_nil!.bitcount("foo", 0, 0).should eq(4)
+            redis.not_nil!.bitcount("foo", 1, 1).should eq(6)
+          end
+        else
+          pending ":redis is not running: #bitcount"
         end
 
-        it "#bitpos" do
-          redis.set("mykey", "0")
-          redis.bitpos("mykey", 1).should eq(2)
+        if redis_is_running
+          it "#bitop" do
+            redis.not_nil!.set("key1", "foobar")
+            redis.not_nil!.set("key2", "abcdef")
+            redis.not_nil!.bitop("and", "dest", "key1", "key2").should eq(6)
+            redis.not_nil!.get("dest").should eq("`bc`ab")
+          end
+        else
+          pending ":redis is not running: #bitop"
         end
 
-        it "#getbit / #setbit" do
-          redis.del("mykey")
-          redis.setbit("mykey", 7, 1).should eq(0)
-          redis.getbit("mykey", 0).should eq(0)
-          redis.getbit("mykey", 7).should eq(1)
-          redis.getbit("mykey", 100).should eq(0)
+        if redis_is_running
+          it "#bitpos" do
+            redis.not_nil!.set("mykey", "0")
+            redis.not_nil!.bitpos("mykey", 1).should eq(2)
+          end
+        else
+          pending ":redis is not running: #bitpos"
+        end
+
+        if redis_is_running
+          it "#getbit / #setbit" do
+            redis.not_nil!.del("mykey")
+            redis.not_nil!.setbit("mykey", 7, 1).should eq(0)
+            redis.not_nil!.getbit("mykey", 0).should eq(0)
+            redis.not_nil!.getbit("mykey", 7).should eq(1)
+            redis.not_nil!.getbit("mykey", 100).should eq(0)
+          end
+        else
+          pending ":redis is not running: #getbit / #setbit"
         end
       end
 
       describe "lists" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#rpush / #lrange" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello").should eq(1)
-          redis.rpush("mylist", "world").should eq(2)
-          redis.lrange("mylist", 0, 1).should eq(["hello", "world"])
-          redis.rpush("mylist", "snip", "snip").should eq(4)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#lpush" do
-          redis.del("mylist")
-          redis.lpush("mylist", "hello").should eq(1)
-          redis.lpush("mylist", ["world"]).should eq(2)
-          redis.lrange("mylist", 0, 1).should eq(["world", "hello"])
-          redis.lpush("mylist", "snip", "snip").should eq(4)
+        if redis_is_running
+          it "#rpush / #lrange" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello").should eq(1)
+            redis.not_nil!.rpush("mylist", "world").should eq(2)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["hello", "world"])
+            redis.not_nil!.rpush("mylist", "snip", "snip").should eq(4)
+          end
+        else
+          pending ":redis is not running: #rpush / #lrange"
         end
 
-        it "#lpushx" do
-          redis.del("mylist")
-          redis.lpushx("mylist", "hello").should eq(0)
-          redis.lrange("mylist", 0, 1).should eq([] of Redis::RedisValue)
-          redis.lpush("mylist", "hello")
-          redis.lpushx("mylist", "world").should eq(2)
-          redis.lrange("mylist", 0, 1).should eq(["world", "hello"])
+        if redis_is_running
+          it "#lpush" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.lpush("mylist", "hello").should eq(1)
+            redis.not_nil!.lpush("mylist", ["world"]).should eq(2)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["world", "hello"])
+            redis.not_nil!.lpush("mylist", "snip", "snip").should eq(4)
+          end
+        else
+          pending ":redis is not running: #lpush"
         end
 
-        it "#rpushx" do
-          redis.del("mylist")
-          redis.rpushx("mylist", "hello").should eq(0)
-          redis.lrange("mylist", 0, 1).should eq([] of Redis::RedisValue)
-          redis.rpush("mylist", "hello")
-          redis.rpushx("mylist", "world").should eq(2)
-          redis.lrange("mylist", 0, 1).should eq(["hello", "world"])
+        if redis_is_running
+          it "#lpushx" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.lpushx("mylist", "hello").should eq(0)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq([] of Redis::RedisValue)
+            redis.not_nil!.lpush("mylist", "hello")
+            redis.not_nil!.lpushx("mylist", "world").should eq(2)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["world", "hello"])
+          end
+        else
+          pending ":redis is not running: #lpushx"
         end
 
-        it "#lrem" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello")
-          redis.rpush("mylist", "my")
-          redis.rpush("mylist", "world")
-          redis.lrem("mylist", 1, "my").should eq(1)
-          redis.lrange("mylist", 0, 1).should eq(["hello", "world"])
-          redis.lrem("mylist", 0, "world").should eq(1)
-          redis.lrange("mylist", 0, 1).should eq(["hello"])
+        if redis_is_running
+          it "#rpushx" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpushx("mylist", "hello").should eq(0)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq([] of Redis::RedisValue)
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpushx("mylist", "world").should eq(2)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["hello", "world"])
+          end
+        else
+          pending ":redis is not running: #rpushx"
         end
 
-        it "#llen" do
-          redis.del("mylist")
-          redis.lpush("mylist", "hello")
-          redis.lpush("mylist", "world")
-          redis.llen("mylist").should eq(2)
+        if redis_is_running
+          it "#lrem" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpush("mylist", "my")
+            redis.not_nil!.rpush("mylist", "world")
+            redis.not_nil!.lrem("mylist", 1, "my").should eq(1)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["hello", "world"])
+            redis.not_nil!.lrem("mylist", 0, "world").should eq(1)
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["hello"])
+          end
+        else
+          pending ":redis is not running: #lrem"
         end
 
-        it "#lset" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello")
-          redis.rpush("mylist", "world")
-          redis.lset("mylist", 0, "goodbye").should eq("OK")
-          redis.lrange("mylist", 0, 1).should eq(["goodbye", "world"])
+        if redis_is_running
+          it "#llen" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.lpush("mylist", "hello")
+            redis.not_nil!.lpush("mylist", "world")
+            redis.not_nil!.llen("mylist").should eq(2)
+          end
+        else
+          pending ":redis is not running: #llen"
         end
 
-        it "#lindex" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello")
-          redis.rpush("mylist", "world")
-          redis.lindex("mylist", 0).should eq("hello")
-          redis.lindex("mylist", 1).should eq("world")
-          redis.lindex("mylist", 2).should eq(nil)
+        if redis_is_running
+          it "#lset" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpush("mylist", "world")
+            redis.not_nil!.lset("mylist", 0, "goodbye").should eq("OK")
+            redis.not_nil!.lrange("mylist", 0, 1).should eq(["goodbye", "world"])
+          end
+        else
+          pending ":redis is not running: #lset"
         end
 
-        it "#lpop" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello")
-          redis.rpush("mylist", "world")
-          redis.lpop("mylist").should eq("hello")
-          redis.lpop("mylist").should eq("world")
-          redis.lpop("mylist").should eq(nil)
+        if redis_is_running
+          it "#lindex" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpush("mylist", "world")
+            redis.not_nil!.lindex("mylist", 0).should eq("hello")
+            redis.not_nil!.lindex("mylist", 1).should eq("world")
+            redis.not_nil!.lindex("mylist", 2).should eq(nil)
+          end
+        else
+          pending ":redis is not running: #lindex"
         end
 
-        it "#rpop" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello")
-          redis.rpush("mylist", "world")
-          redis.rpop("mylist").should eq("world")
-          redis.rpop("mylist").should eq("hello")
-          redis.rpop("mylist").should eq(nil)
+        if redis_is_running
+          it "#lpop" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpush("mylist", "world")
+            redis.not_nil!.lpop("mylist").should eq("hello")
+            redis.not_nil!.lpop("mylist").should eq("world")
+            redis.not_nil!.lpop("mylist").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #lpop"
         end
 
-        it "#linsert" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello")
-          redis.rpush("mylist", "world")
-          redis.linsert("mylist", :before, "world", "dear").should eq(3)
-          redis.lrange("mylist", 0, 2).should eq(["hello", "dear", "world"])
+        if redis_is_running
+          it "#rpop" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpush("mylist", "world")
+            redis.not_nil!.rpop("mylist").should eq("world")
+            redis.not_nil!.rpop("mylist").should eq("hello")
+            redis.not_nil!.rpop("mylist").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #rpop"
         end
 
-        it "#blpop" do
-          redis.del("mylist")
-          redis.del("myotherlist")
-          redis.rpush("mylist", "hello", "world")
-          redis.blpop(["myotherlist", "mylist"], 1).should eq(["mylist", "hello"])
+        if redis_is_running
+          it "#linsert" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello")
+            redis.not_nil!.rpush("mylist", "world")
+            redis.not_nil!.linsert("mylist", :before, "world", "dear").should eq(3)
+            redis.not_nil!.lrange("mylist", 0, 2).should eq(["hello", "dear", "world"])
+          end
+        else
+          pending ":redis is not running: #linsert"
         end
 
-        it "#blpop with no data, should not raise" do
-          redis.del("mylist")
-          redis.del("myotherlist")
-          redis.blpop(["myotherlist", "mylist"], 1).should eq([] of String)
+        if redis_is_running
+          it "#blpop" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.del("myotherlist")
+            redis.not_nil!.rpush("mylist", "hello", "world")
+            redis.not_nil!.blpop(["myotherlist", "mylist"], 1).should eq(["mylist", "hello"])
+          end
+        else
+          pending ":redis is not running: #blpop"
         end
 
-        it "#ltrim" do
-          redis.del("mylist")
-          redis.rpush("mylist", "hello", "good", "world")
-          redis.ltrim("mylist", 0, 0).should eq("OK")
-          redis.lrange("mylist", 0, 2).should eq(["hello"])
+        if redis_is_running
+          it "#blpop with no data, should not raise" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.del("myotherlist")
+            redis.not_nil!.blpop(["myotherlist", "mylist"], 1).should eq([] of String)
+          end
+        else
+          pending ":redis is not running: #blpop"
         end
 
-        it "#brpop" do
-          redis.del("mylist")
-          redis.del("myotherlist")
-          redis.rpush("mylist", "hello", "world")
-          redis.brpop(["myotherlist", "mylist"], 1).should eq(["mylist", "world"])
-
-          redis.del("mylist")
-          redis.brpop(["mylist"], 1).should eq([] of String)
+        if redis_is_running
+          it "#ltrim" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "hello", "good", "world")
+            redis.not_nil!.ltrim("mylist", 0, 0).should eq("OK")
+            redis.not_nil!.lrange("mylist", 0, 2).should eq(["hello"])
+          end
+        else
+          pending ":redis is not running: #ltrim"
         end
 
-        it "#brpop with no data, should not raise" do
-          redis.del("mylist")
-          redis.del("myotherlist")
-          redis.brpop(["myotherlist", "mylist"], 1).should eq([] of String)
+        if redis_is_running
+          it "#brpop" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.del("myotherlist")
+            redis.not_nil!.rpush("mylist", "hello", "world")
+            redis.not_nil!.brpop(["myotherlist", "mylist"], 1).should eq(["mylist", "world"])
+
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.brpop(["mylist"], 1).should eq([] of String)
+          end
+        else
+          pending ":redis is not running: #brpop"
         end
 
-        it "#rpoplpush" do
-          redis.del("source")
-          redis.del("destination")
-          redis.rpush("source", "a", "b", "c")
-          redis.rpush("destination", "1", "2", "3")
-          redis.rpoplpush("source", "destination")
-          redis.lrange("source", 0, 4).should eq(["a", "b"])
-          redis.lrange("destination", 0, 4).should eq(["c", "1", "2", "3"])
+        if redis_is_running
+          it "#brpop with no data, should not raise" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.del("myotherlist")
+            redis.not_nil!.brpop(["myotherlist", "mylist"], 1).should eq([] of String)
+          end
+        else
+          pending ":redis is not running: #brpop"
         end
 
-        it "#brpoplpush" do
-          redis.del("source")
-          redis.del("destination")
-          redis.rpush("source", "a", "b", "c")
-          redis.rpush("destination", "1", "2", "3")
-          redis.brpoplpush("source", "destination", 0)
-          redis.lrange("source", 0, 4).should eq(["a", "b"])
-          redis.lrange("destination", 0, 4).should eq(["c", "1", "2", "3"])
+        if redis_is_running
+          it "#rpoplpush" do
+            redis.not_nil!.del("source")
+            redis.not_nil!.del("destination")
+            redis.not_nil!.rpush("source", "a", "b", "c")
+            redis.not_nil!.rpush("destination", "1", "2", "3")
+            redis.not_nil!.rpoplpush("source", "destination")
+            redis.not_nil!.lrange("source", 0, 4).should eq(["a", "b"])
+            redis.not_nil!.lrange("destination", 0, 4).should eq(["c", "1", "2", "3"])
+          end
+        else
+          pending ":redis is not running: #rpoplpush"
+        end
 
-          # timeout test (#68)
-          redis.del("source")
-          redis.brpoplpush("source", "destination", 1).should eq(nil)
+        if redis_is_running
+          it "#brpoplpush" do
+            redis.not_nil!.del("source")
+            redis.not_nil!.del("destination")
+            redis.not_nil!.rpush("source", "a", "b", "c")
+            redis.not_nil!.rpush("destination", "1", "2", "3")
+            redis.not_nil!.brpoplpush("source", "destination", 0)
+            redis.not_nil!.lrange("source", 0, 4).should eq(["a", "b"])
+            redis.not_nil!.lrange("destination", 0, 4).should eq(["c", "1", "2", "3"])
+
+            # timeout test (#68)
+            redis.not_nil!.del("source")
+            redis.not_nil!.brpoplpush("source", "destination", 1).should eq(nil)
+          end
+        else
+          pending ":redis is not running: #brpoplpush"
         end
       end
 
       describe "sets" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#sadd / #smembers" do
-          redis.del("myset")
-          redis.sadd("myset", "Hello").should eq(1)
-          redis.sadd("myset", "World").should eq(1)
-          redis.sadd("myset", "World").should eq(0)
-          redis.sadd("myset", ["Foo", "Bar"]).should eq(2)
-          sort(redis.smembers("myset")).should eq(["Bar", "Foo", "Hello", "World"])
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#scard" do
-          redis.del("myset")
-          redis.sadd("myset", "Hello", "World")
-          redis.scard("myset").should eq(2)
+        if redis_is_running
+          it "#sadd / #smembers" do
+            redis.not_nil!.del("myset")
+            redis.not_nil!.sadd("myset", "Hello").should eq(1)
+            redis.not_nil!.sadd("myset", "World").should eq(1)
+            redis.not_nil!.sadd("myset", "World").should eq(0)
+            redis.not_nil!.sadd("myset", ["Foo", "Bar"]).should eq(2)
+            sort(redis.not_nil!.smembers("myset")).should eq(["Bar", "Foo", "Hello", "World"])
+          end
+        else
+          pending ":redis is not running: #sadd / #smembers"
         end
 
-        it "#sismember" do
-          redis.del("key1")
-          redis.sadd("key1", "a")
-          redis.sismember("key1", "a").should eq(1)
-          redis.sismember("key1", "b").should eq(0)
+        if redis_is_running
+          it "#scard" do
+            redis.not_nil!.del("myset")
+            redis.not_nil!.sadd("myset", "Hello", "World")
+            redis.not_nil!.scard("myset").should eq(2)
+          end
+        else
+          pending ":redis is not running: #scard"
         end
 
-        it "#srem" do
-          redis.del("myset")
-          redis.sadd("myset", "Hello", "World")
-          redis.srem("myset", "Hello").should eq(1)
-          redis.smembers("myset").should eq(["World"])
-
-          redis.sadd("myset", ["Hello", "World", "Foo"])
-          redis.srem("myset", ["Hello", "Foo"]).should eq(2)
-          redis.smembers("myset").should eq(["World"])
+        if redis_is_running
+          it "#sismember" do
+            redis.not_nil!.del("key1")
+            redis.not_nil!.sadd("key1", "a")
+            redis.not_nil!.sismember("key1", "a").should eq(1)
+            redis.not_nil!.sismember("key1", "b").should eq(0)
+          end
+        else
+          pending ":redis is not running: #sismember"
         end
 
-        it "#sdiff" do
-          redis.del("key1", "key2")
-          redis.sadd("key1", "a", "b", "c")
-          redis.sadd("key2", "c", "d", "e")
-          sort(redis.sdiff("key1", "key2")).should eq(["a", "b"])
+        if redis_is_running
+          it "#srem" do
+            redis.not_nil!.del("myset")
+            redis.not_nil!.sadd("myset", "Hello", "World")
+            redis.not_nil!.srem("myset", "Hello").should eq(1)
+            redis.not_nil!.smembers("myset").should eq(["World"])
+
+            redis.not_nil!.sadd("myset", ["Hello", "World", "Foo"])
+            redis.not_nil!.srem("myset", ["Hello", "Foo"]).should eq(2)
+            redis.not_nil!.smembers("myset").should eq(["World"])
+          end
+        else
+          pending ":redis is not running: #srem"
         end
 
-        it "#spop" do
-          redis.del("myset")
-          redis.sadd("myset", "one")
-          redis.spop("myset").should eq("one")
-          redis.smembers("myset").should eq([] of Redis::RedisValue)
-          # Redis 3.0 should have received the "count" argument, but hasn't.
-          #
-          # redis.sadd("myset", "one", "two")
-          # sort(redis.spop("myset", count: 2)).should eq(["one", "two"])
-
-          redis.del("myset")
-          redis.spop("myset").should eq(nil)
+        if redis_is_running
+          it "#sdiff" do
+            redis.not_nil!.del("key1", "key2")
+            redis.not_nil!.sadd("key1", "a", "b", "c")
+            redis.not_nil!.sadd("key2", "c", "d", "e")
+            sort(redis.not_nil!.sdiff("key1", "key2")).should eq(["a", "b"])
+          end
+        else
+          pending ":redis is not running: #sdiff"
         end
 
-        it "#sdiffstore" do
-          redis.del("key1", "key2", "destination")
-          redis.sadd("key1", "a", "b", "c")
-          redis.sadd("key2", "c", "d", "e")
-          redis.sdiffstore("destination", "key1", "key2").should eq(2)
-          sort(redis.smembers("destination")).should eq(["a", "b"])
+        if redis_is_running
+          it "#spop" do
+            redis.not_nil!.del("myset")
+            redis.not_nil!.sadd("myset", "one")
+            redis.not_nil!.spop("myset").should eq("one")
+            redis.not_nil!.smembers("myset").should eq([] of Redis::RedisValue)
+            # Redis 3.0 should have received the "count" argument, but hasn't.
+            #
+            # redis.not_nil!.sadd("myset", "one", "two")
+            # sort(redis.not_nil!.spop("myset", count: 2)).should eq(["one", "two"])
+
+            redis.not_nil!.del("myset")
+            redis.not_nil!.spop("myset").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #spop"
         end
 
-        it "#sinter" do
-          redis.del("key1", "key2")
-          redis.sadd("key1", "a", "b", "c")
-          redis.sadd("key2", "c", "d", "e")
-          redis.sinter("key1", "key2").should eq(["c"])
+        if redis_is_running
+          it "#sdiffstore" do
+            redis.not_nil!.del("key1", "key2", "destination")
+            redis.not_nil!.sadd("key1", "a", "b", "c")
+            redis.not_nil!.sadd("key2", "c", "d", "e")
+            redis.not_nil!.sdiffstore("destination", "key1", "key2").should eq(2)
+            sort(redis.not_nil!.smembers("destination")).should eq(["a", "b"])
+          end
+        else
+          pending ":redis is not running: #sdiffstore"
         end
 
-        it "#sinterstore" do
-          redis.del("key1", "key2", "destination")
-          redis.sadd("key1", "a", "b", "c")
-          redis.sadd("key2", "c", "d", "e")
-          redis.sinterstore("destination", "key1", "key2").should eq(1)
-          redis.smembers("destination").should eq(["c"])
+        if redis_is_running
+          it "#sinter" do
+            redis.not_nil!.del("key1", "key2")
+            redis.not_nil!.sadd("key1", "a", "b", "c")
+            redis.not_nil!.sadd("key2", "c", "d", "e")
+            redis.not_nil!.sinter("key1", "key2").should eq(["c"])
+          end
+        else
+          pending ":redis is not running: #sinter"
         end
 
-        it "#sunion" do
-          redis.del("key1", "key2")
-          redis.sadd("key1", "a", "b")
-          redis.sadd("key2", "c", "d")
-          sort(redis.sunion("key1", "key2")).should eq(["a", "b", "c", "d"])
+        if redis_is_running
+          it "#sinterstore" do
+            redis.not_nil!.del("key1", "key2", "destination")
+            redis.not_nil!.sadd("key1", "a", "b", "c")
+            redis.not_nil!.sadd("key2", "c", "d", "e")
+            redis.not_nil!.sinterstore("destination", "key1", "key2").should eq(1)
+            redis.not_nil!.smembers("destination").should eq(["c"])
+          end
+        else
+          pending ":redis is not running: #sinterstore"
         end
 
-        it "#sunionstore" do
-          redis.del("key1", "key2", "destination")
-          redis.sadd("key1", "a", "b")
-          redis.sadd("key2", "c", "d")
-          redis.sunionstore("destination", "key1", "key2").should eq(4)
-          sort(redis.smembers("destination")).should eq(["a", "b", "c", "d"])
+        if redis_is_running
+          it "#sunion" do
+            redis.not_nil!.del("key1", "key2")
+            redis.not_nil!.sadd("key1", "a", "b")
+            redis.not_nil!.sadd("key2", "c", "d")
+            sort(redis.not_nil!.sunion("key1", "key2")).should eq(["a", "b", "c", "d"])
+          end
+        else
+          pending ":redis is not running: #sunion"
         end
 
-        it "#smove" do
-          redis.del("key1", "key2", "destination")
-          redis.sadd("key1", "a", "b")
-          redis.sadd("key2", "c")
-          redis.smove("key1", "key2", "b").should eq(1)
-          redis.smembers("key1").should eq(["a"])
-          sort(redis.smembers("key2")).should eq(["b", "c"])
+        if redis_is_running
+          it "#sunionstore" do
+            redis.not_nil!.del("key1", "key2", "destination")
+            redis.not_nil!.sadd("key1", "a", "b")
+            redis.not_nil!.sadd("key2", "c", "d")
+            redis.not_nil!.sunionstore("destination", "key1", "key2").should eq(4)
+            sort(redis.not_nil!.smembers("destination")).should eq(["a", "b", "c", "d"])
+          end
+        else
+          pending ":redis is not running: #sunionstore"
         end
 
-        it "#srandmember" do
-          redis.del("key1", "key2", "destination")
-          redis.sadd("key1", "a")
-          redis.srandmember("key1", 1).should eq(["a"])
+        if redis_is_running
+          it "#smove" do
+            redis.not_nil!.del("key1", "key2", "destination")
+            redis.not_nil!.sadd("key1", "a", "b")
+            redis.not_nil!.sadd("key2", "c")
+            redis.not_nil!.smove("key1", "key2", "b").should eq(1)
+            redis.not_nil!.smembers("key1").should eq(["a"])
+            sort(redis.not_nil!.smembers("key2")).should eq(["b", "c"])
+          end
+        else
+          pending ":redis is not running: #smove"
+        end
+
+        if redis_is_running
+          it "#srandmember" do
+            redis.not_nil!.del("key1", "key2", "destination")
+            redis.not_nil!.sadd("key1", "a")
+            redis.not_nil!.srandmember("key1", 1).should eq(["a"])
+          end
+        else
+          pending ":redis is not running: #srandmember"
         end
 
         describe "#sscan" do
-          it "no options" do
-            redis.del("myset")
-            redis.sadd("myset", "a", "b")
-            new_cursor, keys = redis.sscan("myset", 0)
-            new_cursor.should eq("0")
-            sort(keys).should eq(["a", "b"])
+          if redis_is_running
+            it "no options" do
+              redis.not_nil!.del("myset")
+              redis.not_nil!.sadd("myset", "a", "b")
+              new_cursor, keys = redis.not_nil!.sscan("myset", 0)
+              new_cursor.should eq("0")
+              sort(keys).should eq(["a", "b"])
+            end
+          else
+            pending ":redis is not running: no options"
           end
 
-          it "with match" do
-            redis.del("myset")
-            redis.sadd("myset", "foo", "bar", "foo2", "foo3")
-            new_cursor, keys = redis.sscan("myset", 0, "foo*", 2)
-            new_cursor = new_cursor.as(String)
-            keys.is_a?(Array).should be_true
-            array(keys).size.should be > 0
+          if redis_is_running
+            it "with match" do
+              redis.not_nil!.del("myset")
+              redis.not_nil!.sadd("myset", "foo", "bar", "foo2", "foo3")
+              new_cursor, keys = redis.not_nil!.sscan("myset", 0, "foo*", 2)
+              new_cursor = new_cursor.as(String)
+              keys.is_a?(Array).should be_true
+              array(keys).size.should be > 0
+            end
+          else
+            pending ":redis is not running: with match"
           end
 
-          it "with match and count" do
-            redis.del("myset")
-            redis.sadd("myset", "foo", "bar", "baz")
-            new_cursor, keys = redis.sscan("myset", 0, "*a*", 1)
-            new_cursor = new_cursor.as(String)
-            new_cursor.to_i.should be > 0
-            keys.is_a?(Array).should be_true
-            # TODO SW: This assertion fails randomly
-            # array(keys).size.should be > 0
+          if redis_is_running
+            it "with match and count" do
+              redis.not_nil!.del("myset")
+              redis.not_nil!.sadd("myset", "foo", "bar", "baz")
+              new_cursor, keys = redis.not_nil!.sscan("myset", 0, "*a*", 1)
+              new_cursor = new_cursor.as(String)
+              new_cursor.to_i.should be > 0
+              keys.is_a?(Array).should be_true
+              # TODO SW: This assertion fails randomly
+              # array(keys).size.should be > 0
+            end
+          else
+            pending ":redis is not running: with match and count"
           end
 
-          it "with match and count at once" do
-            redis.del("myset")
-            redis.sadd("myset", "foo", "bar", "baz")
-            new_cursor, keys = redis.sscan("myset", 0, "*a*", 10)
-            new_cursor.should eq("0")
-            keys.is_a?(Array).should be_true
-            array(keys).sort.should eq(["bar", "baz"])
+          if redis_is_running
+            it "with match and count at once" do
+              redis.not_nil!.del("myset")
+              redis.not_nil!.sadd("myset", "foo", "bar", "baz")
+              new_cursor, keys = redis.not_nil!.sscan("myset", 0, "*a*", 10)
+              new_cursor.should eq("0")
+              keys.is_a?(Array).should be_true
+              array(keys).sort.should eq(["bar", "baz"])
+            end
+          else
+            pending ":redis is not running: with match and count at once"
           end
         end
       end
 
       describe "hashes" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#hset / #hget" do
-          redis.del("myhash")
-          redis.hset("myhash", "a", "434")
-          redis.hget("myhash", "a").should eq("434")
-
-          redis.hget("myhash", "b").should eq("435")
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#hgetall" do
-          redis.del("myhash")
-          redis.hset("myhash", "a", "123")
-          redis.hset("myhash", "b", "456")
-          redis.hgetall("myhash").should eq({"a" => "123", "b" => "456"})
-          redis.del("myhash")
-          redis.hgetall("myhash").should eq({} of String => String)
+        if redis_is_running
+          it "#hset / #hget" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "a", "434")
+            redis.not_nil!.hget("myhash", "a").should eq("434")
+
+            redis.not_nil!.hget("myhash", "b").should eq("435")
+          end
+        else
+          pending ":redis is not running: #hset / #hget"
         end
 
-        it "#hdel" do
-          redis.del("myhash")
-          redis.hset("myhash", "field1", "foo")
-          redis.hdel("myhash", "field1").should eq(1)
-          redis.hget("myhash", "field1").should eq(nil)
+        if redis_is_running
+          it "#hgetall" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "a", "123")
+            redis.not_nil!.hset("myhash", "b", "456")
+            redis.not_nil!.hgetall("myhash").should eq({"a" => "123", "b" => "456"})
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hgetall("myhash").should eq({} of String => String)
+          end
+        else
+          pending ":redis is not running: #hgetall"
         end
 
-        it "#hexists" do
-          redis.del("myhash")
-          redis.hset("myhash", "field1", "foo")
-          redis.hexists("myhash", "field1").should eq(1)
-          redis.hexists("myhash", "field2").should eq(0)
+        if redis_is_running
+          it "#hdel" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "field1", "foo")
+            redis.not_nil!.hdel("myhash", "field1").should eq(1)
+            redis.not_nil!.hget("myhash", "field1").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #hdel"
         end
 
-        it "#hincrby" do
-          redis.del("myhash")
-          redis.hset("myhash", "field1", "1")
-          redis.hincrby("myhash", "field1", "3").should eq(4)
+        if redis_is_running
+          it "#hexists" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "field1", "foo")
+            redis.not_nil!.hexists("myhash", "field1").should eq(1)
+            redis.not_nil!.hexists("myhash", "field2").should eq(0)
+          end
+        else
+          pending ":redis is not running: #hexists"
         end
 
-        it "#hincrbyfloat" do
-          redis.del("myhash")
-          redis.hset("myhash", "field1", "10.50")
-          redis.hincrbyfloat("myhash", "field1", "0.1").should eq("10.6")
+        if redis_is_running
+          it "#hincrby" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "field1", "1")
+            redis.not_nil!.hincrby("myhash", "field1", "3").should eq(4)
+          end
+        else
+          pending ":redis is not running: #hincrby"
         end
 
-        it "#hkeys" do
-          redis.del("myhash")
-          redis.hset("myhash", "field1", "1")
-          redis.hset("myhash", "field2", "2")
-          redis.hkeys("myhash").should eq(["field1", "field2"])
+        if redis_is_running
+          it "#hincrbyfloat" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "field1", "10.50")
+            redis.not_nil!.hincrbyfloat("myhash", "field1", "0.1").should eq("10.6")
+          end
+        else
+          pending ":redis is not running: #hincrbyfloat"
         end
 
-        it "#hlen" do
-          redis.del("myhash")
-          redis.hset("myhash", "field1", "1")
-          redis.hset("myhash", "field2", "2")
-          redis.hlen("myhash").should eq(2)
+        if redis_is_running
+          it "#hkeys" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "field1", "1")
+            redis.not_nil!.hset("myhash", "field2", "2")
+            redis.not_nil!.hkeys("myhash").should eq(["field1", "field2"])
+          end
+        else
+          pending ":redis is not running: #hkeys"
         end
 
-        it "#hmget" do
-          redis.del("myhash")
-          redis.hset("myhash", "a", "123")
-          redis.hset("myhash", "b", "456")
-          redis.hmget("myhash", "a", "b").should eq(["123", "456"])
-          redis.hmget("myhash", ["a", "b"]).should eq(["123", "456"])
+        if redis_is_running
+          it "#hlen" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "field1", "1")
+            redis.not_nil!.hset("myhash", "field2", "2")
+            redis.not_nil!.hlen("myhash").should eq(2)
+          end
+        else
+          pending ":redis is not running: #hlen"
         end
 
-        it "#hmset" do
-          redis.del("myhash")
-          redis.hmset("myhash", {"field1": "a", "field2": 2})
-          redis.hget("myhash", "field1").should eq("a")
-          redis.hget("myhash", "field2").should eq("2")
+        if redis_is_running
+          it "#hmget" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "a", "123")
+            redis.not_nil!.hset("myhash", "b", "456")
+            redis.not_nil!.hmget("myhash", "a", "b").should eq(["123", "456"])
+            redis.not_nil!.hmget("myhash", ["a", "b"]).should eq(["123", "456"])
+          end
+        else
+          pending ":redis is not running: #hmget"
+        end
+
+        if redis_is_running
+          it "#hmset" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hmset("myhash", {"field1": "a", "field2": 2})
+            redis.not_nil!.hget("myhash", "field1").should eq("a")
+            redis.not_nil!.hget("myhash", "field2").should eq("2")
+          end
+        else
+          pending ":redis is not running: #hmset"
         end
 
         describe "#hscan" do
-          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-          it "no options" do
-            redis.del("myhash")
-            redis.hmset("myhash", {"field1": "a", "field2": "b"})
-            new_cursor, keys = redis.hscan("myhash", 0)
-            new_cursor.should eq("0")
-            keys.should eq({"field1" => "a", "field2" => "b"})
+          if redis_is_running
+            redis = namespace ? Redis.new(namespace: namespace) : Redis.new
           end
 
-          it "with match" do
-            redis.del("myhash")
-            redis.hmset("myhash", {"foo": "a", "bar": "b"})
-            new_cursor, keys = redis.hscan("myhash", 0, "f*")
-            new_cursor.should eq("0")
-            keys.should eq({"foo" => "a"})
+          if redis_is_running
+            it "no options" do
+              redis.not_nil!.del("myhash")
+              redis.not_nil!.hmset("myhash", {"field1": "a", "field2": "b"})
+              new_cursor, keys = redis.not_nil!.hscan("myhash", 0)
+              new_cursor.should eq("0")
+              keys.should eq({"field1" => "a", "field2" => "b"})
+            end
+          else
+            pending ":redis is not running: #hscan"
+          end
+
+          if redis_is_running
+            it "with match" do
+              redis.not_nil!.del("myhash")
+              redis.not_nil!.hmset("myhash", {"foo": "a", "bar": "b"})
+              new_cursor, keys = redis.not_nil!.hscan("myhash", 0, "f*")
+              new_cursor.should eq("0")
+              keys.should eq({"foo" => "a"})
+            end
+          else
+            pending ":redis is not running: #hscan"
           end
 
           # pending: hscan doesn't handle COUNT strictly
           # it "#hscan with match and count" do
           # end
 
-          it "with match and count at once" do
-            redis.del("myhash")
-            redis.hmset("myhash", {"foo": "a", "bar": "b", "baz": "c"})
-            new_cursor, keys = redis.hscan("myhash", 0, "*a*", 1024)
-            new_cursor.should eq("0")
-            pp "*********"
-            pp keys
-            # keys.keys.sort.should eq(["bar", "baz"])
+          if redis_is_running
+            it "with match and count at once" do
+              redis.not_nil!.del("myhash")
+              redis.not_nil!.hmset("myhash", {"foo": "a", "bar": "b", "baz": "c"})
+              new_cursor, keys = redis.not_nil!.hscan("myhash", 0, "*a*", 1024)
+              new_cursor.should eq("0")
+              pp "*********"
+              pp keys
+              # keys.keys.sort.should eq(["bar", "baz"])
+            end
+          else
+            pending ":redis is not running: #hscan"
           end
         end
 
-        it "#hsetnx" do
-          redis.del("myhash")
-          redis.hsetnx("myhash", "foo", "setnxed").should eq(1)
-          redis.hget("myhash", "foo").should eq("setnxed")
-          redis.hsetnx("myhash", "foo", "setnxed2").should eq(0)
-          redis.hget("myhash", "foo").should eq("setnxed")
+        if redis_is_running
+          it "#hsetnx" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hsetnx("myhash", "foo", "setnxed").should eq(1)
+            redis.not_nil!.hget("myhash", "foo").should eq("setnxed")
+            redis.not_nil!.hsetnx("myhash", "foo", "setnxed2").should eq(0)
+            redis.not_nil!.hget("myhash", "foo").should eq("setnxed")
+          end
+        else
+          pending ":redis is not running: #hsetnx"
         end
 
-        it "#hvals" do
-          redis.del("myhash")
-          redis.hset("myhash", "a", "123")
-          redis.hset("myhash", "b", "456")
-          redis.hvals("myhash").should eq(["123", "456"])
+        if redis_is_running
+          it "#hvals" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "a", "123")
+            redis.not_nil!.hset("myhash", "b", "456")
+            redis.not_nil!.hvals("myhash").should eq(["123", "456"])
+          end
+        else
+          pending ":redis is not running: #hvals"
         end
       end
 
       describe "sorted sets" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#zadd / zrange" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one").should eq(1)
-          redis.zadd("myzset", [1, "uno"]).should eq(1)
-          redis.zadd("myzset", 2, "two", 3, "three").should eq(2)
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "1", "uno", "1", "two", "2", "three", "3"])
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#zadd / zrange with xx" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one").should eq(1)
-          redis.zadd("myzset", 11, "one", xx: true).should eq(0)
-          redis.zadd("myzset", 2, "two", xx: true).should eq(0)
-          redis.zadd("myzset", 3, "three", xx: false).should eq(1)
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["three", "3", "one", "11"])
+        if redis_is_running
+          it "#zadd / zrange" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one").should eq(1)
+            redis.not_nil!.zadd("myzset", [1, "uno"]).should eq(1)
+            redis.not_nil!.zadd("myzset", 2, "two", 3, "three").should eq(2)
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "1", "uno", "1", "two", "2", "three", "3"])
+          end
+        else
+          pending ":redis is not running: #zadd / zrange"
         end
 
-        it "#zadd / zrange with nx" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one").should eq(1)
-          redis.zadd("myzset", 11, "one", nx: true).should eq(0)
-          redis.zadd("myzset", 2, "two", nx: true).should eq(1)
-          redis.zadd("myzset", 3, "three", nx: false).should eq(1)
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "1", "two", "2", "three", "3"])
+        if redis_is_running
+          it "#zadd / zrange with xx" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one").should eq(1)
+            redis.not_nil!.zadd("myzset", 11, "one", xx: true).should eq(0)
+            redis.not_nil!.zadd("myzset", 2, "two", xx: true).should eq(0)
+            redis.not_nil!.zadd("myzset", 3, "three", xx: false).should eq(1)
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["three", "3", "one", "11"])
+          end
+        else
+          pending ":redis is not running: #zadd / zrange with xx"
         end
 
-        it "#zadd / zrange with ch" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", ch: true).should eq(1)
-          redis.zadd("myzset", 11, "one", ch: true).should eq(1)
-          redis.zadd("myzset", 2, "two", ch: true).should eq(1)
-          redis.zadd("myzset", 3, "three", ch: false).should eq(1)
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["two", "2", "three", "3", "one", "11"])
+        if redis_is_running
+          it "#zadd / zrange with nx" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one").should eq(1)
+            redis.not_nil!.zadd("myzset", 11, "one", nx: true).should eq(0)
+            redis.not_nil!.zadd("myzset", 2, "two", nx: true).should eq(1)
+            redis.not_nil!.zadd("myzset", 3, "three", nx: false).should eq(1)
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "1", "two", "2", "three", "3"])
+          end
+        else
+          pending ":redis is not running: #zadd / zrange with nx"
         end
 
-        it "#zadd / zrange with incr" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", incr: true).should eq("1")
-          redis.zadd("myzset", 11, "one", incr: true).should eq("12")
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "12"])
+        if redis_is_running
+          it "#zadd / zrange with ch" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", ch: true).should eq(1)
+            redis.not_nil!.zadd("myzset", 11, "one", ch: true).should eq(1)
+            redis.not_nil!.zadd("myzset", 2, "two", ch: true).should eq(1)
+            redis.not_nil!.zadd("myzset", 3, "three", ch: false).should eq(1)
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["two", "2", "three", "3", "one", "11"])
+          end
+        else
+          pending ":redis is not running: #zadd / zrange with ch"
         end
 
-        it "#zrangebylex" do
-          redis.del("myzset")
-          redis.zadd("myzset", 0, "a", 0, "b", 0, "c", 0, "d", 0, "e", 0, "f", 0, "g")
-          redis.zrangebylex("myzset", "-", "[c").should eq(["a", "b", "c"])
-          redis.zrangebylex("myzset", "-", "(c").should eq(["a", "b"])
-          redis.zrangebylex("myzset", "[aaa", "(g").should eq(["b", "c", "d", "e", "f"])
-          redis.zrangebylex("myzset", "[aaa", "(g", limit: [0, 4]).should eq(["b", "c", "d", "e"])
+        if redis_is_running
+          it "#zadd / zrange with incr" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", incr: true).should eq("1")
+            redis.not_nil!.zadd("myzset", 11, "one", incr: true).should eq("12")
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "12"])
+          end
+        else
+          pending ":redis is not running: #zadd / zrange with incr"
         end
 
-        it "#zrangebyscore" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zrangebyscore("myzset", "-inf", "+inf").should eq(["one", "two", "three"])
-          redis.zrangebyscore("myzset", "-inf", "+inf", limit: [0, 2]).should eq(["one", "two"])
+        if redis_is_running
+          it "#zrangebylex" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 0, "a", 0, "b", 0, "c", 0, "d", 0, "e", 0, "f", 0, "g")
+            redis.not_nil!.zrangebylex("myzset", "-", "[c").should eq(["a", "b", "c"])
+            redis.not_nil!.zrangebylex("myzset", "-", "(c").should eq(["a", "b"])
+            redis.not_nil!.zrangebylex("myzset", "[aaa", "(g").should eq(["b", "c", "d", "e", "f"])
+            redis.not_nil!.zrangebylex("myzset", "[aaa", "(g", limit: [0, 4]).should eq(["b", "c", "d", "e"])
+          end
+        else
+          pending ":redis is not running: #zrangebylex"
         end
 
-        it "#zrevrange" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zrevrange("myzset", 0, -1).should eq(["three", "two", "one"])
-          redis.zrevrange("myzset", 2, 3).should eq(["one"])
-          redis.zrevrange("myzset", -2, -1).should eq(["two", "one"])
+        if redis_is_running
+          it "#zrangebyscore" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zrangebyscore("myzset", "-inf", "+inf").should eq(["one", "two", "three"])
+            redis.not_nil!.zrangebyscore("myzset", "-inf", "+inf", limit: [0, 2]).should eq(["one", "two"])
+          end
+        else
+          pending ":redis is not running: #zrangebyscore"
         end
 
-        it "#zrevrangebylex" do
-          redis.del("myzset")
-          redis.zadd("myzset", 0, "a", 0, "b", 0, "c", 0, "d", 0, "e", 0, "f", 0, "g")
-          redis.zrevrangebylex("myzset", "[c", "-").should eq(["c", "b", "a"])
-          redis.zrevrangebylex("myzset", "(c", "-").should eq(["b", "a"])
-          redis.zrevrangebylex("myzset", "(g", "[aaa").should eq(["f", "e", "d", "c", "b"])
-          redis.zrevrangebylex("myzset", "+", "-", limit: [1, 1]).should eq(["f"])
+        if redis_is_running
+          it "#zrevrange" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zrevrange("myzset", 0, -1).should eq(["three", "two", "one"])
+            redis.not_nil!.zrevrange("myzset", 2, 3).should eq(["one"])
+            redis.not_nil!.zrevrange("myzset", -2, -1).should eq(["two", "one"])
+          end
+        else
+          pending ":redis is not running: #zrevrange"
         end
 
-        it "#zrevrangebyscore" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zrevrangebyscore("myzset", "+inf", "-inf").should eq(["three", "two", "one"])
-          redis.zrevrangebyscore("myzset", "+inf", "-inf", limit: [0, 2]).should eq(["three", "two"])
+        if redis_is_running
+          it "#zrevrangebylex" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 0, "a", 0, "b", 0, "c", 0, "d", 0, "e", 0, "f", 0, "g")
+            redis.not_nil!.zrevrangebylex("myzset", "[c", "-").should eq(["c", "b", "a"])
+            redis.not_nil!.zrevrangebylex("myzset", "(c", "-").should eq(["b", "a"])
+            redis.not_nil!.zrevrangebylex("myzset", "(g", "[aaa").should eq(["f", "e", "d", "c", "b"])
+            redis.not_nil!.zrevrangebylex("myzset", "+", "-", limit: [1, 1]).should eq(["f"])
+          end
+        else
+          pending ":redis is not running: #zrevrangebylex"
         end
 
-        it "#zscore" do
-          redis.del("myzset")
-          redis.zadd("myzset", 2, "two")
-          redis.zscore("myzset", "two").should eq("2")
+        if redis_is_running
+          it "#zrevrangebyscore" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zrevrangebyscore("myzset", "+inf", "-inf").should eq(["three", "two", "one"])
+            redis.not_nil!.zrevrangebyscore("myzset", "+inf", "-inf", limit: [0, 2]).should eq(["three", "two"])
+          end
+        else
+          pending ":redis is not running: #zrevrangebyscore"
         end
 
-        it "#zcard" do
-          redis.del("myzset")
-          redis.zadd("myzset", 2, "two", 3, "three")
-          redis.zcard("myzset").should eq(2)
+        if redis_is_running
+          it "#zscore" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 2, "two")
+            redis.not_nil!.zscore("myzset", "two").should eq("2")
+          end
+        else
+          pending ":redis is not running: #zscore"
         end
 
-        it "#zcount" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zcount("myzset", "-inf", "+inf").should eq(3)
-          redis.zcount("myzset", "(1", "3").should eq(2)
+        if redis_is_running
+          it "#zcard" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 2, "two", 3, "three")
+            redis.not_nil!.zcard("myzset").should eq(2)
+          end
+        else
+          pending ":redis is not running: #zcard"
         end
 
-        it "#zlexcount" do
-          redis.del("myzset")
-          redis.zadd("myzset", 0, "a", 0, "b", 0, "c", 0, "d", 0, "e", 0, "f", 0, "g")
-          redis.zlexcount("myzset", "-", "+").should eq(7)
-          redis.zlexcount("myzset", "[b", "[f").should eq(5)
+        if redis_is_running
+          it "#zcount" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zcount("myzset", "-inf", "+inf").should eq(3)
+            redis.not_nil!.zcount("myzset", "(1", "3").should eq(2)
+          end
+        else
+          pending ":redis is not running: #zcount"
         end
 
-        it "#zrank" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zrank("myzset", "one").should eq(0)
-          redis.zrank("myzset", "three").should eq(2)
-          redis.zrank("myzset", "four").should eq(nil)
+        if redis_is_running
+          it "#zlexcount" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 0, "a", 0, "b", 0, "c", 0, "d", 0, "e", 0, "f", 0, "g")
+            redis.not_nil!.zlexcount("myzset", "-", "+").should eq(7)
+            redis.not_nil!.zlexcount("myzset", "[b", "[f").should eq(5)
+          end
+        else
+          pending ":redis is not running: #zlexcount"
+        end
+
+        if redis_is_running
+          it "#zrank" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zrank("myzset", "one").should eq(0)
+            redis.not_nil!.zrank("myzset", "three").should eq(2)
+            redis.not_nil!.zrank("myzset", "four").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #zrank"
         end
 
         describe "zscan" do
-          it "no options" do
-            redis.del("myset")
-            redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-            new_cursor, keys = redis.zscan("myzset", 0)
-            new_cursor.should eq("0")
-            keys.should eq(["one", "1", "two", "2", "three", "3"])
+          if redis_is_running
+            it "no options" do
+              redis.not_nil!.del("myset")
+              redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+              new_cursor, keys = redis.not_nil!.zscan("myzset", 0)
+              new_cursor.should eq("0")
+              keys.should eq(["one", "1", "two", "2", "three", "3"])
+            end
+          else
+            pending ":redis is not running: no options"
           end
 
-          it "with match" do
-            redis.del("myzset")
-            redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-            new_cursor, keys = redis.zscan("myzset", 0, "t*")
-            new_cursor.should eq("0")
-            keys.is_a?(Array).should be_true
-            # extract odd elements for keys because zscan returns (key, val) as a single list
-            keys = array(keys).in_groups_of(2).map(&.first.not_nil!)
-            keys.should eq(["two", "three"])
+          if redis_is_running
+            it "with match" do
+              redis.not_nil!.del("myzset")
+              redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+              new_cursor, keys = redis.not_nil!.zscan("myzset", 0, "t*")
+              new_cursor.should eq("0")
+              keys.is_a?(Array).should be_true
+              # extract odd elements for keys because zscan returns (key, val) as a single list
+              keys = array(keys).in_groups_of(2).map(&.first.not_nil!)
+              keys.should eq(["two", "three"])
+            end
+          else
+            pending ":redis is not running: with match"
           end
 
           # pending: zscan doesn't handle COUNT strictly
           # it "#zscan with match and count" do
           # end
 
-          it "with match and count at once" do
-            redis.del("myzset")
-            redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-            new_cursor, keys = redis.zscan("myzset", 0, "t*", 1024)
-            new_cursor.should eq("0")
-            keys.is_a?(Array).should be_true
-            # extract odd elements for keys because zscan returns (key, val) as a single list
-            keys = array(keys).in_groups_of(2).map(&.first.not_nil!)
-            keys.should eq(["two", "three"])
+          if redis_is_running
+            it "with match and count at once" do
+              redis.not_nil!.del("myzset")
+              redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+              new_cursor, keys = redis.not_nil!.zscan("myzset", 0, "t*", 1024)
+              new_cursor.should eq("0")
+              keys.is_a?(Array).should be_true
+              # extract odd elements for keys because zscan returns (key, val) as a single list
+              keys = array(keys).in_groups_of(2).map(&.first.not_nil!)
+              keys.should eq(["two", "three"])
+            end
+          else
+            pending ":redis is not running: with match and count at once"
           end
         end
 
-        it "#zrevrank" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zrevrank("myzset", "one").should eq(2)
-          redis.zrevrank("myzset", "three").should eq(0)
-          redis.zrevrank("myzset", "four").should eq(nil)
+        if redis_is_running
+          it "#zrevrank" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zrevrank("myzset", "one").should eq(2)
+            redis.not_nil!.zrevrank("myzset", "three").should eq(0)
+            redis.not_nil!.zrevrank("myzset", "four").should eq(nil)
+          end
+        else
+          pending ":redis is not running: #zrevrank"
         end
 
-        it "#zincrby" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one")
-          redis.zincrby("myzset", 2, "one").should eq("3")
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "3"])
+        if redis_is_running
+          it "#zincrby" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one")
+            redis.not_nil!.zincrby("myzset", 2, "one").should eq("3")
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "3"])
+          end
+        else
+          pending ":redis is not running: #zincrby"
         end
 
-        it "#zrem" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zrem("myzset", "two").should eq(1)
-          redis.zcard("myzset").should eq(2)
+        if redis_is_running
+          it "#zrem" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zrem("myzset", "two").should eq(1)
+            redis.not_nil!.zcard("myzset").should eq(2)
+          end
+        else
+          pending ":redis is not running: #zrem"
         end
 
-        it "#zremrangebylex" do
-          redis.del("myzset")
-          redis.zadd("myzset", 0, "aaaa", 0, "b", 0, "c", 0, "d", 0, "e")
-          redis.zadd("myzset", 0, "foo", 0, "zap", 0, "zip", 0, "ALPHA", 0, "alpha")
-          redis.zremrangebylex("myzset", "[alpha", "[omega")
-          redis.zrange("myzset", 0, -1).should eq(["ALPHA", "aaaa", "zap", "zip"])
+        if redis_is_running
+          it "#zremrangebylex" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 0, "aaaa", 0, "b", 0, "c", 0, "d", 0, "e")
+            redis.not_nil!.zadd("myzset", 0, "foo", 0, "zap", 0, "zip", 0, "ALPHA", 0, "alpha")
+            redis.not_nil!.zremrangebylex("myzset", "[alpha", "[omega")
+            redis.not_nil!.zrange("myzset", 0, -1).should eq(["ALPHA", "aaaa", "zap", "zip"])
+          end
+        else
+          pending ":redis is not running: #zremrangebylex"
         end
 
-        it "#zremrangebyrank" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zremrangebyrank("myzset", 0, 1).should eq(2)
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["three", "3"])
+        if redis_is_running
+          it "#zremrangebyrank" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zremrangebyrank("myzset", 0, 1).should eq(2)
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["three", "3"])
+          end
+        else
+          pending ":redis is not running: #zremrangebyrank"
         end
 
-        it "#zremrangebyscore" do
-          redis.del("myzset")
-          redis.zadd("myzset", 1, "one", 2, "two", 3, "three")
-          redis.zremrangebyscore("myzset", "-inf", "(2").should eq(1)
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["two", "2", "three", "3"])
+        if redis_is_running
+          it "#zremrangebyscore" do
+            redis.not_nil!.del("myzset")
+            redis.not_nil!.zadd("myzset", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zremrangebyscore("myzset", "-inf", "(2").should eq(1)
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["two", "2", "three", "3"])
+          end
+        else
+          pending ":redis is not running: #zremrangebyscore"
         end
 
-        it "#zinterstore" do
-          redis.del("zset1", "zset2", "zset3")
-          redis.zadd("zset1", 1, "one", 2, "two")
-          redis.zadd("zset2", 1, "one", 2, "two", 3, "three")
-          redis.zinterstore("zset3", ["zset1", "zset2"], weights: [2, 3]).should eq(2)
-          redis.zrange("zset3", 0, -1, with_scores: true).should eq(["one", "5", "two", "10"])
+        if redis_is_running
+          it "#zinterstore" do
+            redis.not_nil!.del("zset1", "zset2", "zset3")
+            redis.not_nil!.zadd("zset1", 1, "one", 2, "two")
+            redis.not_nil!.zadd("zset2", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zinterstore("zset3", ["zset1", "zset2"], weights: [2, 3]).should eq(2)
+            redis.not_nil!.zrange("zset3", 0, -1, with_scores: true).should eq(["one", "5", "two", "10"])
+          end
+        else
+          pending ":redis is not running: #zinterstore"
         end
 
-        it "#zunionstore" do
-          redis.del("zset1", "zset2", "zset3")
-          redis.zadd("zset1", 1, "one", 2, "two")
-          redis.zadd("zset2", 1, "one", 2, "two", 3, "three")
-          redis.zunionstore("zset3", ["zset1", "zset2"], weights: [2, 3]).should eq(3)
-          redis.zrange("zset3", 0, -1, with_scores: true).should eq(["one", "5", "three", "9", "two", "10"])
+        if redis_is_running
+          it "#zunionstore" do
+            redis.not_nil!.del("zset1", "zset2", "zset3")
+            redis.not_nil!.zadd("zset1", 1, "one", 2, "two")
+            redis.not_nil!.zadd("zset2", 1, "one", 2, "two", 3, "three")
+            redis.not_nil!.zunionstore("zset3", ["zset1", "zset2"], weights: [2, 3]).should eq(3)
+            redis.not_nil!.zrange("zset3", 0, -1, with_scores: true).should eq(["one", "5", "three", "9", "two", "10"])
+          end
+        else
+          pending ":redis is not running: #zunionstore"
         end
       end
 
       describe "#pipelined" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "executes the commands in the block and returns the results" do
-          futures = [] of Redis::Future
-          results = redis.pipelined do |pipeline|
-            pipeline.set("foo", "new value")
-            futures << pipeline.get("foo")
-          end
-          results[1].should eq("new value")
-          futures[0].value.should eq("new value")
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "raises an exception if we call methods on the Redis object" do
-          redis.pipelined do |pipeline|
-            expect_raises Redis::Error do
-              redis.set("foo", "bar")
+        if redis_is_running
+          it "executes the commands in the block and returns the results" do
+            futures = [] of Redis::Future
+            results = redis.not_nil!.pipelined do |pipeline|
+              pipeline.set("foo", "new value")
+              futures << pipeline.get("foo")
+            end
+            results[1].should eq("new value")
+            futures[0].value.should eq("new value")
+          end
+        else
+          pending ":redis is not running: executes the commands in the block and returns the results"
+        end
+
+        if redis_is_running
+          it "raises an exception if we call methods on the Redis object" do
+            redis.not_nil!.pipelined do |pipeline|
+              expect_raises Redis::Error do
+                redis.not_nil!.set("foo", "bar")
+              end
             end
           end
+        else
+          pending ":redis is not running: raises an exception if we call methods on the Redis object"
         end
 
-        it "work with hgetall" do
-          redis.del("myhash")
-          redis.hset("myhash", "a", "123")
-          redis.hset("myhash", "b", "456")
+        if redis_is_running
+          it "work with hgetall" do
+            redis.not_nil!.del("myhash")
+            redis.not_nil!.hset("myhash", "a", "123")
+            redis.not_nil!.hset("myhash", "b", "456")
 
-          h = redis.pipelined do |pipeline|
-            pipeline.exists("myhash")
-            pipeline.hgetall("myhash")
+            h = redis.not_nil!.pipelined do |pipeline|
+              pipeline.exists("myhash")
+              pipeline.hgetall("myhash")
+            end
+
+            h.should eq([1, ["a", "123", "b", "456"]])
           end
-
-          h.should eq([1, ["a", "123", "b", "456"]])
+        else
+          pending ":redis is not running: work with hgetall"
         end
       end
 
       describe "hyperloglog" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#pfadd / #pfcount" do
-          redis.del("hll")
-          redis.pfadd("hll", "a", "b", "c", "d", "e", "f", "g").should eq(1)
-          redis.pfcount("hll").should eq(7)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#pfmerge" do
-          redis.del("hll1", "hll2", "hll3")
-          redis.pfadd("hll1", "foo", "bar", "zap", "a")
-          redis.pfadd("hll2", "a", "b", "c", "foo")
-          redis.pfmerge("hll3", "hll1", "hll2").should eq("OK")
-          redis.pfcount("hll3").should eq(6)
+        if redis_is_running
+          it "#pfadd / #pfcount" do
+            redis.not_nil!.del("hll")
+            redis.not_nil!.pfadd("hll", "a", "b", "c", "d", "e", "f", "g").should eq(1)
+            redis.not_nil!.pfcount("hll").should eq(7)
+          end
+        else
+          pending ":redis is not running: #pfadd / #pfcount"
+        end
+
+        if redis_is_running
+          it "#pfmerge" do
+            redis.not_nil!.del("hll1", "hll2", "hll3")
+            redis.not_nil!.pfadd("hll1", "foo", "bar", "zap", "a")
+            redis.not_nil!.pfadd("hll2", "a", "b", "c", "foo")
+            redis.not_nil!.pfmerge("hll3", "hll1", "hll2").should eq("OK")
+            redis.not_nil!.pfcount("hll3").should eq(6)
+          end
+        else
+          pending ":redis is not running: #pfmerge"
         end
       end
 
       describe "#info" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-        it "returns server data" do
-          x = redis.info
-          x.size.should be >= 70
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
-          x = redis.info("cpu")
-          (4..8).should contain(x.size)
+        if redis_is_running
+          it "returns server data" do
+            x = redis.not_nil!.info
+            x.size.should be >= 70
 
-          redis.info["redis_version"].should_not be_nil
+            x = redis.not_nil!.info("cpu")
+            (4..8).should contain(x.size)
+
+            redis.not_nil!.info["redis_version"].should_not be_nil
+          end
+        else
+          pending ":redis is not running: returns server data"
         end
       end
 
       describe "#multi" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
-        it "executes the commands in the block and returns the results" do
-          futures = [] of Redis::Future
-          results = redis.multi do |multi|
-            multi.set("foo", "new value")
-            futures << multi.get("foo")
+        if redis_is_running
+          it "executes the commands in the block and returns the results" do
+            futures = [] of Redis::Future
+            results = redis.not_nil!.multi do |multi|
+              multi.set("foo", "new value")
+              futures << multi.get("foo")
+            end
+            results[1].should eq("new value")
+            # future.not_nil!
+            futures[0].value.should eq("new value")
           end
-          results[1].should eq("new value")
-          # future.not_nil!
-          futures[0].value.should eq("new value")
+        else
+          pending ":redis is not running: executes the commands in the block and returns the results"
         end
 
-        it "does not execute the commands in the block upon #discard" do
-          redis.set("foo", "initial value")
-          results = redis.multi do |multi|
-            multi.set("foo", "new value")
-            multi.discard
+        if redis_is_running
+          it "does not execute the commands in the block upon #discard" do
+            redis.not_nil!.set("foo", "initial value")
+            results = redis.not_nil!.multi do |multi|
+              multi.set("foo", "new value")
+              multi.discard
+            end
+            redis.not_nil!.get("foo").should eq("initial value")
+            results.should eq([] of Redis::RedisValue)
           end
-          redis.get("foo").should eq("initial value")
-          results.should eq([] of Redis::RedisValue)
+        else
+          pending ":redis is not running: does not execute the commands in the block upon #discard"
         end
 
-        it "performs optimistic locking with #watch" do
-          redis.set("foo", "1")
-          current_value = redis.get("foo").not_nil!
-          redis.watch("foo")
-          results = redis.multi do |multi|
-            other_redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-            other_redis.set("foo", "value set by other client")
-            multi.set("foo", current_value + "2")
+        if redis_is_running
+          it "performs optimistic locking with #watch" do
+            redis.not_nil!.set("foo", "1")
+            current_value = redis.not_nil!.get("foo").not_nil!
+            redis.not_nil!.watch("foo")
+            results = redis.not_nil!.multi do |multi|
+              other_redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+              other_redis.not_nil!.set("foo", "value set by other client")
+              multi.set("foo", current_value + "2")
+            end
+            redis.not_nil!.get("foo").should eq("value set by other client")
           end
-          redis.get("foo").should eq("value set by other client")
+        else
+          pending ":redis is not running: performs optimistic locking with #watch"
         end
 
-        it "#watch" do
-          redis.set("foo", "1")
-          redis.watch("foo")
-          redis.unwatch
+        if redis_is_running
+          it "#watch" do
+            redis.not_nil!.set("foo", "1")
+            redis.not_nil!.watch("foo")
+            redis.not_nil!.unwatch
+          end
+        else
+          pending ":redis is not running: #watch"
         end
 
-        it "raises an exception if we call methods on the Redis object" do
-          redis.multi do |multi|
-            expect_raises Redis::Error do
-              redis.set("foo", "bar")
+        if redis_is_running
+          it "raises an exception if we call methods on the Redis object" do
+            redis.not_nil!.multi do |multi|
+              expect_raises Redis::Error do
+                redis.not_nil!.set("foo", "bar")
+              end
             end
           end
+        else
+          pending ":redis is not running: raises an exception if we call methods on the Redis object"
         end
 
-        it "zadd works in multi" do
-          futures = [] of Redis::Future
-          redis.del("myzset")
+        if redis_is_running
+          it "zadd works in multi" do
+            futures = [] of Redis::Future
+            redis.not_nil!.del("myzset")
 
-          results = redis.multi do |multi|
-            multi.zadd("myzset", 1.0, "one")
-            multi.zadd("myzset", [1, "uno"])
-            multi.zadd("myzset", 2, "two", 3, "three")
+            results = redis.not_nil!.multi do |multi|
+              multi.zadd("myzset", 1.0, "one")
+              multi.zadd("myzset", [1, "uno"])
+              multi.zadd("myzset", 2, "two", 3, "three")
+            end
+
+            redis.not_nil!.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "1", "uno", "1", "two", "2", "three", "3"])
           end
-
-          redis.zrange("myzset", 0, -1, with_scores: true).should eq(["one", "1", "uno", "1", "two", "2", "three", "3"])
+        else
+          pending ":redis is not running: zadd works in multi"
         end
       end
 
       describe "LUA scripting" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
         describe "#eval" do
-          it "executes the LUA script" do
-            keys = ["key1", "key2"] of Redis::RedisValue
-            args = ["first", "second"] of Redis::RedisValue
-            result = redis.eval("return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}", keys, args)
-            result.should eq(["key1", "key2", "first", "second"])
+          if redis_is_running
+            it "executes the LUA script" do
+              keys = ["key1", "key2"] of Redis::RedisValue
+              args = ["first", "second"] of Redis::RedisValue
+              result = redis.not_nil!.eval("return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}", keys, args)
+              result.should eq(["key1", "key2", "first", "second"])
+            end
+          else
+            pending ":redis is not running: executes the LUA script"
           end
 
-          it "handles different return types" do
-            keys = ["key1", "key2"] of Redis::RedisValue
-            args = ["first", "second"] of Redis::RedisValue
-            result = redis.eval("return KEYS[1]", keys, args)
-            result.should eq("key1")
+          if redis_is_running
+            it "handles different return types" do
+              keys = ["key1", "key2"] of Redis::RedisValue
+              args = ["first", "second"] of Redis::RedisValue
+              result = redis.not_nil!.eval("return KEYS[1]", keys, args)
+              result.should eq("key1")
+            end
+          else
+            pending ":redis is not running: handles different return types"
           end
         end
 
         describe "#script_load / #eval_sha" do
-          it "registers a LUA script and calls it" do
-            sha1 = redis.script_load("return {KEYS[1],ARGV[1]}")
-            keys = ["key1", "key2"] of Redis::RedisValue
-            args = ["first", "second"] of Redis::RedisValue
-            result = redis.evalsha(sha1, keys, args)
-            result.should eq(["key1", "first"])
+          if redis_is_running
+            it "registers a LUA script and calls it" do
+              sha1 = redis.not_nil!.script_load("return {KEYS[1],ARGV[1]}")
+              keys = ["key1", "key2"] of Redis::RedisValue
+              args = ["first", "second"] of Redis::RedisValue
+              result = redis.not_nil!.evalsha(sha1, keys, args)
+              result.should eq(["key1", "first"])
+            end
+          else
+            pending ":redis is not running: registers a LUA script and calls it"
           end
 
-          it "handles different return types" do
-            sha1 = redis.script_load("return KEYS[1]")
-            keys = ["key1", "key2"] of Redis::RedisValue
-            args = ["first", "second"] of Redis::RedisValue
-            result = redis.evalsha(sha1, keys, args)
-            result.should eq("key1")
+          if redis_is_running
+            it "handles different return types" do
+              sha1 = redis.not_nil!.script_load("return KEYS[1]")
+              keys = ["key1", "key2"] of Redis::RedisValue
+              args = ["first", "second"] of Redis::RedisValue
+              result = redis.not_nil!.evalsha(sha1, keys, args)
+              result.should eq("key1")
+            end
+          else
+            pending ":redis is not running: handles different return types"
           end
         end
 
         describe "#script_kill" do
-          it "kills the currently running LUA script" do
-            begin
-              redis.script_kill
-            rescue Redis::Error
+          if redis_is_running
+            it "kills the currently running LUA script" do
+              begin
+                redis.not_nil!.script_kill
+              rescue Redis::Error
+              end
             end
+          else
+            pending ":redis is not running: kills the currently running LUA script"
           end
         end
 
         describe "#script_exists" do
-          it "checks if the given LUA scripts exist" do
-            sha1 = redis.script_load("return 10")
-            result = redis.script_exists([sha1, "fffffffffffffff"])
-            result.should eq([1, 0])
+          if redis_is_running
+            it "checks if the given LUA scripts exist" do
+              sha1 = redis.not_nil!.script_load("return 10")
+              result = redis.not_nil!.script_exists([sha1, "fffffffffffffff"])
+              result.should eq([1, 0])
+            end
+          else
+            pending ":redis is not running: checks if the given LUA scripts exist"
           end
         end
 
         describe "#script_flush" do
-          it "flushes the LUA script cache" do
-            sha1 = redis.script_load("return 10")
-            redis.script_flush
-            redis.script_exists([sha1]).should eq([0])
+          if redis_is_running
+            it "flushes the LUA script cache" do
+              sha1 = redis.not_nil!.script_load("return 10")
+              redis.not_nil!.script_flush
+              redis.not_nil!.script_exists([sha1]).should eq([0])
+            end
+          else
+            pending ":redis is not running: flushes the LUA script cache"
           end
         end
       end
 
       describe "#type" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
-        it "returns a value's type as a string" do
-          redis.set("foo", 3)
-          redis.type("foo").should eq("string")
+        if redis_is_running
+          it "returns a value's type as a string" do
+            redis.not_nil!.set("foo", 3)
+            redis.not_nil!.type("foo").should eq("string")
+          end
+        else
+          pending ":redis is not running: returns a value's type as a string"
         end
       end
 
       describe "expiry" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#expire" do
-          redis.set("temp", "3")
-          redis.expire("temp", 2).should eq(1)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#expireat" do
-          redis.set("temp", "3")
-          redis.expireat("temp", 1555555555005).should eq(1)
-          redis.ttl("temp").should be > 3000
+        if redis_is_running
+          it "#expire" do
+            redis.not_nil!.set("temp", "3")
+            redis.not_nil!.expire("temp", 2).should eq(1)
+          end
+        else
+          pending ":redis is not running: #expire"
         end
 
-        it "#ttl" do
-          redis.set("temp", "9")
-          redis.ttl("temp").should eq(-1)
-          redis.expire("temp", 3)
-          redis.ttl("temp").should eq(3)
+        if redis_is_running
+          it "#expireat" do
+            redis.not_nil!.set("temp", "3")
+            redis.not_nil!.expireat("temp", 1555555555005).should eq(1)
+            redis.not_nil!.ttl("temp").should be > 3000
+          end
+        else
+          pending ":redis is not running: #expireat"
         end
 
-        it "#pexpire" do
-          redis.set("temp", "3")
-          redis.pexpire("temp", 1000).should eq(1)
+        if redis_is_running
+          it "#ttl" do
+            redis.not_nil!.set("temp", "9")
+            redis.not_nil!.ttl("temp").should eq(-1)
+            redis.not_nil!.expire("temp", 3)
+            redis.not_nil!.ttl("temp").should eq(3)
+          end
+        else
+          pending ":redis is not running: #ttl"
         end
 
-        it "#pexpireat" do
-          redis.set("temp", "3")
-          timeout = Time.utc(2029, 2, 15, 10, 20, 30)
-          redis.pexpireat("temp", timeout.to_unix_ms).should eq(1)
-          redis.pttl("temp").should be > 2990
+        if redis_is_running
+          it "#pexpire" do
+            redis.not_nil!.set("temp", "3")
+            redis.not_nil!.pexpire("temp", 1000).should eq(1)
+          end
+        else
+          pending ":redis is not running: #pexpire"
         end
 
-        it "#pttl" do
-          redis.set("temp", "9")
-          redis.pttl("temp").should eq(-1)
-          redis.pexpire("temp", 3000)
-          redis.pttl("temp").should be > 2990
+        if redis_is_running
+          it "#pexpireat" do
+            redis.not_nil!.set("temp", "3")
+            timeout = Time.utc(2029, 2, 15, 10, 20, 30)
+            redis.not_nil!.pexpireat("temp", timeout.to_unix_ms).should eq(1)
+            redis.not_nil!.pttl("temp").should be > 2990
+          end
+        else
+          pending ":redis is not running: #pexpireat"
         end
 
-        it "#persist" do
-          redis.set("temp", "9")
-          redis.expire("temp", 3)
-          redis.ttl("temp").should eq(3)
-          redis.persist("temp")
-          redis.ttl("temp").should eq(-1)
+        if redis_is_running
+          it "#pttl" do
+            redis.not_nil!.set("temp", "9")
+            redis.not_nil!.pttl("temp").should eq(-1)
+            redis.not_nil!.pexpire("temp", 3000)
+            redis.not_nil!.pttl("temp").should be > 2990
+          end
+        else
+          pending ":redis is not running: #pttl"
+        end
+
+        if redis_is_running
+          it "#persist" do
+            redis.not_nil!.set("temp", "9")
+            redis.not_nil!.expire("temp", 3)
+            redis.not_nil!.ttl("temp").should eq(3)
+            redis.not_nil!.persist("temp")
+            redis.not_nil!.ttl("temp").should eq(-1)
+          end
+        else
+          pending ":redis is not running: #persist"
         end
       end
 
       describe "publish / subscribe" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#publish" do
-          redis.publish("mychannel", "my message")
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#subscribe / #unsubscribe" do
-          callbacks_received = [] of String
-          redis.subscribe("mychannel") do |on|
-            on.subscribe do |channel, subscriptions|
-              channel.should eq("mychannel")
-              subscriptions.should eq(1)
-              callbacks_received << "subscribe"
+        if redis_is_running
+          it "#publish" do
+            redis.not_nil!.publish("mychannel", "my message")
+          end
+        else
+          pending ":redis is not running: #publish"
+        end
 
-              # Send a message to ourselves so that we can test the other callbacks.
-              # We need a second connection to do so.
-              Redis.open do |other_redis|
-                other_redis.publish("mychannel", "just talking to myself")
+        if redis_is_running
+          it "#subscribe / #unsubscribe" do
+            callbacks_received = [] of String
+            redis.not_nil!.subscribe("mychannel") do |on|
+              on.subscribe do |channel, subscriptions|
+                channel.should eq("mychannel")
+                subscriptions.should eq(1)
+                callbacks_received << "subscribe"
+
+                # Send a message to ourselves so that we can test the other callbacks.
+                # We need a second connection to do so.
+                Redis.open do |other_redis|
+                  other_redis.not_nil!.publish("mychannel", "just talking to myself")
+                end
               end
-            end
 
-            on.message do |channel, message|
-              channel.should eq("mychannel")
-              message.should eq("just talking to myself")
-              callbacks_received << "message"
-
-              # Great, we are done.
-              redis.unsubscribe("mychannel")
-            end
-
-            on.unsubscribe do |channel, subscriptions|
-              channel.should eq("mychannel")
-              subscriptions.should eq(0)
-              callbacks_received << "unsubscribe"
-            end
-          end
-
-          callbacks_received.should eq(["subscribe", "message", "unsubscribe"])
-        end
-
-        it "can be used after #unsubscribe" do
-          redis.subscribe("mychannel") do |on|
-            on.subscribe do |c, s|
-              redis.unsubscribe(c)
-            end
-          end
-          redis.set("temp", "temp1")
-          redis.get("temp").should eq "temp1"
-        end
-
-        it "use ping in #subscribe" do
-          redis.del("mychannel")
-          res = [] of String
-
-          spawn do
-            redis.subscribe("mychannel") do |on|
               on.message do |channel, message|
-                res << message
-                res << redis.ping
-                redis.unsubscribe("mychannel") if res.size >= 4
+                channel.should eq("mychannel")
+                message.should eq("just talking to myself")
+                callbacks_received << "message"
+
+                # Great, we are done.
+                redis.not_nil!.unsubscribe("mychannel")
+              end
+
+              on.unsubscribe do |channel, subscriptions|
+                channel.should eq("mychannel")
+                subscriptions.should eq(0)
+                callbacks_received << "unsubscribe"
               end
             end
+
+            callbacks_received.should eq(["subscribe", "message", "unsubscribe"])
           end
+        else
+          pending ":redis is not running: #subscribe / #unsubscribe"
+        end
 
-          Redis.new.publish("mychannel", "11")
-          Redis.new.publish("mychannel", "22")
+        if redis_is_running
+          it "can be used after #unsubscribe" do
+            redis.not_nil!.subscribe("mychannel") do |on|
+              on.subscribe do |c, s|
+                redis.not_nil!.unsubscribe(c)
+              end
+            end
+            redis.not_nil!.set("temp", "temp1")
+            redis.not_nil!.get("temp").should eq "temp1"
+          end
+        else
+          pending ":redis is not running: can be used after #unsubscribe"
+        end
 
-          sleep 0.1
-          res.should eq ["11", "pong", "22", "pong"]
+        if redis_is_running
+          it "use ping in #subscribe" do
+            redis.not_nil!.del("mychannel")
+            res = [] of String
+
+            spawn do
+              redis.not_nil!.subscribe("mychannel") do |on|
+                on.message do |channel, message|
+                  res << message
+                  res << redis.not_nil!.ping
+                  redis.not_nil!.unsubscribe("mychannel") if res.size >= 4
+                end
+              end
+            end
+
+            Redis.new.publish("mychannel", "11")
+            Redis.new.publish("mychannel", "22")
+
+            sleep 0.1
+            res.should eq ["11", "pong", "22", "pong"]
+          end
+        else
+          pending ":redis is not running: use ping in #subscribe"
         end
       end
 
       describe "punsubscribe" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
-        it "#psubscribe / #punsubscribe" do
-          callbacks_received = [] of String
+        if redis_is_running
+          it "#psubscribe / #punsubscribe" do
+            callbacks_received = [] of String
 
-          redis.psubscribe("otherchan*") do |on|
-            on.psubscribe do |channel_pattern, subscriptions|
-              channel_pattern.should eq("otherchan*")
-              subscriptions.should eq(1)
-              callbacks_received << "psubscribe"
+            redis.not_nil!.psubscribe("otherchan*") do |on|
+              on.psubscribe do |channel_pattern, subscriptions|
+                channel_pattern.should eq("otherchan*")
+                subscriptions.should eq(1)
+                callbacks_received << "psubscribe"
 
-              # Send a message to ourselves so that we can test the other callbacks.
-              # We need a second connection to do so.
-              Redis.open do |other_redis|
-                other_redis.publish("otherchannel", "hello subscriber")
+                # Send a message to ourselves so that we can test the other callbacks.
+                # We need a second connection to do so.
+                Redis.open do |other_redis|
+                  other_redis.not_nil!.publish("otherchannel", "hello subscriber")
+                end
+              end
+
+              on.pmessage do |channel_pattern, channel, message|
+                channel_pattern.should eq("otherchan*")
+                channel.should eq("otherchannel")
+                message.should eq("hello subscriber")
+                callbacks_received << "pmessage"
+
+                # Great, we are done.
+                redis.not_nil!.punsubscribe("otherchan*")
+              end
+
+              on.punsubscribe do |channel_pattern, subscriptions|
+                channel_pattern.should eq("otherchan*")
+                subscriptions.should eq(0)
+                callbacks_received << "punsubscribe"
               end
             end
 
-            on.pmessage do |channel_pattern, channel, message|
-              channel_pattern.should eq("otherchan*")
-              channel.should eq("otherchannel")
-              message.should eq("hello subscriber")
-              callbacks_received << "pmessage"
-
-              # Great, we are done.
-              redis.punsubscribe("otherchan*")
-            end
-
-            on.punsubscribe do |channel_pattern, subscriptions|
-              channel_pattern.should eq("otherchan*")
-              subscriptions.should eq(0)
-              callbacks_received << "punsubscribe"
-            end
+            callbacks_received.should eq(["psubscribe", "pmessage", "punsubscribe"])
           end
-
-          callbacks_received.should eq(["psubscribe", "pmessage", "punsubscribe"])
+        else
+          pending ":redis is not running: #psubscribe / #punsubscribe"
         end
       end
 
       describe "OBJECT commands" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#object_refcount" do
-          redis.del("mylist")
-          redis.rpush("mylist", "Hello", "World")
-          redis.object_refcount("mylist").should eq(1)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#object_encoding" do
-          redis.del("mylist")
-          redis.rpush("mylist", "Hello", "World")
-          redis.object_encoding("mylist").should eq("quicklist")
+        if redis_is_running
+          it "#object_refcount" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "Hello", "World")
+            redis.not_nil!.object_refcount("mylist").should eq(1)
+          end
+        else
+          pending ":redis is not running: #object_refcount"
         end
 
-        it "#object_idletime" do
-          redis.del("mylist")
-          redis.rpush("mylist", "Hello", "World")
-          redis.object_idletime("mylist").should eq(0)
+        if redis_is_running
+          it "#object_encoding" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "Hello", "World")
+            redis.not_nil!.object_encoding("mylist").should eq("quicklist")
+          end
+        else
+          pending ":redis is not running: #object_encoding"
+        end
+
+        if redis_is_running
+          it "#object_idletime" do
+            redis.not_nil!.del("mylist")
+            redis.not_nil!.rpush("mylist", "Hello", "World")
+            redis.not_nil!.object_idletime("mylist").should eq(0)
+          end
+        else
+          pending ":redis is not running: #object_idletime"
         end
       end
 
       describe "GEO commands" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        it "#geoadd" do
-          redis.geoadd("Nebraska", -96.8308123, 40.8005243, "Lincoln").should eq(1)
-          redis.geoadd("Nebraska", -96.3614327, 41.2915193, "Omaha").should eq(1)
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "#geodist" do
-          redis.geodist("Nebraska", "Lincoln", "Omaha", "mi").should eq("41.8340")
+        if redis_is_running
+          it "#geoadd" do
+            redis.not_nil!.geoadd("Nebraska", -96.8308123, 40.8005243, "Lincoln").should eq(1)
+            redis.not_nil!.geoadd("Nebraska", -96.3614327, 41.2915193, "Omaha").should eq(1)
+          end
+        else
+          pending ":redis is not running: #geoadd"
         end
 
-        it "#geohash" do
-          geohash = redis.geohash("Nebraska", "Lincoln", "Omaha")
-          geohash.should eq(["9z70he9bq80", "9z76zhzsxc0"])
+        if redis_is_running
+          it "#geodist" do
+            redis.not_nil!.geodist("Nebraska", "Lincoln", "Omaha", "mi").should eq("41.8340")
+          end
+        else
+          pending ":redis is not running: #geodist"
         end
 
-        it "#geopos" do
-          pos = redis.geopos("Nebraska", "Lincoln")
-          pos.size.should eq(1)
-          pos[0].as(Array(Redis::RedisValue)).size.should eq(2)
+        if redis_is_running
+          it "#geohash" do
+            geohash = redis.not_nil!.geohash("Nebraska", "Lincoln", "Omaha")
+            geohash.should eq(["9z70he9bq80", "9z76zhzsxc0"])
+          end
+        else
+          pending ":redis is not running: #geohash"
         end
 
-        it "#georadius" do
-          results = redis.georadius("Nebraska", -96.8308123, 40.8005243, 100, "mi")
-          results.size.should eq(2)
-          results.includes?("Lincoln").should be_true
-          results.includes?("Omaha").should be_true
+        if redis_is_running
+          it "#geopos" do
+            pos = redis.not_nil!.geopos("Nebraska", "Lincoln")
+            pos.size.should eq(1)
+            pos[0].as(Array(Redis::RedisValue)).size.should eq(2)
+          end
+        else
+          pending ":redis is not running: #geopos"
         end
 
-        it "#georadiusbymember" do
-          results = redis.georadiusbymember("Nebraska", "Lincoln", 100, "mi")
-          results.size.should eq(2)
-          results.includes?("Lincoln").should be_true
-          results.includes?("Omaha").should be_true
+        if redis_is_running
+          it "#georadius" do
+            results = redis.not_nil!.georadius("Nebraska", -96.8308123, 40.8005243, 100, "mi")
+            results.size.should eq(2)
+            results.includes?("Lincoln").should be_true
+            results.includes?("Omaha").should be_true
+          end
+        else
+          pending ":redis is not running: #georadius"
+        end
+
+        if redis_is_running
+          it "#georadiusbymember" do
+            results = redis.not_nil!.georadiusbymember("Nebraska", "Lincoln", 100, "mi")
+            results.size.should eq(2)
+            results.includes?("Lincoln").should be_true
+            results.includes?("Omaha").should be_true
+          end
+        else
+          pending ":redis is not running: #georadiusbymember"
         end
       end
 
       describe "large values" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
-        it "sends and receives a large value correctly" do
-          redis.del("foo")
-          large_value = "0123456789" * 100_000 # 1 MB
-          redis.set("foo", large_value)
-          redis.get("foo").should eq(large_value)
+        if redis_is_running
+          it "sends and receives a large value correctly" do
+            redis.not_nil!.del("foo")
+            large_value = "0123456789" * 100_000 # 1 MB
+            redis.not_nil!.set("foo", large_value)
+            redis.not_nil!.get("foo").should eq(large_value)
+          end
+        else
+          pending ":redis is not running: large values"
         end
       end
 
       describe "regression on #keys: compile time error" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
-
-        # https://github.com/stefanwille/crystal-redis/issues/100
-        it "del + key" do
-          redis.set("namespaced::key", 2)
-          redis.keys("namespaced::*").each { |key| redis.del(key) }
-          redis.keys("namespaced::*").size.should eq 0
-
-          redis.del("namespaced::key") # check that this also compile
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
         end
 
-        it "del + keys" do
-          redis.set("namespaced::key", 2)
-          keys = redis.keys("namespaced::*")
-          redis.del(keys)
-          redis.keys("namespaced::*").size.should eq 0
+        # https://github.com/stefanwille/crystal-redis/issues/100
+        if redis_is_running
+          it "del + key" do
+            redis.not_nil!.set("namespaced::key", 2)
+            redis.not_nil!.keys("namespaced::*").each { |key| redis.not_nil!.del(key) }
+            redis.not_nil!.keys("namespaced::*").size.should eq 0
 
-          redis.del(["namespaced::key"]) # check that this also compile
+            redis.not_nil!.del("namespaced::key") # check that this also compile
+          end
+        else
+          pending ":redis is not running: regression on #keys: compile time error"
+        end
+
+        if redis_is_running
+          it "del + keys" do
+            redis.not_nil!.set("namespaced::key", 2)
+            keys = redis.not_nil!.keys("namespaced::*")
+            redis.not_nil!.del(keys)
+            redis.not_nil!.keys("namespaced::*").size.should eq 0
+
+            redis.not_nil!.del(["namespaced::key"]) # check that this also compile
+          end
+        else
+          pending ":redis is not running: regression on #keys: compile time error"
         end
       end
 
       context "namespace" do
-        redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        if redis_is_running
+          redis = namespace ? Redis.new(namespace: namespace) : Redis.new
+        end
 
-        it "with namespace" do
-          r1 = Redis.new(namespace: "my_namespace")
-          r2 = Redis.new
-          r3 = Redis.new(namespace: "")
-          r2.del("foo")
-          r2.del("my_namespace::foo")
+        if redis_is_running
+          it "with namespace" do
+            r1 = Redis.new(namespace: "my_namespace")
+            r2 = Redis.new
+            r3 = Redis.new(namespace: "")
+            r2.del("foo")
+            r2.del("my_namespace::foo")
 
-          redis.set("foo", "abc")
+            redis.not_nil!.set("foo", "abc")
 
-          if namespace
-            r1.get("foo").should eq "abc"
-            r2.get("foo").should eq nil
-            r2.get("my_namespace::foo").should eq "abc"
-            r3.get("foo").should eq nil
-            r3.get("my_namespace::foo").should eq "abc"
-          else
-            r1.get("foo").should eq nil
-            r2.get("foo").should eq "abc"
-            r2.get("my_namespace::foo").should eq nil
-            r3.get("foo").should eq "abc"
-            r3.get("my_namespace::foo").should eq nil
+            if namespace
+              r1.get("foo").should eq "abc"
+              r2.get("foo").should eq nil
+              r2.get("my_namespace::foo").should eq "abc"
+              r3.get("foo").should eq nil
+              r3.get("my_namespace::foo").should eq "abc"
+            else
+              r1.get("foo").should eq nil
+              r2.get("foo").should eq "abc"
+              r2.get("my_namespace::foo").should eq nil
+              r3.get("foo").should eq "abc"
+              r3.get("my_namespace::foo").should eq nil
+            end
           end
+        else
+          pending ":redis is not running: namespace"
         end
       end
     end
   end
 
   describe "#flush" do
-    it "flushdb" do
-      Redis.new.flushdb.should eq("OK")
+    if redis_is_running
+      it "flushdb" do
+        Redis.new.flushdb.should eq("OK")
+      end
+    else
+      pending ":redis is not running: flush"
     end
 
-    it "flushall" do
-      Redis.new.flushall.should eq("OK")
+    if redis_is_running
+      it "flushall" do
+        Redis.new.flushall.should eq("OK")
+      end
+    else
+      pending ":redis is not running: flush"
     end
   end
 
   describe "reconnect option: after losing the connection" do
     describe "when true" do
-      it "reconnects" do
-        redis = Redis.new(reconnect: true)
-        redis.close
-        redis.ping.should eq("PONG")
+      if redis_is_running
+        it "reconnects" do
+          redis = Redis.new(reconnect: true)
+          redis.not_nil!.close
+          redis.not_nil!.ping.should eq("PONG")
+        end
+      else
+        pending ":redis is not running: reconnect"
       end
 
-      it "reconnects for #pipelined" do
-        redis = Redis.new(reconnect: true)
-        redis.close
-        ping_future : Redis::Future? = nil
-        redis.pipelined do |api|
-          ping_future = api.ping
+      if redis_is_running
+        it "reconnects for #pipelined" do
+          redis = Redis.new(reconnect: true)
+          redis.not_nil!.close
+          ping_future : Redis::Future? = nil
+          redis.not_nil!.pipelined do |api|
+            ping_future = api.ping
+          end
+          ping_future.not_nil!.value.should eq("PONG")
         end
-        ping_future.not_nil!.value.should eq("PONG")
+      else
+        pending ":redis is not running: reconnect"
       end
 
-      it "reconnects for #multi" do
-        redis = Redis.new(reconnect: true)
-        redis.close
-        ping_future : Redis::Future? = nil
-        redis.multi do |api|
-          ping_future = api.ping
+      if redis_is_running
+        it "reconnects for #multi" do
+          redis = Redis.new(reconnect: true)
+          redis.not_nil!.close
+          ping_future : Redis::Future? = nil
+          redis.not_nil!.multi do |api|
+            ping_future = api.ping
+          end
+          ping_future.not_nil!.value.should eq("PONG")
         end
-        ping_future.not_nil!.value.should eq("PONG")
+      else
+        pending ":redis is not running: reconnect"
       end
     end
 
     describe "when false" do
-      it "raises a helpful exception" do
-        redis = Redis.new(reconnect: false)
-        redis.close
-        expect_raises(Redis::ConnectionLostError, "Not connected to Redis server and reconnect=false") do
-          redis.ping
+      if redis_is_running
+        it "raises a helpful exception" do
+          redis = Redis.new(reconnect: false)
+          redis.not_nil!.close
+          expect_raises(Redis::ConnectionLostError, "Not connected to Redis server and reconnect=false") do
+            redis.not_nil!.ping
+          end
         end
+      else
+        pending ":redis is not running: reconnect"
       end
     end
   end
