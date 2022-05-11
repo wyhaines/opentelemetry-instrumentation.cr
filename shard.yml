@@ -23,8 +23,8 @@ development_dependencies:
   sqlite3:
     github: crystal-lang/crystal-sqlite3
   # Only one of these can be enabled, since they sit in the exact same namespace.
-  # redis:
-  #   github: stefanwille/crystal-redis
-  #   branch: master
   redis:
-   github: jgaskins/redis
+    github: stefanwille/crystal-redis
+    branch: master
+  # redis:
+  #  github: jgaskins/redis
