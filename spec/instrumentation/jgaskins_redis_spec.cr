@@ -51,7 +51,7 @@ if_defined?(Redis::VERSION) do
           redis.del(known_key).should eq 0
           redis.get(known_key).should eq nil
 
-          client_traces, server_traces = FindJson.from_io(memory)
+          FindJson.from_io(memory)
         ensure
           redis.del known_key
         end
@@ -316,14 +316,13 @@ if_defined?(Redis::VERSION) do
           group = "my-group"
 
           begin
-            entry_id = redis.xadd key, "*", foo: "bar"
+            _entry_id = redis.xadd key, "*", foo: "bar"
             # Create a group to consume this stream starting at the beginning
             redis.xgroup "create", key, group, "0"
             consumer_id = UUID.random.to_s
 
-            result = redis.xreadgroup group, consumer_id, count: "10", streams: {"my-stream": ">"}
+            _result = redis.xreadgroup group, consumer_id, count: "10", streams: {"my-stream": ">"}
           rescue ex
-            pp ex
             raise ex
           ensure
             redis.xgroup "destroy", key, group
@@ -425,7 +424,7 @@ if_defined?(Redis::VERSION) do
             end
           end
 
-          subscription.on_subscribe do |channel, count|
+          subscription.on_subscribe do |_channel, count|
             # Only set ready if *both* subscriptions have gone through
             ready = true if count == 2
           end
