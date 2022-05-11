@@ -24,6 +24,6 @@ jobs:
     - name: Install dependencies
       run: shards install
     - name: Run tests
-      run: crystal spec -t -s
+      run: crystal spec --stats --progress --error-trace -D DEBUG -v
     - name: Run Ameba
       run: bin/ameba
