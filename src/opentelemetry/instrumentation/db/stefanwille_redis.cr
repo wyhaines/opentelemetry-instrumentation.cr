@@ -79,10 +79,10 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
                                   else
                                     socket.class.name # Generic fallback, but is unlikely to happen
                                   end
+          span["db.redis.database_index"] = (connection.@uri.try(&.path.presence) || "/")[1..].presence.to_s
 
           span["db.system"] = "redis"
           span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
-          span["db.redis.database_index"] = (connection.@uri.try(&.path.presence) || "/")[1..].presence.to_s
         end
       end
 
@@ -107,19 +107,39 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
       end
 
       class Redis::Strategy::PauseDuringPipeline
-        trace("command") do
-          OpenTelemetry.trace.in_span(Redis.span_name(request)) do |span|
-            Redis.span_attributes(span, @connection, request)
-            previous_def
+        def command(request : Request)
+          span = OpenTelemetry.trace.in_span(Redis.span_name(request))
+          span["db.system"] = "redis"
+          span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
+          previous_def
+        rescue exception
+          if span
+            span.status.error!(exception.message)
+            exception.span_status_message_set = true
+          end
+          raise exception
+        ensure
+          if span
+            OpenTelemetry.trace.close_span(span)
           end
         end
       end
 
       class Redis::Strategy::PauseDuringTransaction
-        trace("command") do
-          OpenTelemetry.trace.in_span(Redis.span_name(request)) do |span|
-            Redis.span_attributes(span, @connection, request)
-            previous_def
+        def command(request : Request)
+          span = OpenTelemetry.trace.in_span(Redis.span_name(request))
+          span["db.system"] = "redis"
+          span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
+          previous_def
+        rescue exception
+          if span
+            span.status.error!(exception.message)
+            exception.span_status_message_set = true
+          end
+          raise exception
+        ensure
+          if span
+            OpenTelemetry.trace.close_span(span)
           end
         end
       end

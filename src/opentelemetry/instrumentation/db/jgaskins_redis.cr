@@ -19,7 +19,7 @@ end
 
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_JGASKINS_REDIS") do
   # The stefanwille shard doesn't define this constant. This is unfortunate, but it does (currently)
-  # make it convenient to help differentiate between.
+  # make it convenient to help differentiate between the two shards.
   if_defined?(Redis::VERSION) do
     # :nodoc:
     module OpenTelemetry::Instrumentation
