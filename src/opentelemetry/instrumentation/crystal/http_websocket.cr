@@ -40,6 +40,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
   if_defined?(::HTTP::WebSocket) do
     # This exists to record the instrumentation in the OpenTelemetry::Instrumentation::Registry,
     # which may be used by other code/tools to introspect the installed instrumentation.
+    # :nodoc:
     module OpenTelemetry::Instrumentation
       class CrystalHttpWebSocket < OpenTelemetry::Instrumentation::Instrument
       end
@@ -55,7 +56,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         @[AlwaysInline]
-        def handle_ping(info)
+        private def handle_ping(info)
           @current_message.write @buffer[0, info.size]
           if info.final
             message = @current_message.to_s
@@ -66,7 +67,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         @[AlwaysInline]
-        def handle_pong(info)
+        private def handle_pong(info)
           @current_message.write @buffer[0, info.size]
           if info.final
             @on_pong.try &.call(@current_message.to_s)
@@ -75,7 +76,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         @[AlwaysInline]
-        def handle_text(info)
+        private def handle_text(info)
           @current_message.write buffer_slice(info)
           if info.final
             @on_message.try &.call(@current_message.to_s)
@@ -84,7 +85,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         @[AlwaysInline]
-        def handle_binary(info)
+        private def handle_binary(info)
           @current_message.write @buffer[0, info.size]
           if info.final
             @on_binary.try &.call(@current_message.to_slice)
@@ -93,7 +94,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         @[AlwaysInline]
-        def handle_close(info)
+        private def handle_close(info)
           @current_message.write @buffer[0, info.size]
           if info.final
             @current_message.rewind
@@ -115,7 +116,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         @[AlwaysInline]
-        def handle_continuation(info)
+        private def handle_continuation(info)
           # TODO: (asterite) I think this is good, but this case wasn't originally handled
         end
 

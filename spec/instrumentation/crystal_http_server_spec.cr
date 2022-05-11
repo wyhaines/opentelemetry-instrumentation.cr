@@ -47,17 +47,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       sleep((rand() * 100) / 1000)
     end
 
-    memory.rewind
-    strings = memory.gets_to_end
-    json_finder = FindJson.new(strings)
-
-    traces = [] of JSON::Any
-    while json = json_finder.pull_json
-      traces << JSON.parse(json)
-    end
-
-    client_traces = traces.select { |t| t["spans"][0]["kind"] == 3 }
-    server_traces = traces.reject { |t| t["spans"][0]["kind"] == 3 }
+    client_traces, server_traces = FindJson.from_io(memory)
 
     {% begin %}
     {% if flag? :DEBUG %}

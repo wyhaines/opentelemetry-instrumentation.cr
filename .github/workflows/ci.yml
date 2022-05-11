@@ -23,7 +23,9 @@ jobs:
       run: apt-get -qy install libsqlite3-dev
     - name: Install dependencies
       run: shards install
+    - name: Crystal Version
+      run: crystal --version
     - name: Run tests
-      run: crystal spec -t -s
+      run: crystal spec --stats --progress --error-trace -D DEBUG -v
     - name: Run Ameba
       run: bin/ameba

@@ -21,6 +21,7 @@ end
 
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
   if_defined?(DB::Statement) do
+    # :nodoc:
     module OpenTelemetry::Instrumentation
       class CrystalDB < OpenTelemetry::Instrumentation::Instrument
         {% begin %}
