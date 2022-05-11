@@ -14,7 +14,6 @@ if_defined?(Redis::Strategy::SingleStatement) do
   describe Redis do
     before_all do
       OpenTelemetry.configure do |config|
-        pp "BANGIN IO BACKEND NOW"
         config.service_name = "Crystal OTel Instrumentation - Stefan Wille Redis Driver Test"
         config.service_version = OpenTelemetry::VERSION
         config.exporter = OpenTelemetry::Exporter.new(variant: :io, io: memory)
