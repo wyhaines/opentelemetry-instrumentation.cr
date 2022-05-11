@@ -13,7 +13,7 @@ require "../instrument"
 #
 # ## Methods Affected
 #
-# * 
+# *
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalGC
 end
@@ -52,8 +52,8 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
           span["gc.reclaimed_bytes_before_gc"] = stats.reclaimed_bytes_before_gc
           span["gc.unmapped_bytes"] = stats.unmapped_bytes
         end
-    
-        sleep ENV["OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL"]?.try(&.to_i?) ? ENV["OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL"].to_i : 300 
+
+        sleep ENV["OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL"]?.try(&.to_i?) ? ENV["OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL"].to_i : 300
       end
     end
   end
