@@ -179,9 +179,7 @@
     Overview
   </h2>
 
-  <p><span class="flag orange">TODO</span>  This may not be possible....</p>
-<h1><a id="open-telemetryinstrumentationcrystal-gc" class="anchor" href="#open-telemetryinstrumentationcrystal-gc">
-  <svg class="octicon-link" aria-hidden="true">
+  <h1><a id="open-telemetryinstrumentationcrystal-gc" class="anchor" href="#open-telemetryinstrumentationcrystal-gc">  <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>OpenTelemetry::Instrumentation::CrystalGC</h1>
@@ -193,19 +191,53 @@
 <ul>
 <li>GC</li>
 </ul>
-<h3><a id="reference-httpspath.topackage-documentation.html" class="anchor" href="#reference-httpspath.topackage-documentation.html">
+<h3><a id="reference-httpscrystal-lang.orgapi1.4.1gc.html" class="anchor" href="#reference-httpscrystal-lang.orgapi1.4.1gc.html">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Reference: <a href="https://path.to/package_documentation.html">https://path.to/package_documentation.html</a></h3>
-<p>Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.</p>
+</a>Reference: <a href="https://crystal-lang.org/api/1.4.1/GC.html">https://crystal-lang.org/api/1.4.1/GC.html</a></h3>
+<p>To instrument garbage collection, the ideal world would be to have something that could record a timestamp
+before the GC cycle runs, and then trigger an action after it completes which would create a span, using the
+prerecorded GC start timestamp.</p>
+<p>Right now I know of no way to do this. So the next best option is what we have implemented here. This
+instrument creates a fiber that spends most of its life sleeping. One a regular interval, which defaults to
+300 seconds, it will wake, gather current GC stats, and create a span to record those. If there is a currently
+active trace, the span will be injected into that trace. Otherwise, it will be a standalone trace.</p>
+<p><span class="flag orange">TODO</span>  If the API adds a mechanism for creating what is essentially a trace future, this will be changed so that
+it can, based on a config setting, use that. This will let people choose to have GC spans <em>always</em> exist only
+in their own traces, which is probably what makes the most sense in a world where we can't hook directly into
+the GC cycle.</p>
+<h2><a id="configuration" class="anchor" href="#configuration">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Configuration</h2>
+<ul>
+<li>
+<p><code>OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC</code></p>
+<p>If set, this will <strong>disable</strong> the garbage collection instrumentation.</p>
+</li>
+<li>
+<p><code>OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL</code></p>
+<p>If set, this is expected to be a positive integer which specifies the number of seconds in between reporting
+intervals for GC stats. If not set, defaults to 300 seconds.</p>
+</li>
+</ul>
+<h2><a id="version-restrictions" class="anchor" href="#version-restrictions">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Version Restrictions</h2>
+<ul>
+<li>Crystal &gt;= 1.0.0</li>
+</ul>
 <h2><a id="methods-affected" class="anchor" href="#methods-affected">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Methods Affected</h2>
 <ul>
-<li></li>
+<li>NONE</li>
 </ul>
 
 
