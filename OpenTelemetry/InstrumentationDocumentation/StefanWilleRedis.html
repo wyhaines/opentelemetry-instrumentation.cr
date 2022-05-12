@@ -189,7 +189,13 @@
   </svg>
 </a>Instruments</h3>
 <ul>
-<li></li>
+<li>Redis</li>
+<li>Redis::Connection</li>
+<li>Redis::Future</li>
+<li>Redis::Strategy::SingleStatement</li>
+<li>Redis::Strategy::PauseDuringPipeline</li>
+<li>Redis::Strategy::PauseDuringTransaction</li>
+<li>Redis::Strategy::Pipeline</li>
 </ul>
 <h3><a id="reference-httpstefanwille.github.iocrystal-redis" class="anchor" href="#reference-httpstefanwille.github.iocrystal-redis">
   <svg class="octicon-link" aria-hidden="true">
@@ -203,7 +209,13 @@
   </svg>
 </a>Methods Affected</h2>
 <ul>
-<li></li>
+<li>Redis#initialize</li>
+<li>Redis#connect</li>
+<li>Redis#Future.value=</li>
+<li>Redis::Strategy::SingleStatement.command</li>
+<li>Redis::Strategy::PauseDuringPipeline.command</li>
+<li>Redis::Strategy::PauseDuringTransaction.command</li>
+<li>Redis::Strategy::Pipeline.command</li>
 </ul>
 
 
@@ -229,7 +241,7 @@
   </h2>
   
     
-      opentelemetry/instrumentation/db/stefanwille_redis.cr
+      opentelemetry/instrumentation/shards/stefanwille_redis.cr
     
     <br/>
   
