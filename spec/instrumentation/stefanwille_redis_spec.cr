@@ -1,5 +1,5 @@
 require "./stefanwille_redis_spec_helper"
-require "../../src/opentelemetry/instrumentation/db/stefanwille_redis"
+require "../../src/opentelemetry/instrumentation/shards/stefanwille_redis"
 
 if_defined?(Redis::Strategy::SingleStatement) do
   begin
@@ -205,7 +205,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
     if redis_is_running
       it "#auth" do
         Redis.open do |redis|
-          expect_raises(Redis::Error, "ERR AUTH <password> called without any password configured for the default user") do
+          expect_raises(Redis::Error, /ERR.*AUTH/) do
             redis.not_nil!.auth("some-password").should eq("OK")
           end
         end

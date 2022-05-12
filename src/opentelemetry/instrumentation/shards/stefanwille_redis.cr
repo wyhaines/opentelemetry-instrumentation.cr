@@ -3,7 +3,14 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::StefanWilleRedis
 #
 # ### Instruments
-#   *
+#
+# * Redis
+# * Redis::Connection
+# * Redis::Future
+# * Redis::Strategy::SingleStatement
+# * Redis::Strategy::PauseDuringPipeline
+# * Redis::Strategy::PauseDuringTransaction
+# * Redis::Strategy::Pipeline
 #
 # ### Reference: [http://stefanwille.github.io/crystal-redis/](http://stefanwille.github.io/crystal-redis/)
 #
@@ -11,7 +18,13 @@ require "../instrument"
 #
 # ## Methods Affected
 #
-# *
+# * Redis#initialize
+# * Redis#connect
+# * Redis#Future.value=
+# * Redis::Strategy::SingleStatement.command
+# * Redis::Strategy::PauseDuringPipeline.command
+# * Redis::Strategy::PauseDuringTransaction.command
+# * Redis::Strategy::Pipeline.command
 #
 struct OpenTelemetry::InstrumentationDocumentation::StefanWilleRedis
 end
@@ -93,6 +106,27 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
       class Redis::Future
         property trace_parent : OpenTelemetry::Propagation::TraceContext::TraceParent? = nil
+
+        trace("value=") do
+          OpenTelemetry.trace.in_span("Redis::Future#value=") do |span|
+            span.consumer!
+            parent = OpenTelemetry::Span.build do |pspan|
+              pspan.is_recording = false
+
+              if tptid = trace_parent.try &.trace_id
+                pspan.context.trace_id = tptid
+                span.context.trace_id = tptid
+              end
+              if tpsid = trace_parent.try &.span_id
+                pspan.context.span_id = tpsid
+              end
+            end
+            span.parent = parent
+            span["db.redis.future.value"] = new_value.to_s.inspect_unquoted
+
+            previous_def
+          end
+        end
       end
 
       class Redis::Strategy::SingleStatement
@@ -155,29 +189,6 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
             future.trace_parent = OpenTelemetry::Propagation::TraceContext::TraceParent.from_span_context(span.context)
 
             future
-          end
-        end
-      end
-
-      class Redis::Future
-        trace("value=") do
-          OpenTelemetry.trace.in_span("Redis::Future#value=") do |span|
-            span.consumer!
-            parent = OpenTelemetry::Span.build do |pspan|
-              pspan.is_recording = false
-
-              if tptid = trace_parent.try &.trace_id
-                pspan.context.trace_id = tptid
-                span.context.trace_id = tptid
-              end
-              if tpsid = trace_parent.try &.span_id
-                pspan.context.span_id = tpsid
-              end
-            end
-            span.parent = parent
-            span["db.redis.future.value"] = new_value.to_s.inspect_unquoted
-
-            previous_def
           end
         end
       end
