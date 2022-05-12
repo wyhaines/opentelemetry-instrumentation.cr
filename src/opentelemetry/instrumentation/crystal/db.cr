@@ -6,7 +6,7 @@ require "../instrument"
 #
 #   * DB::Statement
 #
-# ### Reference: [http://crystal-lang.github.io/crystal-db/api/0.11.0/DB.html](http://crystal-lang.github.io/crystal-db/api/0.11.0/DB.html)
+# ### Reference: [http://crystal-lang.github.io/crystal-db/api/latest/DB.html](http://crystal-lang.github.io/crystal-db/api/latest/DB.html)
 #
 # This instrumentation will trace any database interactions that subclass from the Crystal standard `DB` class/shard.
 #
