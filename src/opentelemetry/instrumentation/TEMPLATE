@@ -12,10 +12,21 @@ require "../instrument"
 #
 # ## Methods Affected
 #
-# * First::Class#method_name
-# * First::Class#another_method_name
-# * Second::Class#method_name
-# * Second::Class#another_method_name
+# - `First::Class#method_name`
+#
+#   Description of instrumentation.
+#
+# - `First::Class#another_method_name`
+#
+#   Description of instrumentation.
+#
+# - `Second::Class#method_name`
+#
+#   Description of instrumentation.
+#
+# - `Second::Class#another_method_name`
+#
+#   Description of instrumentation.
 #
 struct OpenTelemetry::InstrumentationDocumentation::InstrumentName
   # This provides a shelf where the documentation builder can place the documentation, since

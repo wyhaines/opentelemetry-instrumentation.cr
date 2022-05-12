@@ -3,17 +3,18 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::JGaskinsRedis
 #
 # ### Instruments
-#   *
+#   * Redis::Connection
 #
-# ### Reference: [https://path.to/package_documentation.html](https://path.to/package_documentation.html)
+# ### Reference: [https://github.com/jgaskins/redis](https://github.com/jgaskins/redis)
 #
-# Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.
+# This instruments the jgaskins Redis shard, which is a simple, pure Crystal shard for
+# interacting with a Redis server. Instrumentation of this shard is accomplished by wrapping
+# just a single method.
 #
 # ## Methods Affected
 #
-# *
+# * Redis::Connection#run
 #
-
 struct OpenTelemetry::InstrumentationDocumentation::JGaskinsRedis
 end
 
