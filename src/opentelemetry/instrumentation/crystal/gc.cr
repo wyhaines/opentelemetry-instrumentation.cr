@@ -1,29 +1,51 @@
 require "../instrument"
 
-# TODO: This may not be possible....
 #
 # # OpenTelemetry::Instrumentation::CrystalGC
 #
 # ### Instruments
+#
 #   * GC
 #
-# ### Reference: [https://path.to/package_documentation.html](https://path.to/package_documentation.html)
+# ### Reference: [https://crystal-lang.org/api/1.4.1/GC.html](https://crystal-lang.org/api/1.4.1/GC.html)
 #
-# Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.
+# To instrument garbage collection, the ideal world would be to have something that could record a timestamp
+# before the GC cycle runs, and then trigger an action after it completes which would create a span, using the
+# prerecorded GC start timestamp.
+#
+# Right now I know of no way to do this. So the next best option is what we have implemented here. This
+# instrument creates a fiber that spends most of its life sleeping. One a regular interval, which defaults to
+# 300 seconds, it will wake, gather current GC stats, and create a span to record those. If there is a currently
+# active trace, the span will be injected into that trace. Otherwise, it will be a standalone trace.
+#
+# TODO: If the API adds a mechanism for creating what is essentially a trace future, this will be changed so that
+# it can, based on a config setting, use that. This will let people choose to have GC spans _always_ exist only
+# in their own traces, which is probably what makes the most sense in a world where we can't hook directly into
+# the GC cycle.
+#
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC`
+#
+#   If set, this will **disable** the garbage collection instrumentation.
+#
+# - `OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL`
+#
+#   If set, this is expected to be a positive integer which specifies the number of seconds in between reporting
+#   intervals for GC stats. If not set, defaults to 300 seconds.
+#
+# ## Version Restrictions
+#
+# * Crystal >= 1.0.0
 #
 # ## Methods Affected
 #
-# *
+# - NONE
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalGC
 end
 
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
-  # Next should be one or more checks intended to validate that the class(es) to be instrumented
-  # actually exist. It should be possible to require all instrumentation, regardless of whether
-  # a given class/package is actually used, as the instrumentation should not attempt to install
-  # itself if that installation will fail.
-
   module OpenTelemetry::Instrumentation
     class InstrumentName < OpenTelemetry::Instrumentation::Instrument
     end
