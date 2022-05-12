@@ -1,4 +1,5 @@
 require "spec"
+require "db"
 require "../src/opentelemetry-instrumentation"
 
 def datapath(*components)

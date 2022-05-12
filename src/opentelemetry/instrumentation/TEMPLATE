@@ -3,12 +3,23 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::InstrumentName
 #
 # ### Instruments
+#
 #   * First::Class::Instrumented
 #   * Second::Class::Instrumented
 #
 # ### Reference: [https://path.to/package_documentation.html](https://path.to/package_documentation.html)
 #
 # Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.
+#
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_INSTRUMENTATION_NAME`
+#
+#   If set, this will **disable** the instrumentation.
+#
+# ## Version Restrictions
+#
+# * Crystal >= 1.0.0
 #
 # ## Methods Affected
 #

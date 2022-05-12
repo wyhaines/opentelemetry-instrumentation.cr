@@ -1,13 +1,14 @@
 require "../instrument"
-require "db"
 
 # # OpenTelemetry::Instrumentation::CrystalDB
+#
 # ### Instruments
+#
 #   * DB::Statement
 #
-# ### Reference: [https://path.to/package_documentation.html](https://path.to/package_documentation.html)
+# ### Reference: [http://crystal-lang.github.io/crystal-db/api/0.11.0/DB.html](http://crystal-lang.github.io/crystal-db/api/0.11.0/DB.html)
 #
-# Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.
+# This instrumentation will trace any database interactions that subclass from the Crystal standard `DB` class/shard.
 #
 # ## Methods Affected
 #
@@ -16,10 +17,24 @@ require "db"
 #
 # [http://crystal-lang.github.io/crystal-db/api/latest/DB/Statement.html](http://crystal-lang.github.io/crystal-db/api/latest/DB/Statement.html#def_around_query_or_exec%28%26block%29-macro)
 #
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB`
+#
+#   If set, this will **disable** the DB instrumentation.
+#
+# ## Version Restrictions
+#
+# * DB >= 0.10.0
+#
 struct OpenTelemetry::InstrumentationDocumentation::CrystalDB
 end
 
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
+  if_defined?(DB::Statement) do
+    require "db/version" # The VERSION doesn't appear to be required by default.
+  end
+
   if_defined?(DB::Statement) do
     # :nodoc:
     module OpenTelemetry::Instrumentation
@@ -36,7 +51,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
       end
     end
 
-    if_version?(Crystal, :>=, "1.0.0") do
+    if_version?(DB, :>=, "0.10.0") do
       class DB::Statement
         private def _normalize_scheme_(scheme)
           case scheme
