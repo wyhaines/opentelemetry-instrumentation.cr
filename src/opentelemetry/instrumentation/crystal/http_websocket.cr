@@ -3,6 +3,7 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::CrystalHttpWebSocket
 #
 # ### Instruments
+#
 #   * HTTP::WebSocket
 #
 # ### Reference: [https://crystal-lang.org/api/1.4.0/HTTP/WebSocket.html](https://crystal-lang.org/api/1.4.0/HTTP/WebSocket.html)
@@ -18,20 +19,65 @@ require "../instrument"
 # as well as the refactored handler methods that `#run` depends on, `#handle_ping`, `#handle_pong`, `#handle_text`,
 # `#handle_binary`, `#handle_close`, and `#handle_continuation`.
 #
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET`
+#
+#   If set, this will **disable** the `HTTP::WebSocket` instrumentation.
+#
+# ## Version Restrictions
+#
+# * Crystal >= 1.0.0
+#
 # ## Methods Affected
 #
-# * HTTP::WebSocket#run
-# * HTTP::WebSocket#send
-# * HTTP::WebSocket#ping
-# * HTTP::WebSocket#pong
-# * HTTP::WebSocket#stream
-# * HTTP::WebSocket#close
-# * HTTP::WebSocket#handle_ping
-# * HTTP::WebSocket#handle_pong
-# * HTTP::WebSocket#handle_text
-# * HTTP::WebSocket#handle_binary
-# * HTTP::WebSocket#handle_close
-# * HTTP::WebSocket#handle_continuation
+# - `HTTP::WebSocket#run`
+#
+#   This method is refactored from the original while retaining identical functionality.
+#
+# - `HTTP::WebSocket#send`
+#
+#   Wrap a `#send` call in a *client* type span.
+#
+# - `HTTP::WebSocket#ping`
+#
+#   Wrap a `#ping` call in a *client* type span.
+#
+# - `HTTP::WebSocket#pong`
+#
+#   Wrap a `#pong` call in a *client* type span.
+#
+# - `HTTP::WebSocket#stream`
+#
+#   Wrap a `#stream` call in a *client* type span.
+#
+# - `HTTP::WebSocket#close`
+#
+#   Wrap a `#close` call in a *client* type span.
+#
+# - `HTTP::WebSocket#handle_ping`
+#
+#   Wrap a `#handle_ping` call in a *server* type span, with the message attached as an attribute.
+#
+# - `HTTP::WebSocket#handle_pong`
+#
+#   Wrap a `#handle_pong` call in a *server* type span, with the message attached as an attribute.
+#
+# - `HTTP::WebSocket#handle_text`
+#
+#   Wrap a `#handle_text` call in a *server* type span, with the message attached as an attribute.
+#
+# - `HTTP::WebSocket#handle_binary`
+#
+#   Wrap a `#handle_binary` call in a *server* type span, with the message attached as an attribute.
+#
+# - `HTTP::WebSocket#handle_close`
+#
+#   Wrap a `#handle_close` call in a *server* type span, with the close-code and the message attached as an attribute.
+#
+# - `HTTP::WebSocket#handle_continuation`
+#
+#   Wrap a `#handle_continuation` call in a *server* type span.
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket
 end

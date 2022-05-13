@@ -3,16 +3,41 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::CrystalHttpClient
 #
 # ### Instruments
-#   * First::Class::Instrumented
-#   * Second::Class::Instrumented
+#
+#   * HTTP::Client
 #
 # ### Reference: [https://crystal-lang.org/api/1.4.1/HTTP/Client.html](https://crystal-lang.org/api/1.4.1/HTTP/Client.html)
 #
-# Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.
+# The HTTP::Client auto-instrumentation redefactirs the `HTTP::Client#io` method from a large method to a very small one,
+# and moves most of the work into two new methods, `HTTP::Client#do_connect` and `HTTP::Client#do_connect_ssl`, which can
+# then be instrumented, and can receive some additional code to capture some information which is normally discarded, but
+# which the semantic conventions for HTTP spans calls for. It then uses a `#def_around_exec` block to complete the instrumentation.
+#
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT`
+#
+#   If set, this will **disable** the instrumentation.
+#
+# ## Version Restrictions
+#
+# * Crystal >= 1.0.0
 #
 # ## Methods Affected
 #
-# * First::Class#method_name
+# - `HTTP::Client.io`
+#
+#   Refactored from a large method to a small method that calls `#do_connect`.
+#
+# - `HTTP::Client#do_connect`
+#
+#   Capture some information about the connection that is thrown away in the original method,
+#   and the utilize it in the instrumentation wrapper that follows.
+#
+# - `HTTP::Client#do_connect_ssl`
+#
+#   Capture some information about the connection that is thrown away in the original method,
+#   and the utilize it in the instrumentation wrapper that follows.
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalHttpClient
 end
@@ -20,10 +45,6 @@ end
 # This allows opt-out of specific instrumentation at compile time, via environment variables.
 # Refer to https://wyhaines.github.io/defined.cr/ for details about all supported check types.
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
-  # Next should be one or more checks intended to validate that the class(es) to be instrumented
-  # actually exist. It should be possible to require all instrumentation, regardless of whether
-  # a given class/package is actually used, as the instrumentation should not attempt to install
-  # itself if that installation will fail.
   if_defined?(::HTTP::Client) do
     # This exists to record the instrumentation in the OpenTelemetry::Instrumentation::Registry,
     # which may be used by other code/tools to introspect the installed instrumentation.

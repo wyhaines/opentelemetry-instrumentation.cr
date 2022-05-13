@@ -3,6 +3,7 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::CrystalLog
 #
 # ### Instruments
+#
 #   * Log
 #
 # ### Reference: [https://crystal-lang.org/api/1.4.0/Log.html](https://crystal-lang.org/api/1.4.0/Log.html)
@@ -11,15 +12,45 @@ require "../instrument"
 # is no current span, the instrument is a NOP. In either case, configured logging then procedes
 # as expected.
 #
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG`
+#
+#   If set, this will **disable** the `Log` instrumentation.
+#
+# ## Version Restrictions
+#
+# * Crystal >= 1.0.0
+#
 # ## Methods Affected
 #
-# * Log#trace
-# * Log#debug
-# * Log#info
-# * Log#notice
-# * Log#warn
-# * Log#error
-# * Log#fatal
+# - `Log#trace`
+#
+#   Attach the trace log event to the current span.
+#
+# - `Log#debug`
+#
+#   Attach the debug log event to the current span.
+#
+# - `Log#info`
+#
+#   Attach the info log event to the current span.
+#
+# - `Log#notice`
+#
+#   Attach the notice log event to the current span.
+#
+# - `Log#warn`
+#
+#   Attach the warn log event to the current span.
+#
+# - `Log#error`
+#
+#   Attach the error log event to the current span.
+#
+# - `Log#fatal`
+#
+#   Attach the fatal log event to the current span.
 #
 struct OpenTelemetry::InstrumentationDocumentation::CrystalLog
 end

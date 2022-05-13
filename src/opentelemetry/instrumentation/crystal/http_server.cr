@@ -3,6 +3,7 @@ require "../instrument"
 # # OpenTelemetry::Instrumentation::CrystalHttpServer
 #
 # ### Instruments:
+#
 #   * HTTP::Server
 #   * HTTP::Handler
 #   * HTTP::RequestProcessor
@@ -15,6 +16,16 @@ require "../instrument"
 #
 # The OpenTelemetry instrumentation of **HTTP::Server** will generate traces for each request, from
 # the start to the end of it's handling.
+#
+# ## Configuration
+#
+# - `OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER`
+#
+#   If set, this will **disable** the `HTTP::WebServer` instrumentation.
+#
+# ## Version Restrictions
+#
+# * Crystal >= 1.0.0
 #
 # ## Methods Affected
 #
