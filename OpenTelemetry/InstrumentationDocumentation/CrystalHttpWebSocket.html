@@ -205,24 +205,79 @@ instrumentation package can be removed.</p>
 <p>The remaining instrumentation wraps the client methods, <code>#send</code>, <code>#ping</code>, <code>#pong</code>, <code>#stream</code>, and <code>#close</code>,
 as well as the refactored handler methods that <code>#run</code> depends on, <code>#handle_ping</code>, <code>#handle_pong</code>, <code>#handle_text</code>,
 <code>#handle_binary</code>, <code>#handle_close</code>, and <code>#handle_continuation</code>.</p>
+<h2><a id="configuration" class="anchor" href="#configuration">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Configuration</h2>
+<ul>
+<li>
+<p><code>OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET</code></p>
+<p>If set, this will <strong>disable</strong> the <code><a href="../../HTTP/WebSocket.html">HTTP::WebSocket</a></code> instrumentation.</p>
+</li>
+</ul>
+<h2><a id="version-restrictions" class="anchor" href="#version-restrictions">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Version Restrictions</h2>
+<ul>
+<li>Crystal &gt;= 1.0.0</li>
+</ul>
 <h2><a id="methods-affected" class="anchor" href="#methods-affected">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Methods Affected</h2>
 <ul>
-<li>HTTP::WebSocket#run</li>
-<li>HTTP::WebSocket#send</li>
-<li>HTTP::WebSocket#ping</li>
-<li>HTTP::WebSocket#pong</li>
-<li>HTTP::WebSocket#stream</li>
-<li>HTTP::WebSocket#close</li>
-<li>HTTP::WebSocket#handle_ping</li>
-<li>HTTP::WebSocket#handle_pong</li>
-<li>HTTP::WebSocket#handle_text</li>
-<li>HTTP::WebSocket#handle_binary</li>
-<li>HTTP::WebSocket#handle_close</li>
-<li>HTTP::WebSocket#handle_continuation</li>
+<li>
+<p><code><a href="../../HTTP/WebSocket.html#run%3ANil-instance-method">HTTP::WebSocket#run</a></code></p>
+<p>This method is refactored from the original while retaining identical functionality.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/WebSocket.html#send%28message%29%3ANil-instance-method">HTTP::WebSocket#send</a></code></p>
+<p>Wrap a <code>#send</code> call in a <em>client</em> type span.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/WebSocket.html#ping%28message%3Dnil%29-instance-method">HTTP::WebSocket#ping</a></code></p>
+<p>Wrap a <code>#ping</code> call in a <em>client</em> type span.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/WebSocket.html#pong%28message%3Dnil%29%3ANil-instance-method">HTTP::WebSocket#pong</a></code></p>
+<p>Wrap a <code>#pong</code> call in a <em>client</em> type span.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/WebSocket.html#stream%28binary%3Dtrue%2Cframe_size%3D1024%29-instance-method">HTTP::WebSocket#stream</a></code></p>
+<p>Wrap a <code>#stream</code> call in a <em>client</em> type span.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/WebSocket.html#close%28code%3ACloseCode%7CInt%7CNil%3Dnil%2Cmessage%3Dnil%29%3ANil-instance-method">HTTP::WebSocket#close</a></code></p>
+<p>Wrap a <code>#close</code> call in a <em>client</em> type span.</p>
+</li>
+<li>
+<p><code>HTTP::WebSocket#handle_ping</code></p>
+<p>Wrap a <code>#handle_ping</code> call in a <em>server</em> type span, with the message attached as an attribute.</p>
+</li>
+<li>
+<p><code>HTTP::WebSocket#handle_pong</code></p>
+<p>Wrap a <code>#handle_pong</code> call in a <em>server</em> type span, with the message attached as an attribute.</p>
+</li>
+<li>
+<p><code>HTTP::WebSocket#handle_text</code></p>
+<p>Wrap a <code>#handle_text</code> call in a <em>server</em> type span, with the message attached as an attribute.</p>
+</li>
+<li>
+<p><code>HTTP::WebSocket#handle_binary</code></p>
+<p>Wrap a <code>#handle_binary</code> call in a <em>server</em> type span, with the message attached as an attribute.</p>
+</li>
+<li>
+<p><code>HTTP::WebSocket#handle_close</code></p>
+<p>Wrap a <code>#handle_close</code> call in a <em>server</em> type span, with the close-code and the message attached as an attribute.</p>
+</li>
+<li>
+<p><code>HTTP::WebSocket#handle_continuation</code></p>
+<p>Wrap a <code>#handle_continuation</code> call in a <em>server</em> type span.</p>
+</li>
 </ul>
 
 

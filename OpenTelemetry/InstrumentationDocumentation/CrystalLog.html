@@ -199,19 +199,59 @@
 <p>This instrument will record logs generated with <code><a href="../../Log.html">Log</a></code> as events in the current span. If there
 is no current span, the instrument is a NOP. In either case, configured logging then procedes
 as expected.</p>
+<h2><a id="configuration" class="anchor" href="#configuration">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Configuration</h2>
+<ul>
+<li>
+<p><code>OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG</code></p>
+<p>If set, this will <strong>disable</strong> the <code><a href="../../Log.html">Log</a></code> instrumentation.</p>
+</li>
+</ul>
+<h2><a id="version-restrictions" class="anchor" href="#version-restrictions">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Version Restrictions</h2>
+<ul>
+<li>Crystal &gt;= 1.0.0</li>
+</ul>
 <h2><a id="methods-affected" class="anchor" href="#methods-affected">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Methods Affected</h2>
 <ul>
-<li>Log#trace</li>
-<li>Log#debug</li>
-<li>Log#info</li>
-<li>Log#notice</li>
-<li>Log#warn</li>
-<li>Log#error</li>
-<li>Log#fatal</li>
+<li>
+<p><code><a href="../../Log.html#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#trace</a></code></p>
+<p>Attach the trace log event to the current span.</p>
+</li>
+<li>
+<p><code><a href="../../Log.html#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#debug</a></code></p>
+<p>Attach the debug log event to the current span.</p>
+</li>
+<li>
+<p><code><a href="../../Log.html#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#info</a></code></p>
+<p>Attach the info log event to the current span.</p>
+</li>
+<li>
+<p><code><a href="../../Log.html#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#notice</a></code></p>
+<p>Attach the notice log event to the current span.</p>
+</li>
+<li>
+<p><code><a href="../../Log.html#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#warn</a></code></p>
+<p>Attach the warn log event to the current span.</p>
+</li>
+<li>
+<p><code><a href="../../Log.html#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#error</a></code></p>
+<p>Attach the error log event to the current span.</p>
+</li>
+<li>
+<p><code><a href="../../Log.html#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log#fatal</a></code></p>
+<p>Attach the fatal log event to the current span.</p>
+</li>
 </ul>
 
 

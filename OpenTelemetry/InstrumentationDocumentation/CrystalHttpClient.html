@@ -189,22 +189,56 @@
   </svg>
 </a>Instruments</h3>
 <ul>
-<li>First::Class::Instrumented</li>
-<li>Second::Class::Instrumented</li>
+<li>HTTP::Client</li>
 </ul>
 <h3><a id="reference-httpscrystal-lang.orgapi1.4.1httpclient.html" class="anchor" href="#reference-httpscrystal-lang.orgapi1.4.1httpclient.html">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Reference: <a href="https://crystal-lang.org/api/1.4.1/HTTP/Client.html">https://crystal-lang.org/api/1.4.1/HTTP/Client.html</a></h3>
-<p>Description of the instrumentation provided, including any nuances, caveats, instructions, or warnings.</p>
+<p>The HTTP::Client auto-instrumentation redefactirs the <code>HTTP::Client#io</code> method from a large method to a very small one,
+and moves most of the work into two new methods, <code><a href="../../HTTP/Client.html#do_connect-instance-method">HTTP::Client#do_connect</a></code> and <code><a href="../../HTTP/Client.html#do_connect_ssl%28io%29-instance-method">HTTP::Client#do_connect_ssl</a></code>, which can
+then be instrumented, and can receive some additional code to capture some information which is normally discarded, but
+which the semantic conventions for HTTP spans calls for. It then uses a <code>#def_around_exec</code> block to complete the instrumentation.</p>
+<h2><a id="configuration" class="anchor" href="#configuration">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Configuration</h2>
+<ul>
+<li>
+<p><code>OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT</code></p>
+<p>If set, this will <strong>disable</strong> the instrumentation.</p>
+</li>
+</ul>
+<h2><a id="version-restrictions" class="anchor" href="#version-restrictions">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Version Restrictions</h2>
+<ul>
+<li>Crystal &gt;= 1.0.0</li>
+</ul>
 <h2><a id="methods-affected" class="anchor" href="#methods-affected">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Methods Affected</h2>
 <ul>
-<li>First::Class#method_name</li>
+<li>
+<p><code>HTTP::Client.io</code></p>
+<p>Refactored from a large method to a small method that calls <code>#do_connect</code>.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/Client.html#do_connect-instance-method">HTTP::Client#do_connect</a></code></p>
+<p>Capture some information about the connection that is thrown away in the original method,
+and the utilize it in the instrumentation wrapper that follows.</p>
+</li>
+<li>
+<p><code><a href="../../HTTP/Client.html#do_connect_ssl%28io%29-instance-method">HTTP::Client#do_connect_ssl</a></code></p>
+<p>Capture some information about the connection that is thrown away in the original method,
+and the utilize it in the instrumentation wrapper that follows.</p>
+</li>
 </ul>
 
 

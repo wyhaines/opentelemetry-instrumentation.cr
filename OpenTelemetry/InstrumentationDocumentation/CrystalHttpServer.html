@@ -203,6 +203,25 @@ most Crystal web frameworks. It provides a simple HTTP 1.x compliant server that
 can use to receive requests and to issue responses.</p>
 <p>The OpenTelemetry instrumentation of <strong>HTTP::Server</strong> will generate traces for each request, from
 the start to the end of it's handling.</p>
+<h2><a id="configuration" class="anchor" href="#configuration">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Configuration</h2>
+<ul>
+<li>
+<p><code>OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER</code></p>
+<p>If set, this will <strong>disable</strong> the <code>HTTP::WebServer</code> instrumentation.</p>
+</li>
+</ul>
+<h2><a id="version-restrictions" class="anchor" href="#version-restrictions">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Version Restrictions</h2>
+<ul>
+<li>Crystal &gt;= 1.0.0</li>
+</ul>
 <h2><a id="methods-affected" class="anchor" href="#methods-affected">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
