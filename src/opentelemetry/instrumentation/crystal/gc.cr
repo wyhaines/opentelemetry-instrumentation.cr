@@ -29,6 +29,31 @@ require "../instrument"
 #
 #   If set, this will **disable** the garbage collection instrumentation.
 #
+# - `OTEL_CRYSTAL_GC_SIMPLE_STATS`
+#
+#   If set, then this instrument returns a smaller, simpler set of garbage collection statistics.
+#
+#   - Simple Stats:
+#
+#     - gc.bytes_since_gc
+#     - gc.free_bytes
+#     - gc.heap_size
+#     - gc.total_bytes
+#     - gc.unmapped_bytes
+#
+#   - Full Stats:
+#
+#     - gc.bytes_before_gc
+#     - gc.bytes_reclaimed_sinc_gc
+#     - gc.bytes_since_gc
+#     - gc.free_bytes
+#     - gc.gc_no
+#     - gc.heap_size
+#     - gc.markers_m1
+#     - gc.non_gc_bytes
+#     - gc.reclaimed_bytes_before_gc
+#     - gc.unmapped_bytes
+#
 # - `OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL`
 #
 #   If set, this is expected to be a positive integer which specifies the number of seconds in between reporting
@@ -61,18 +86,27 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
     # create a single-span trace.
     spawn(name: "GC Span Recording") do
       loop do
-        stats = GC.prof_stats
         OpenTelemetry.trace.in_span("GC Stats") do |span|
-          span["gc.bytes_before_gc"] = stats.bytes_before_gc
-          span["gc.bytes_reclaimed_sinc_gc"] = stats.bytes_reclaimed_since_gc
-          span["gc.bytes_since_gc"] = stats.bytes_since_gc
-          span["gc.free_bytes"] = stats.free_bytes
-          span["gc.gc_no"] = stats.gc_no
-          span["gc.heap_size"] = stats.heap_size
-          span["gc.markers_m1"] = stats.markers_m1
-          span["gc.non_gc_bytes"] = stats.non_gc_bytes
-          span["gc.reclaimed_bytes_before_gc"] = stats.reclaimed_bytes_before_gc
-          span["gc.unmapped_bytes"] = stats.unmapped_bytes
+          if ENV["OTEL_CRYSTAL_GC_SIMPLE_STATS"]?
+            stats = GC.stats
+            span["gc.bytes_since_gc"] = stats.bytes_since_gc
+            span["gc.free_bytes"] = stats.free_bytes
+            span["gc.heap_size"] = stats.heap_size
+            span["gc.total_bytes"] = stats.total_bytes
+            span["gc.unmapped_bytes"] = stats.unmapped_bytes
+          else
+            stats = GC.prof_stats
+            span["gc.bytes_before_gc"] = stats.bytes_before_gc
+            span["gc.bytes_reclaimed_sinc_gc"] = stats.bytes_reclaimed_since_gc
+            span["gc.bytes_since_gc"] = stats.bytes_since_gc
+            span["gc.free_bytes"] = stats.free_bytes
+            span["gc.gc_no"] = stats.gc_no
+            span["gc.heap_size"] = stats.heap_size
+            span["gc.markers_m1"] = stats.markers_m1
+            span["gc.non_gc_bytes"] = stats.non_gc_bytes
+            span["gc.reclaimed_bytes_before_gc"] = stats.reclaimed_bytes_before_gc
+            span["gc.unmapped_bytes"] = stats.unmapped_bytes
+          end
         end
 
         sleep ENV["OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL"]?.try(&.to_i?) ? ENV["OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL"].to_i : 300
