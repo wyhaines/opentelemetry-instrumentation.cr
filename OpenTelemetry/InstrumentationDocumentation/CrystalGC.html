@@ -218,6 +218,37 @@ the GC cycle.</p>
 <p>If set, this will <strong>disable</strong> the garbage collection instrumentation.</p>
 </li>
 <li>
+<p><code>OTEL_CRYSTAL_GC_SIMPLE_STATS</code></p>
+<p>If set, then this instrument returns a smaller, simpler set of garbage collection statistics.</p>
+<ul>
+<li>
+<p>Simple Stats:</p>
+<ul>
+<li>gc.bytes_since_gc</li>
+<li>gc.free_bytes</li>
+<li>gc.heap_size</li>
+<li>gc.total_bytes</li>
+<li>gc.unmapped_bytes</li>
+</ul>
+</li>
+<li>
+<p>Full Stats:</p>
+<ul>
+<li>gc.bytes_before_gc</li>
+<li>gc.bytes_reclaimed_sinc_gc</li>
+<li>gc.bytes_since_gc</li>
+<li>gc.free_bytes</li>
+<li>gc.gc_no</li>
+<li>gc.heap_size</li>
+<li>gc.markers_m1</li>
+<li>gc.non_gc_bytes</li>
+<li>gc.reclaimed_bytes_before_gc</li>
+<li>gc.unmapped_bytes</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
 <p><code>OTEL_CRYSTAL_GC_SPAN_RECORDING_INTERVAL</code></p>
 <p>If set, this is expected to be a positive integer which specifies the number of seconds in between reporting
 intervals for GC stats. If not set, defaults to 300 seconds.</p>
