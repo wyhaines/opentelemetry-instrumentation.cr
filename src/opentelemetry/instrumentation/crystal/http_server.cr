@@ -191,10 +191,10 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                     Log.with_context do
                       @handler.call(context)
                     rescue ex : ClientError
-                      Log.debug(exception: ex.cause) { ex.message }
                       handler_span.add_event("ClientError") do |event|
                         event["message"] = ex.message.to_s
                       end
+                      Log.debug(exception: ex.cause) { ex.message }
                     rescue ex
                       Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
                       handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
