@@ -184,10 +184,10 @@
 OpenTelemetry.configure do |config|
   config.service_name = &quot;my_app_or_library&quot;
   config.service_version = &quot;1.1.1&quot;
-  config.exporter = OpenTelemetry::IOExporter.new(:STDOUT)
+  config.exporter = OpenTelemetry::Exporter.new(variant: :stdout)
 end
 
-trace = OpenTelemetry.trace_provider(&quot;my_app_or_library&quot;, &quot;1.1.1&quot;)
+trace = OpenTelemetry.trace_provider(&quot;my_app_or_library&quot;, &quot;1.1.1&quot;).trace
 trace = OpenTelemetry.trace_provider do |provider|
   provider.service_name = &quot;my_app_or_library&quot;
   provider.service_version = &quot;1.1.1&quot;
@@ -197,12 +197,12 @@ end.trace
 ----------------------------------------------------------------
 
 provider_a = OpenTelemetry::TraceProvider.new(&quot;my_app_or_library&quot;, &quot;1.1.1&quot;)
-provider_a.exporter = OpenTelemetry::IOExporter.new(:STDOUT)
+provider_a.exporter = OpenTelemetry::Exporter.new(variant: :stdout)
 
 provider_b = OpenTelementry::TraceProvider.new do |config|
   config.service_name = &quot;my_app_or_library&quot;
   config.service_version = &quot;1.1.1&quot;
-  config.exporter = OpenTelemetry::IOExporter.new(:STDOUT)
+  config.exporter = OpenTelemetry::Exporter.new(variant: :stdout)
 end
 
 ## Getting a Trace From a Provider Object
