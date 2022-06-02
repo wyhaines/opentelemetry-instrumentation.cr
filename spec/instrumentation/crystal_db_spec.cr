@@ -59,7 +59,6 @@ describe DB::Statement, tags: "DB::Statement" do
 
   it "will create traces and spans for db activity even if there is no top level span" do
     memory = SetupIOAndOtel.call
-    pp OpenTelemetry.config
     SetupDB.call
     traces = ExtractTraces.call(memory)
 

@@ -26,6 +26,6 @@ jobs:
     - name: Crystal Version
       run: crystal --version
     - name: Run tests
-      run: crystal spec --stats --progress --error-trace -D DEBUG -v
+      run: crystal spec --stats --progress --error-trace -D DEBUG
     - name: Run Ameba
       run: bin/ameba
