@@ -1,6 +1,26 @@
 require "spec"
 require "db"
+require "./instrumentation/framework_lucky/mocks"
+require "./instrumentation/framework_spider_gazelle/mocks"
 require "../src/opentelemetry-instrumentation"
+
+clear_env
+
+# Ensure that no existing environment variables mess with spec operation,
+# since environment variables supercede code/config settings.
+def clear_env
+  ENV.keys.select(&.starts_with?("OTEL")).each do |key|
+    ENV.delete(key)
+  end
+end
+
+def checkout_config(clear : Bool = true)
+  config = OpenTelemetry.config
+  clear_env if clear
+  yield
+  clear_env if clear
+  OpenTelemetry.config = config
+end
 
 def datapath(*components)
   File.join("spec", "data", *components)

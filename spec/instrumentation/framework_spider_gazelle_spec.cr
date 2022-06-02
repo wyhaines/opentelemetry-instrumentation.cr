@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "./framework_spider_gazelle/mocks"
 require "../../src/opentelemetry/instrumentation/frameworks/spider-gazelle"
 
 describe ActionController::Router::RouteHandler do

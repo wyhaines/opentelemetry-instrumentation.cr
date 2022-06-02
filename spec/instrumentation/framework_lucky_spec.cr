@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "./framework_lucky/mocks"
 require "../../src/opentelemetry/instrumentation/frameworks/lucky"
 
 describe Lucky::RouteHandler do
