@@ -102,8 +102,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
 
       class HTTP::Client
         trace("do_connect") do
-          trace = OpenTelemetry.trace
-          trace.in_span("HTTP::Client Connect") do |span|
+          OpenTelemetry.in_span("HTTP::Client Connect") do |span|
             span.client!
             io = previous_def
             span["net.peer.name"] = @host
@@ -114,15 +113,13 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
         end
 
         trace("do_connect_ssl") do
-          trace = OpenTelemetry.trace
-          trace.in_span("Negotiate SSL") do |_span|
+          OpenTelemetry.in_span("Negotiate SSL") do |_span|
             previous_def
           end.not_nil!
         end
 
         def_around_exec do |request|
-          trace = OpenTelemetry.trace
-          trace.in_span("HTTP::Client #{request.method}") do |span|
+          OpenTelemetry.in_span("HTTP::Client #{request.method}") do |span|
             span.client!
             span["http.host"] = self.host
             span["http.port"] = self.port

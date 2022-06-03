@@ -47,7 +47,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
       module HTTP::Handler
         trace("call_next") do
           if next_handler = @next
-            OpenTelemetry.trace.in_span("Invoke handler #{next_handler.class.name}") do |_handler_span|
+            OpenTelemetry.in_span("Invoke handler #{next_handler.class.name}") do |_handler_span|
               previous_def
             end
           else
@@ -84,7 +84,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
         # versions, but this is entirely untested.
         # Wrap the start of request handling, the call to handle_client, in top-level-instrumentation.
         trace("handle_client") do
-          OpenTelemetry.trace.in_span("HTTP::Server connection") do |span|
+          OpenTelemetry.in_span("HTTP::Server connection") do |span|
             span.server!
             if io.responds_to?(:remote_address)
               if remote_addr = io.remote_address
@@ -135,7 +135,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   trace.span_context.trace_id = traceparent.trace_id
                 end
 
-                trace.in_span(trace_name) do |span|
+                OpenTelemetry.in_span(trace_name) do |span|
                   if request.is_a?(HTTP::Request) && request.headers["traceparent"]?
                     parent = OpenTelemetry::Span.build do |pspan|
                       pspan.is_recording = false
@@ -187,7 +187,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                     span["guid"] = span.span_id.hexstring
                   end
 
-                  OpenTelemetry::Trace.current_trace.not_nil!.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
+                  OpenTelemetry.in_span("Invoke handler #{@handler.class.name}") do |handler_span|
                     Log.with_context do
                       @handler.call(context)
                     rescue ex : ClientError
@@ -200,6 +200,10 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                       handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
                         event["message"] = ex.message.to_s
                       end
+                      span.status.error!(ex.message.to_s)
+                      handler_span["exception.type"] = ex.class.name
+                      handler_span["exception.message"] = ex.message.to_s
+                      handler_span["exception.stacktrace"] = ex.backtrace.join("\n")
                       unless response.closed?
                         unless response.wrote_headers?
                           span["http.status_code"] = HTTP::Status::INTERNAL_SERVER_ERROR.value if span

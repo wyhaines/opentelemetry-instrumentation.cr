@@ -83,18 +83,12 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
         end
 
         def_around_query_or_exec do |args|
-          # Place the span in the existing trace, if any. If there is currently no trace running, then
-          # create a new trace.
-          unless trace = OpenTelemetry::Trace.current_trace
-            trace = OpenTelemetry.trace
-          end
-
           query = command.compact
           operation = query.strip[0...query.index(' ')]                   # This is faster than a regex
           uri = connection.context.uri.dup.tap(&.password=("[FILTERED]")) # redact password from URI
           uri.path.lchop                                                  # This is dodgy; without doing this, the assignment below will sometimes get a garbled first few characters.
           db_name = uri.path.lchop
-          trace.in_span("#{db_name}->#{operation.upcase}") do |span| # My kingdom for a SQL parser that can extract table names from a SQL query!
+          OpenTelemetry.trace.in_span("#{db_name}->#{operation.upcase}") do |span| # My kingdom for a SQL parser that can extract table names from a SQL query!
             query_args = [] of String
             args.each do |arg|
               OpenTelemetry::Instrumentation::CrystalDB::ArgFilters.each do |filter|
