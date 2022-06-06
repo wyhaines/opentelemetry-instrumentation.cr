@@ -44,7 +44,7 @@ require "../instrument"
 #   - Full Stats:
 #
 #     - gc.bytes_before_gc
-#     - gc.bytes_reclaimed_sinc_gc
+#     - gc.bytes_reclaimed_since_gc
 #     - gc.bytes_since_gc
 #     - gc.free_bytes
 #     - gc.gc_no
@@ -97,7 +97,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
           else
             stats = GC.prof_stats
             span["gc.bytes_before_gc"] = stats.bytes_before_gc
-            span["gc.bytes_reclaimed_sinc_gc"] = stats.bytes_reclaimed_since_gc
+            span["gc.bytes_reclaimed_since_gc"] = stats.bytes_reclaimed_since_gc
             span["gc.bytes_since_gc"] = stats.bytes_since_gc
             span["gc.free_bytes"] = stats.free_bytes
             span["gc.gc_no"] = stats.gc_no
