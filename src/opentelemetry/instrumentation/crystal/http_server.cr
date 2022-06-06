@@ -137,7 +137,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
 
                 OpenTelemetry.in_span(trace_name) do |span|
                   if request.is_a?(HTTP::Request) && request.headers["traceparent"]?
-                    parent = OpenTelemetry::Span.build do |pspan|
+                    parent = OpenTelemetry::Span.build("Phantom Parent") do |pspan|
                       pspan.is_recording = false
 
                       pspan.context = OpenTelemetry::Propagation::TraceContext.new(span.context).extract(request.headers).not_nil!
@@ -169,6 +169,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   response.version = request.version
                   response.headers["Connection"] = "keep-alive" if request.keep_alive?
                   context = Context.new(request, response)
+                  puts ">> #{context.object_id.to_s(16)}"
 
                   if span
                     span["http.host"] = request.hostname.to_s
@@ -191,19 +192,20 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                     Log.with_context do
                       @handler.call(context)
                     rescue ex : ClientError
-                      handler_span.add_event("ClientError") do |event|
-                        event["message"] = ex.message.to_s
+                      handler_span.add_event("exception") do |event|
+                        event["exception.type"] = ex.class.name
+                        event["exception.message"] = ex.message.to_s
+                        event["exception.backtrace"] = ex.backtrace.join("\n")
                       end
                       Log.debug(exception: ex.cause) { ex.message }
                     rescue ex
                       Log.error(exception: ex) { "Unhandled exception on HTTP::Handler" }
-                      handler_span.add_event("Unhandled exception on HTTP::Handler") do |event|
-                        event["message"] = ex.message.to_s
+                      handler_span.add_event("exception") do |event|
+                        event["exception.type"] = ex.class.name
+                        event["exception.message"] = ex.message.to_s
+                        event["exception.backtrace"] = ex.backtrace.join("\n")
                       end
                       span.status.error!(ex.message.to_s)
-                      handler_span["exception.type"] = ex.class.name
-                      handler_span["exception.message"] = ex.message.to_s
-                      handler_span["exception.stacktrace"] = ex.backtrace.join("\n")
                       unless response.closed?
                         unless response.wrote_headers?
                           span["http.status_code"] = HTTP::Status::INTERNAL_SERVER_ERROR.value if span

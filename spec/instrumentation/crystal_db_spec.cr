@@ -84,9 +84,9 @@ describe DB::Statement, tags: "DB::Statement" do
     traces[0]["spans"][0]["name"].should eq "Do a bunch of DB Queries"
     parent_span_id = traces[0]["spans"][0]["spanId"]
     traces[0]["spans"][1]["kind"].should eq 3
-    traces[0]["spans"][1]["name"].should eq "data.db->CREATE"
+    traces[0]["spans"][1]["name"].should eq "data.db->SELECT"
     traces[0]["spans"][1]["attributes"]["db.name"].should eq "data.db"
     traces[0]["spans"][1]["parentSpanId"].should eq parent_span_id
-    traces[0]["spans"][5]["attributes"]["db.statement"].should eq "select name, age, timestamp from contacts order by age desc"
+    traces[0]["spans"][5]["attributes"]["db.statement"].should eq "create table contacts (name text, age integer, timestamp time)"
   end
 end
