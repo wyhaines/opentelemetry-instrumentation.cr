@@ -72,7 +72,7 @@ end
 
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
   module OpenTelemetry::Instrumentation
-    class InstrumentName < OpenTelemetry::Instrumentation::Instrument
+    class GC < OpenTelemetry::Instrumentation::Instrument
     end
   end
 

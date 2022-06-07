@@ -32,7 +32,7 @@ end
 unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
   if_defined?(Redis::Strategy::Transaction) do
     module OpenTelemetry::Instrumentation
-      class InstrumentName < OpenTelemetry::Instrumentation::Instrument
+      class StefanWilleRedis < OpenTelemetry::Instrumentation::Instrument
       end
     end
 
