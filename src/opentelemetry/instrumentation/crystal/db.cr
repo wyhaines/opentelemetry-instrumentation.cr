@@ -39,15 +39,13 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
     # :nodoc:
     module OpenTelemetry::Instrumentation
       class CrystalDB < OpenTelemetry::Instrumentation::Instrument
+        def self.filter(arg)
+          arg.inspect
+        end
+
         {% begin %}
-        alias DB::Types = {% for type in DB::Any.union_types %}Array({{ type.id }}) | {% end %}DB::Any
+        alias DB::Types = {% for type in DB::Any.union_types %}Array({{ type.id }}) | {% end %}DB::Any | UUID | Array(UUID)
         {% end %}
-        # One can add their own procs to this array (prepend them to the array) to add other data filtration"
-        ArgFilters = [
-          ->(arg : DB::Types) do
-            arg.inspect
-          end,
-        ]
       end
     end
 
@@ -91,10 +89,11 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
           OpenTelemetry.trace.in_span("#{db_name}->#{operation.upcase}") do |span| # My kingdom for a SQL parser that can extract table names from a SQL query!
             query_args = [] of String
             args.each do |arg|
-              OpenTelemetry::Instrumentation::CrystalDB::ArgFilters.each do |filter|
-                filter_result = filter.call(arg)
-                arg = filter_result if filter_result
-              end
+              # OpenTelemetry::Instrumentation::CrystalDB::ArgFilters.each do |filter|
+              #   filter_result = filter.call(arg)
+              #   arg = filter_result if filter_result
+              # end
+              arg = OpenTelemetry::Instrumentation::CrystalDB.filter(arg)
 
               arg = arg.to_s unless arg.is_a?(String)
               query_args << arg

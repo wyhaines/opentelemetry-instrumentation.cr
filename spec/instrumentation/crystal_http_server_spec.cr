@@ -5,6 +5,25 @@ require "../../src/opentelemetry/instrumentation/crystal/http_server"
 require "io/memory"
 require "json"
 
+HTTP_SERVER_TEST_PORT = [8080]
+
+1000.times do |t|
+  begin
+    server = HTTP::Server.new do |context|
+      context.response.content_type = "text/plain"
+      context.response.print "Hello world!"
+    end
+
+    try_port = 8080 + t
+    server.bind_tcp try_port
+
+    HTTP_SERVER_TEST_PORT[0] = try_port
+    break
+  rescue ex
+    # NOP
+  end
+end
+
 describe HTTP::Server, tags: ["HTTP::Server"] do
   it_may_focus_and_it "should have instrumented HTTP::Server" do
     Tracer::TRACED_METHODS_BY_RECEIVER[HTTP::Server]?.should be_truthy
@@ -35,7 +54,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       end
 
       # Start the server.
-      address = server.bind_tcp 8080
+      address = server.bind_tcp HTTP_SERVER_TEST_PORT[0]
       server.listen
     end
 
@@ -43,7 +62,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
 
     # Send requests to the server. These will generate OTel traces.
     1.times do
-      HTTP::Client.get("http://127.0.0.1:8080")
+      HTTP::Client.get("http://127.0.0.1:#{HTTP_SERVER_TEST_PORT[0]}/")
       sleep((rand() * 100) / 1000)
     end
 
@@ -59,7 +78,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
 
     client_traces[0]["spans"][0]["name"].should eq("HTTP::Client GET")
     client_traces[0]["spans"][0]["kind"].should eq 3
-    client_traces[0]["spans"][0]["attributes"]["http.url"].should eq "http://127.0.0.1:8080/"
+    client_traces[0]["spans"][0]["attributes"]["http.url"].should eq "http://127.0.0.1:#{HTTP_SERVER_TEST_PORT[0]}/"
 
     server_traces[0]["spans"][0]["name"].should eq "HTTP::Server connection"
     server_traces[0]["resource"]["service.name"].should eq "Crystal OTel Instrumentation - HTTP::Server"
