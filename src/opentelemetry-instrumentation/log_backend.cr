@@ -39,6 +39,7 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
 
   def write(entry : ::Log::Entry)
     if (span = OpenTelemetry::Trace.current_span)
+      puts "<><><><><><><><><><><><><><><><><><><>"
       span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
         self.class.apply_log_entry(entry, event)
       end
