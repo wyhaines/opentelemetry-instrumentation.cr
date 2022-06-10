@@ -49,7 +49,7 @@ end
 
 # This allows opt-out of specific instrumentation at compile time, via environment variables.
 # Refer to https://wyhaines.github.io/defined.cr/ for details about all supported check types.
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_SPIDER_GAZELLE") do
   if_defined?(ActionController::Router::RouteHandler) do
     if_version?(ActionController, :>=, "4.7.3") do
       module OpenTelemetry::Instrumentation::Framework

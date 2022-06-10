@@ -293,6 +293,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
 
               client_traces, _server_traces = FindJson.from_io(memory)
               # Spot Check some traces here...
+
               client_traces.size.should eq 4
               client_traces[0]["spans"][0]["name"].should eq "Redis: GET #{[namespace, "bar"].compact!.join("::")}"
               client_traces[0]["spans"][0]["attributes"]["db.system"].should eq "redis"

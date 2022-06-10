@@ -82,7 +82,7 @@ require "../instrument"
 struct OpenTelemetry::InstrumentationDocumentation::CrystalHttpWebSocket
 end
 
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
   if_defined?(::HTTP::WebSocket) do
     # This exists to record the instrumentation in the OpenTelemetry::Instrumentation::Registry,
     # which may be used by other code/tools to introspect the installed instrumentation.

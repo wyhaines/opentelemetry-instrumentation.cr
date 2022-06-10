@@ -48,7 +48,7 @@ end
 
 # This allows opt-out of specific instrumentation at compile time, via environment variables.
 # Refer to https://wyhaines.github.io/defined.cr/ for details about all supported check types.
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_LUCKY") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_FRAMEWORK_LUCKY") do
   if_defined?(Lucky::RouteHandler) do
     if_version?(Lucky, :>=, "0.29.0") do
       module OpenTelemetry::Instrumentation::Framework

@@ -30,7 +30,7 @@ require "../instrument"
 struct OpenTelemetry::InstrumentationDocumentation::CrystalDB
 end
 
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
   if_defined?(::DB::Statement) do
     require "db/version" # The VERSION doesn't appear to be required by default.
   end
@@ -114,10 +114,7 @@ unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
             span.kind = OpenTelemetry::Span::Kind::Client
 
             yield # Perform the actual query
-          end     # Because of exception handling in the `#in_span`, the compiler gets confused about nils.
-          # If the block passed to `#in_span` will never return a nil, the `#in_span` implementation should detect
-          # that, and at runtime, the right thing will be returned. But, the compiler doesn't realize this, so
-          # one has to tell it that with the `#not_nil!` method.
+          end
         end
       end
     end

@@ -47,7 +47,7 @@ end
 
 # This allows opt-out of specific instrumentation at compile time, via environment variables.
 # Refer to https://wyhaines.github.io/defined.cr/ for details about all supported check types.
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_INSTRUMENTATION_NAME") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_INSTRUMENTATION_NAME") do
   # Next should be one or more checks intended to validate that the class(es) to be instrumented
   # actually exist. It should be possible to require all instrumentation, regardless of whether
   # a given class/package is actually used, as the instrumentation should not attempt to install

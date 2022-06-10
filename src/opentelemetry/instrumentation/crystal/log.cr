@@ -55,7 +55,7 @@ require "../instrument"
 struct OpenTelemetry::InstrumentationDocumentation::CrystalLog
 end
 
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_LOG") do
   if_defined?(::Log) do
     require "../../../opentelemetry-instrumentation/log_backend"
 

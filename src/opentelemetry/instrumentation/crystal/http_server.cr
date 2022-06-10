@@ -35,7 +35,7 @@ require "../instrument"
 struct OpenTelemetry::InstrumentationDocumentation::CrystalHttpServer
 end
 
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
   if_defined?(::HTTP::Server) do
     # :nodoc:
     module OpenTelemetry::Instrumentation

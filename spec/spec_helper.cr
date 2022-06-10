@@ -2,6 +2,8 @@ require "spec"
 require "db"
 require "./instrumentation/framework_lucky/mocks"
 require "./instrumentation/framework_spider_gazelle/mocks"
+require "redis"
+require "socket"
 require "../src/opentelemetry-instrumentation"
 
 clear_env
@@ -40,8 +42,8 @@ class FindJson
       traces << JSON.parse(json)
     end
 
-    client_traces = traces.select { |t| t["spans"][0]["kind"] == 3 }
-    server_traces = traces.reject { |t| t["spans"][0]["kind"] == 3 }
+    client_traces = traces.reject { |t| t.size == 0 }.select { |t| t["spans"][0]["kind"] == 3 }
+    server_traces = traces.reject { |t| t.size == 0 }.reject { |t| t["spans"][0]["kind"] == 3 }
 
     {client_traces, server_traces}
   end

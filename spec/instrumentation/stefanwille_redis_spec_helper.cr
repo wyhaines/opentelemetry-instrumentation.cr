@@ -1,5 +1,4 @@
 require "spec"
-require "redis"
 
 if_defined?(Redis::Strategy::SingleStatement) do
   # A poor man's sort for an array of redis values.

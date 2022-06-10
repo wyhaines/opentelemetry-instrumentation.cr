@@ -44,7 +44,7 @@ end
 
 # This allows opt-out of specific instrumentation at compile time, via environment variables.
 # Refer to https://wyhaines.github.io/defined.cr/ for details about all supported check types.
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
   if_defined?(::HTTP::Client) do
     # This exists to record the instrumentation in the OpenTelemetry::Instrumentation::Registry,
     # which may be used by other code/tools to introspect the installed instrumentation.

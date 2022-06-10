@@ -1,5 +1,4 @@
 require "spec"
-require "socket"
 
 module SocketSpecHelper
   class_getter?(supports_ipv6 : Bool) do

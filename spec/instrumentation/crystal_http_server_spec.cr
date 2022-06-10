@@ -18,6 +18,7 @@ HTTP_SERVER_TEST_PORT = [8080]
     server.bind_tcp try_port
 
     HTTP_SERVER_TEST_PORT[0] = try_port
+    server.close
     break
   rescue ex
     # NOP

@@ -70,7 +70,7 @@ require "../instrument"
 struct OpenTelemetry::InstrumentationDocumentation::CrystalGC
 end
 
-unless_enabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
+unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_GC") do
   module OpenTelemetry::Instrumentation
     class GC < OpenTelemetry::Instrumentation::Instrument
     end
