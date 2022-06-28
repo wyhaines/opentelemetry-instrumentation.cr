@@ -169,7 +169,6 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   response.version = request.version
                   response.headers["Connection"] = "keep-alive" if request.keep_alive?
                   context = Context.new(request, response)
-                  puts ">> #{context.object_id.to_s(16)}"
 
                   if span
                     span["http.host"] = request.hostname.to_s

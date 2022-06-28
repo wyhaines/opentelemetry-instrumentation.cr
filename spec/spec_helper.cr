@@ -84,6 +84,11 @@ class FindJson
   end
 end
 
+module Spec
+  # Make the CLI specified tags actually accessible.
+  class_getter tags : Set(String)? = nil
+end
+
 # This helper macro can be used to selectively run only specific specs by turning on their
 # focus in response to an environment variable.
 macro it_may_focus_and_it(description, tags = "", &block)

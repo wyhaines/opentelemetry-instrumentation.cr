@@ -11,8 +11,9 @@ license: "Apache 2.0"
 dependencies:
   tracer:
     github: wyhaines/tracer.cr
-  opentelemetry-api:
-    github: wyhaines/opentelemetry-api.cr
+  opentelemetry-sdk:
+    github: wyhaines/opentelemetry-sdk.cr
+    branch: main
   defined:
     github: wyhaines/defined.cr
     

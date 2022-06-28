@@ -1,5 +1,5 @@
 require "defined"
-require "opentelemetry-api"
+require "opentelemetry-sdk"
 require "tracer"
 require "./ext/*"
 require "./opentelemetry-instrumentation/log_backend"

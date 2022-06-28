@@ -1,4 +1,4 @@
-require "opentelemetry-api"
+require "opentelemetry-sdk"
 require "log"
 require "log/backend"
 
@@ -13,6 +13,10 @@ require "log/backend"
 # Log.builder.bind("*", Log::Severity::Warn, OpenTelemetry::Instrumentation::LogBackend.new)
 # ```
 class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
+  def initialize(dispatch_mode = nil)
+    @dispatcher = ::Log::Dispatcher.for(:sync) # There is no reason for it to ever be anything but sync.
+  end
+
   def self.apply_log_entry(entry, event)
     entry.context.each do |key, value|
       if (raw = value.raw).is_a?(ValueTypes)
@@ -39,7 +43,6 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
 
   def write(entry : ::Log::Entry)
     if (span = OpenTelemetry::Trace.current_span)
-      puts "<><><><><><><><><><><><><><><><><><><>"
       span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
         self.class.apply_log_entry(entry, event)
       end

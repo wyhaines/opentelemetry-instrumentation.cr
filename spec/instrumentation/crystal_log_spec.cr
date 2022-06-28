@@ -15,6 +15,7 @@ describe Log, tags: "Log" do
   end
 
   it "can log as normal and send attach the log as an event to a span" do
+    checkout_config do
     memory = IO::Memory.new
     OpenTelemetry.configure do |config|
       config.service_name = "Crystal OTel Instrumentation - HTTP::Server"
@@ -25,16 +26,16 @@ describe Log, tags: "Log" do
     message = "I am a message, and there is an active span."
     Log.setup(:info, backend)
 
-    trace = OpenTelemetry.trace
-    trace.in_span("logging test span") do |_span|
+    OpenTelemetry.trace.in_span("logging test span") do |_span|
       Log.info { message }
     end
 
     backend.entries.first.message.should eq message
-    json = JSON.parse(memory.rewind.gets_to_end)
-
-    json["spans"][0]["name"].should eq "logging test span"
-    json["spans"][0]["events"][0]["name"].should eq "Log.INFO"
-    json["spans"][0]["events"][0]["attributes"]["message"].as_s.should contain(message)
+    _client_traces, server_traces = FindJson.from_io(memory)
+    server_traces[0]["spans"][0]["name"].should eq "logging test span"
+    server_traces[0]["spans"][0]["events"].size.should be > 0
+    server_traces[0]["spans"][0]["events"][0]["name"].should eq "Log.INFO"
+    server_traces[0]["spans"][0]["events"][0]["attributes"]["message"].as_s.should contain(message)
   end
+end
 end
