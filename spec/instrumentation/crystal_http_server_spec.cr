@@ -50,7 +50,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       # Ensure that the server is shut down, even if something weird happens and
       # the specs are slow to run or get stuck or something.
       spawn(name: "Kill Server") do
-        sleep 2
+        sleep 0.5
         server.close
       end
 
@@ -59,7 +59,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       server.listen
     end
 
-    sleep 1
+    sleep 0.1
 
     # Send requests to the server. These will generate OTel traces.
     1.times do

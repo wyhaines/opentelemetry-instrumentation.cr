@@ -107,7 +107,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
       property trace_parent : OpenTelemetry::Propagation::TraceContext::TraceParent? = nil
 
       trace("value=") do
-        OpenTelemetry.trace.in_span("Redis::Future#value=") do |span|
+        OpenTelemetry.in_span("Redis::Future#value=") do |span|
           span.consumer!
           parent = OpenTelemetry::Span.build do |pspan|
             pspan.is_recording = false
@@ -130,7 +130,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
     class Redis::Strategy::SingleStatement
       trace("command") do
-        OpenTelemetry.trace.in_span(Redis.span_name request) do |span|
+        OpenTelemetry.in_span(Redis.span_name request) do |span|
           span.client!
           Redis.span_attributes(span, @connection, request)
 
@@ -141,7 +141,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
     class Redis::Strategy::PauseDuringPipeline
       def command(request : Request)
-        span = OpenTelemetry.trace.in_span(Redis.span_name(request))
+        span = OpenTelemetry.in_span(Redis.span_name(request))
         span["db.system"] = "redis"
         span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
         previous_def
@@ -160,7 +160,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
     class Redis::Strategy::PauseDuringTransaction
       def command(request : Request)
-        span = OpenTelemetry.trace.in_span(Redis.span_name(request))
+        span = OpenTelemetry.in_span(Redis.span_name(request))
         span["db.system"] = "redis"
         span["db.statement"] = request.map(&.to_s.inspect_unquoted).join(' ')
         previous_def
@@ -179,7 +179,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
 
     class Redis::Strategy::Pipeline
       trace("command") do
-        OpenTelemetry.trace.in_span(Redis.span_name request) do |span|
+        OpenTelemetry.in_span(Redis.span_name request) do |span|
           span.producer!
           Redis.span_attributes(span, @connection, request)
 

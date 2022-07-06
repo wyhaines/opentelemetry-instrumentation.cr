@@ -196,7 +196,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
 
       class HTTP::WebSocket
         trace("send") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket do send") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket do send") do |span|
             span.client!
             span["message"] = message.to_s
             previous_def
@@ -204,7 +204,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("ping") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket do ping") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket do ping") do |span|
             span.client!
             span["message"] = message.to_s
             previous_def
@@ -212,7 +212,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("pong") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket do pong") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket do pong") do |span|
             span.client!
             span["message"] = message.to_s
             previous_def
@@ -220,7 +220,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("stream") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket do stream") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket do stream") do |span|
             span.client!
             if binary
               span["message"] = "[BINARY DATA]" # TODO: should this dump binary data as hexstrings? Or make that something that can be turned on if desired?
@@ -232,7 +232,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("close") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket do close") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket do close") do |span|
             span.client!
             span["close_code"] = close_code.to_s
             span["message"] = message.to_s
@@ -241,7 +241,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("handle_ping") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket handle ping") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket handle ping") do |span|
             span.server!
             span["message"] = String.new(buffer_slice(info))
             previous_def
@@ -249,7 +249,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("handle_pong") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket handle pong") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket handle pong") do |span|
             span.server!
             span["message"] = String.new(buffer_slice(info))
             previous_def
@@ -257,7 +257,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("handle_text") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket handle text") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket handle text") do |span|
             span.server!
             span["message"] = String.new(buffer_slice(info))
             previous_def
@@ -265,7 +265,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("handle_binary") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket handle binary") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket handle binary") do |span|
             span.server!
             span["message"] = String.new(buffer_slice(info))
             previous_def
@@ -273,7 +273,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("handle_close") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket handle close") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket handle close") do |span|
             span.server!
             span["message"] = String.new(buffer_slice(info))
             previous_def
@@ -281,7 +281,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
         end
 
         trace("handle_continuation") do
-          OpenTelemetry.trace.in_span("HTTP::WebSocket handle continuation") do |span|
+          OpenTelemetry.in_span("HTTP::WebSocket handle continuation") do |span|
             span.server!
             previous_def
           end

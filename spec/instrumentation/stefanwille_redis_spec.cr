@@ -2181,7 +2181,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
               Redis.new.publish("mychannel", "11")
               Redis.new.publish("mychannel", "22")
 
-              sleep 0.1
+              sleep 0.01
               res.should eq ["11", "pong", "22", "pong"]
             end
           else

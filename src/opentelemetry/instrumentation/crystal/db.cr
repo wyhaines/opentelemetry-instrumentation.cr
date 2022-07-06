@@ -86,7 +86,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
           uri = connection.context.uri.dup.tap(&.password=("[FILTERED]")) # redact password from URI
           uri.path.lchop                                                  # This is dodgy; without doing this, the assignment below will sometimes get a garbled first few characters.
           db_name = uri.path.lchop
-          OpenTelemetry.trace.in_span("#{db_name}->#{operation.upcase}") do |span| # My kingdom for a SQL parser that can extract table names from a SQL query!
+          OpenTelemetry.in_span("#{db_name}->#{operation.upcase}") do |span| # My kingdom for a SQL parser that can extract table names from a SQL query!
             query_args = [] of String
             args.each do |arg|
               # OpenTelemetry::Instrumentation::CrystalDB::ArgFilters.each do |filter|

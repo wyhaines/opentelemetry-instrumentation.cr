@@ -31,7 +31,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_JGASKINS_REDIS") do
     if_version?(Redis, :>=, "0.3.1") do
       class Redis::Connection
         trace("run") do
-          OpenTelemetry.trace.in_span("Redis #{command[0..1]? ? command[0..1].join(' ') : ""}") do |span|
+          OpenTelemetry.in_span("Redis #{command[0..1]? ? command[0..1].join(' ') : ""}") do |span|
             span.client!
             span["net.peer.name"] = @uri.host.to_s
             span["net.transport"] = case socket = @socket

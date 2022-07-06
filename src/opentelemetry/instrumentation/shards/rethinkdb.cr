@@ -42,7 +42,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_RETHINKDB") do
     module RethinkDB
       class Connection
         trace("connect") do
-          OpenTelemetry.trace.in_span("RethinkDB Connect") do |span|
+          OpenTelemetry.in_span("RethinkDB Connect") do |span|
             span["user"] = user
             span["db"] = db
             span["host"] = host
@@ -52,7 +52,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_RETHINKDB") do
         end
 
         trace("authorise") do
-          OpenTelemetry.trace.in_span("RethinkDB Authorise") do |span|
+          OpenTelemetry.in_span("RethinkDB Authorise") do |span|
             span["user"] = user
             span["db"] = db
             span["host"] = host
@@ -63,7 +63,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_RETHINKDB") do
 
         struct ResponseStream
           trace("query_term") do
-            OpenTelemetry.trace.in_span("RethinkDB Query") do |span|
+            OpenTelemetry.in_span("RethinkDB Query") do |span|
               span["user"] = @conn.user
               span["db"] = @conn.db
               span["host"] = @conn.host
@@ -73,7 +73,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_RETHINKDB") do
           end
 
           trace("query_continue") do
-            OpenTelemetry.trace.in_span("RethinkDB Query Continue") do |span|
+            OpenTelemetry.in_span("RethinkDB Query Continue") do |span|
               span["user"] = @conn.user
               span["db"] = @conn.db
               span["host"] = @conn.host

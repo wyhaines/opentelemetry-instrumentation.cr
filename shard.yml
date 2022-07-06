@@ -1,5 +1,5 @@
 name: opentelemetry-instrumentation
-version: 0.3.6
+version: 0.5.0
 
 authors:
   - Kirk Haines <wyhaines@gmail.com>
@@ -13,7 +13,6 @@ dependencies:
     github: wyhaines/tracer.cr
   opentelemetry-sdk:
     github: wyhaines/opentelemetry-sdk.cr
-    branch: main
   defined:
     github: wyhaines/defined.cr
     
