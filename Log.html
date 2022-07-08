@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.4.1">
 <meta name="crystal_docs.project_version" content="0.5.0">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -182,8 +182,9 @@
   <p>The <code><a href="Log.html">Log</a></code> class provides a logging utility that you can use to output messages.</p>
 <p>The messages, or <code>Log::Entry</code> have associated levels, such as <code>Info</code> or <code>Error</code>
 that indicate their importance. See <code>Log::Severity</code>.</p>
-<p>To log a message <code><a href="Log.html#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#trace</a></code>, <code><a href="Log.html#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#debug</a></code>, <code><a href="Log.html#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#info</a></code>, <code><a href="Log.html#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#notice</a></code>, <code><a href="Log.html#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#warn</a></code>, <code><a href="Log.html#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#error</a></code>, and <code><a href="Log.html#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#fatal</a></code> methods
-can be used. They expect a block that will evaluate to the message of the entry.</p>
+<p>To log a message use the <code><a href="Log.html#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#trace</a></code>, <code><a href="Log.html#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#debug</a></code>, <code><a href="Log.html#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#info</a></code>, <code><a href="Log.html#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#notice</a></code>, <code><a href="Log.html#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#warn</a></code>,
+<code><a href="Log.html#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#error</a></code>, and <code><a href="Log.html#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#fatal</a></code> methods. They expect a block that will evaluate to the
+message of the entry:</p>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;log&quot;</span>
 
 <span class="t">Log</span>.info { <span class="s">&quot;Program started&quot;</span> }</code></pre>
@@ -324,49 +325,49 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       <li class="entry-summary">
         <a href="#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#debug</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>1</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Debug</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#error</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>5</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Error</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#fatal</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>6</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Fatal</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#info</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>2</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Info</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#notice</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>3</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Notice</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#trace</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>0</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Trace</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#warn</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
         
-          <div class="summary"><p>Logs a message if the logger's current severity is lower or equal to <code>4</code>.</p></div>
+          <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Warn</code>.</p></div>
         
       </li>
     
@@ -424,7 +425,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>1</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Debug</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.debug <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
@@ -443,7 +453,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>5</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Error</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.error <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
@@ -462,7 +481,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>6</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Fatal</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.fatal <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
@@ -481,7 +509,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>2</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Info</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.info <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
@@ -500,7 +537,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>3</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Notice</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.notice <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
@@ -519,7 +565,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>0</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Trace</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.trace <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
@@ -538,7 +593,16 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
       
         <div class="doc">
           
-          <p>Logs a message if the logger's current severity is lower or equal to <code>4</code>.</p>
+          <p>Logs a message if the logger's current severity is lower than or equal to
+<code>Severity::Warn</code>.</p>
+<p>The block is not called unless the current severity level would emit a
+message.</p>
+<p>Blocks which return <code>nil</code> do not emit anything:</p>
+<pre><code class="language-crystal"><span class="t">Log</span>.warn <span class="k">do</span>
+  <span class="k">if</span> <span class="n">false</span>
+    <span class="s">&quot;Nothing will be logged.&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
         </div>
       
       <br/>
