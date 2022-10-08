@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.4.1">
+<meta name="generator" content="Crystal Docs 1.5.0">
 <meta name="crystal_docs.project_version" content="0.5.0">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -242,7 +242,7 @@ from <code>String.build</code> or <code>IO::Memory</code>. No exception will be 
 invalid byte sequences, when asked as chars, will use the unicode replacement
 char (value 0xFFFD). For example:</p>
 <pre><code class="language-crystal"><span class="c"># here 255 is not a valid byte value in the UTF-8 encoding</span>
-string <span class="o">=</span> <span class="t">String</span>.<span class="k">new</span>(<span class="t">Bytes</span>[<span class="n">255</span>, <span class="n">97</span>])
+string <span class="o">=</span> <span class="t">String</span>.new(<span class="t">Bytes</span>[<span class="n">255</span>, <span class="n">97</span>])
 string.valid_encoding? <span class="c"># =&gt; false</span>
 
 <span class="c"># The first char here is the unicode replacement char</span>

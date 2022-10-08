@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.4.1">
+<meta name="generator" content="Crystal Docs 1.5.0">
 <meta name="crystal_docs.project_version" content="0.5.0">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -206,10 +206,10 @@ attribute to the RouteHandler span, if there is a route to be added.</p>
 <pre><code class="language-crystal"><span class="t">OpenTelemetry</span>.configure <span class="k">do</span> <span class="o">|</span>config<span class="o">|</span>
   config.service_name <span class="o">=</span> <span class="s">&quot;My Lucky App&quot;</span>
   config.service_version <span class="o">=</span> <span class="s">&quot;1.0.0&quot;</span>
-  config.exporter <span class="o">=</span> <span class="t">OpenTelemetry</span><span class="t">::</span><span class="t">Exporter</span>.<span class="k">new</span>(variant: <span class="n">:http</span>) <span class="k">do</span> <span class="o">|</span>exporter<span class="o">|</span>
+  config.exporter <span class="o">=</span> <span class="t">OpenTelemetry</span><span class="t">::</span><span class="t">Exporter</span>.new(variant: <span class="n">:http</span>) <span class="k">do</span> <span class="o">|</span>exporter<span class="o">|</span>
     exporter <span class="o">=</span> exporter.<span class="k">as</span>(<span class="t">OpenTelemetry</span><span class="t">::</span><span class="t">Exporter</span><span class="t">::</span><span class="t">Http</span>)
     exporter.endpoint <span class="o">=</span> <span class="s">&quot;https://otlp.nr-data.net:4318/v1/traces&quot;</span>
-    headers <span class="o">=</span> <span class="t">HTTP</span><span class="t">::</span><span class="t">Headers</span>.<span class="k">new</span>
+    headers <span class="o">=</span> <span class="t">HTTP</span><span class="t">::</span><span class="t">Headers</span>.new
     headers[<span class="s">&quot;api-key&quot;</span>] <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;NEW_RELIC_LICENSE_KEY&quot;</span>]?.to_s
     exporter.headers <span class="o">=</span> headers
   <span class="k">end</span>

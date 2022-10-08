@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.4.1">
+<meta name="generator" content="Crystal Docs 1.5.0">
 <meta name="crystal_docs.project_version" content="0.5.0">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -234,7 +234,7 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
 <p><span class="flag purple">NOTE</span>  Calling <code>setup</code> will override previous <code>setup</code> calls.</p>
 <pre><code class="language-crystal"><span class="t">Log</span>.setup(<span class="n">:debug</span>)                     <span class="c"># Log debug and above for all sources to STDOUT</span>
 <span class="t">Log</span>.setup(<span class="s">&quot;myapp.*, http.*&quot;</span>, <span class="n">:notice</span>) <span class="c"># Log notice and above for myapp.* and http.* sources only, and log nothing for any other source.</span>
-backend_with_formatter <span class="o">=</span> <span class="t">Log</span><span class="t">::</span><span class="t">IOBackend</span>.<span class="k">new</span>(formatter: custom_formatter)
+backend_with_formatter <span class="o">=</span> <span class="t">Log</span><span class="t">::</span><span class="t">IOBackend</span>.new(formatter: custom_formatter)
 <span class="t">Log</span>.setup(<span class="n">:debug</span>, backend_with_formatter) <span class="c"># Log debug and above for all sources to using a custom backend</span></code></pre>
 <h3><a id="configure-logging-explicitly-in-the-code" class="anchor" href="#configure-logging-explicitly-in-the-code">
   <svg class="octicon-link" aria-hidden="true">
@@ -255,11 +255,11 @@ warnings (or higher) to <code>STDOUT</code>, allow any of the <code>db.*</code> 
 nested source to emit debug (or higher), and to also emit for all
 sources errors (or higher) to an elasticsearch backend.</p>
 <pre><code class="language-crystal"><span class="t">Log</span>.setup <span class="k">do</span> <span class="o">|</span>c<span class="o">|</span>
-  backend <span class="o">=</span> <span class="t">Log</span><span class="t">::</span><span class="t">IOBackend</span>.<span class="k">new</span>
+  backend <span class="o">=</span> <span class="t">Log</span><span class="t">::</span><span class="t">IOBackend</span>.new
 
   c.bind <span class="s">&quot;*&quot;</span>, <span class="n">:warn</span>, backend
   c.bind <span class="s">&quot;db.*&quot;</span>, <span class="n">:debug</span>, backend
-  c.bind <span class="s">&quot;*&quot;</span>, <span class="n">:error</span>, <span class="t">ElasticSearchBackend</span>.<span class="k">new</span>(<span class="s">&quot;http://localhost:9200&quot;</span>)
+  c.bind <span class="s">&quot;*&quot;</span>, <span class="n">:error</span>, <span class="t">ElasticSearchBackend</span>.new(<span class="s">&quot;http://localhost:9200&quot;</span>)
 <span class="k">end</span></code></pre>
 <h3><a id="configure-logging-from-environment-variables" class="anchor" href="#configure-logging-from-environment-variables">
   <svg class="octicon-link" aria-hidden="true">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.4.1">
+<meta name="generator" content="Crystal Docs 1.5.0">
 <meta name="crystal_docs.project_version" content="0.5.0">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -183,7 +183,7 @@
 <p>Usage example:</p>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;socket&quot;</span>
 
-client <span class="o">=</span> <span class="t">TCPSocket</span>.<span class="k">new</span>(<span class="s">&quot;localhost&quot;</span>, <span class="n">1234</span>)
+client <span class="o">=</span> <span class="t">TCPSocket</span>.new(<span class="s">&quot;localhost&quot;</span>, <span class="n">1234</span>)
 client <span class="o">&lt;&lt;</span> <span class="s">&quot;message\n&quot;</span>
 response <span class="o">=</span> client.gets
 client.close</code></pre>
