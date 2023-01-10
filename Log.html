@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.5.0">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="0.5.1">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -182,8 +182,8 @@
   <p>The <code><a href="Log.html">Log</a></code> class provides a logging utility that you can use to output messages.</p>
 <p>The messages, or <code>Log::Entry</code> have associated levels, such as <code>Info</code> or <code>Error</code>
 that indicate their importance. See <code>Log::Severity</code>.</p>
-<p>To log a message use the <code><a href="Log.html#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#trace</a></code>, <code><a href="Log.html#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#debug</a></code>, <code><a href="Log.html#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#info</a></code>, <code><a href="Log.html#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#notice</a></code>, <code><a href="Log.html#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#warn</a></code>,
-<code><a href="Log.html#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#error</a></code>, and <code><a href="Log.html#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#fatal</a></code> methods. They expect a block that will evaluate to the
+<p>To log a message use the <code><a href="Log.html#trace%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#trace</a></code>, <code><a href="Log.html#debug%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#debug</a></code>, <code><a href="Log.html#info%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#info</a></code>, <code><a href="Log.html#notice%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#notice</a></code>, <code><a href="Log.html#warn%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#warn</a></code>,
+<code><a href="Log.html#error%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#error</a></code>, and <code><a href="Log.html#fatal%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#fatal</a></code> methods. They expect a block that will evaluate to the
 message of the entry:</p>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;log&quot;</span>
 
@@ -201,7 +201,7 @@ as in the above examples its source is the empty string.</p>
 You can configure for each source a different level to filter the messages.</p>
 <p>A recommended pattern is to declare a <code><a href="Log.html">Log</a></code> constant in the namespace of your shard or module as follows:</p>
 <pre><code class="language-crystal"><span class="k">module</span> <span class="t">DB</span>
-  <span class="t">Log</span> <span class="o">=</span> <span class="t">::</span><span class="t">Log</span>.<span class="k">for</span>(<span class="s">&quot;db&quot;</span>) <span class="c"># =&gt; Log for db source</span>
+  <span class="t">Log</span> <span class="o">=</span> <span class="t">::</span><span class="t">Log</span>.<span class="k">for</span>(<span class="s">&quot;db&quot;</span>) <span class="c"># Log for db source</span>
 
   <span class="k">def</span> <span class="m">do_something</span>
     <span class="t">Log</span>.info { <span class="s">&quot;this is logged in db source&quot;</span> }
@@ -211,17 +211,17 @@ You can configure for each source a different level to filter the messages.</p>
 <span class="t">DB</span><span class="t">::</span><span class="t">Log</span>.info { <span class="s">&quot;this is also logged in db source&quot;</span> }
 <span class="t">Log</span>.<span class="k">for</span>(<span class="s">&quot;db&quot;</span>).info { <span class="s">&quot;this is also logged in db source&quot;</span> }
 <span class="t">Log</span>.info { <span class="s">&quot;this is logged in top-level source&quot;</span> }</code></pre>
-<p>That way, any <code><a href="Log.html#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">Log.info</a></code> call within the <code>DB</code> module will use the <code>db</code> source. And not the top-level <code><a href="Log.html#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">::Log.info</a></code>.</p>
+<p>That way, any <code><a href="Log.html#info%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">Log.info</a></code> call within the <code>DB</code> module will use the <code>db</code> source. And not the top-level <code><a href="Log.html#info%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">::Log.info</a></code>.</p>
 <p>Sources can be nested. Continuing the last example, to declare a <code><a href="Log.html">Log</a></code> constant <code>db.pool</code> source you can do as follows:</p>
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">DB</span><span class="t">::</span><span class="t">Pool</span>
-  <span class="t">Log</span> <span class="o">=</span> <span class="t">DB</span><span class="t">::</span><span class="t">Log</span>.<span class="k">for</span>(<span class="s">&quot;pool&quot;</span>) <span class="c"># =&gt; Log for db.pool source</span>
+  <span class="t">Log</span> <span class="o">=</span> <span class="t">DB</span><span class="t">::</span><span class="t">Log</span>.<span class="k">for</span>(<span class="s">&quot;pool&quot;</span>) <span class="c"># Log for db.pool source</span>
 <span class="k">end</span></code></pre>
 <p>A <code><a href="Log.html">Log</a></code> will emit the messages to the <code>Log::Backend</code>s attached to it as long as
 the configured severity filter <code>level</code> permits it.</p>
 <p>Logs can also be created from a type directly. For the type <code>DB::Pool</code> the source <code>db.pool</code> will be used.
 For generic types as <code>Foo::Bar(Baz)</code> the source <code>foo.bar</code> will be used (i.e. without generic arguments).</p>
 <pre><code class="language-crystal"><span class="k">module</span> <span class="t">DB</span>
-  <span class="t">Log</span> <span class="o">=</span> <span class="t">::</span><span class="t">Log</span>.<span class="k">for</span>(<span class="k">self</span>) <span class="c"># =&gt; Log for db source</span>
+  <span class="t">Log</span> <span class="o">=</span> <span class="t">::</span><span class="t">Log</span>.<span class="k">for</span>(<span class="k">self</span>) <span class="c"># Log for db source</span>
 <span class="k">end</span></code></pre>
 <h3><a id="default-logging-configuration" class="anchor" href="#default-logging-configuration">
   <svg class="octicon-link" aria-hidden="true">
@@ -323,49 +323,49 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#debug</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#debug%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#debug</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Debug</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#error</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#error%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#error</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Error</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#fatal</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#fatal%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#fatal</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Fatal</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#info</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#info%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#info</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Info</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#notice</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#notice%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#notice</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Notice</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#trace</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#trace%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#trace</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Trace</code>.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method" class="signature"><strong>#warn</strong>(*, exception : Exception? = <span class="n">nil</span>, &)</a>
+        <a href="#warn%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method" class="signature"><strong>#warn</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)</a>
         
           <div class="summary"><p>Logs a message if the logger's current severity is lower than or equal to <code>Severity::Warn</code>.</p></div>
         
@@ -415,12 +415,12 @@ be logged to <code>STDOUT</code> using the <code>Log::IOBackend</code>.</p>
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="debug(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="debug(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>debug</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>debug</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#debug%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#debug%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -443,12 +443,12 @@ message.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="error(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="error(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>error</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>error</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#error%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#error%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -471,12 +471,12 @@ message.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="fatal(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="fatal(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>fatal</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>fatal</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#fatal%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#fatal%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -499,12 +499,12 @@ message.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="info(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="info(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>info</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>info</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#info%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#info%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -527,12 +527,12 @@ message.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="notice(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="notice(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>notice</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>notice</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#notice%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#notice%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -555,12 +555,12 @@ message.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="trace(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="trace(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>trace</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>trace</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#trace%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#trace%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -583,12 +583,12 @@ message.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="warn(*,exception:Exception?=nil,&amp;)-instance-method">
+    <div class="entry-detail" id="warn(*,exception:Exception|Nil=nil,&amp;)-instance-method">
       <div class="signature">
         
-        def <strong>warn</strong>(*, exception : Exception? = <span class="n">nil</span>, &)
+        def <strong>warn</strong>(*, exception : Exception | Nil = <span class="n">nil</span>, &)
 
-        <a class="method-permalink" href="#warn%28%2A%2Cexception%3AException%3F%3Dnil%2C%26%29-instance-method">#</a>
+        <a class="method-permalink" href="#warn%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#</a>
       </div>
       
         <div class="doc">
