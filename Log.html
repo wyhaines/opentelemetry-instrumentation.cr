@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.6.2">
+<meta name="generator" content="Crystal Docs 1.7.3">
 <meta name="crystal_docs.project_version" content="0.5.1">
 <meta name="crystal_docs.project_name" content="opentelemetry-instrumentation">
 
@@ -185,6 +185,7 @@ that indicate their importance. See <code>Log::Severity</code>.</p>
 <p>To log a message use the <code><a href="Log.html#trace%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#trace</a></code>, <code><a href="Log.html#debug%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#debug</a></code>, <code><a href="Log.html#info%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#info</a></code>, <code><a href="Log.html#notice%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#notice</a></code>, <code><a href="Log.html#warn%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#warn</a></code>,
 <code><a href="Log.html#error%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#error</a></code>, and <code><a href="Log.html#fatal%28%2A%2Cexception%3AException%7CNil%3Dnil%2C%26%29-instance-method">#fatal</a></code> methods. They expect a block that will evaluate to the
 message of the entry:</p>
+<p><span class="flag purple">NOTE</span>  To use <code><a href="Log.html">Log</a></code>, you must explicitly import it with <code>require &quot;log&quot;</code></p>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;log&quot;</span>
 
 <span class="t">Log</span>.info { <span class="s">&quot;Program started&quot;</span> }</code></pre>
