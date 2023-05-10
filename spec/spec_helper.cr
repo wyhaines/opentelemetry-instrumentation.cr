@@ -16,7 +16,7 @@ def clear_env
   end
 end
 
-def checkout_config(clear : Bool = true)
+def checkout_config(clear : Bool = true, &)
   config = OpenTelemetry.config
   clear_env if clear
   yield
