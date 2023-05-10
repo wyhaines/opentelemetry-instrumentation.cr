@@ -237,7 +237,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
             {% if compare_versions(Crystal::VERSION, "1.5.2") < 0 %}
               span["close_code"] = close_code.to_s
             {% else %}
-              span["close_code"] = close.to_s
+              span["close_code"] = code.to_s
             {% end %}
             span["message"] = message.to_s
             previous_def
