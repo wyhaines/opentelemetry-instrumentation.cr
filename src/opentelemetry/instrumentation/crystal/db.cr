@@ -44,7 +44,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_DB") do
         end
 
         {% begin %}
-        alias DB::Types = {% for type in DB::Any.union_types %}Array({{ type.id }}) | {% end %}DB::Any | UUID | Array(UUID)
+        alias DB::Types = {% for type in DB::Any.union_types %}Array({{ type.id }}) | {% end %}::DB::Any | UUID | Array(UUID)
         {% end %}
       end
     end
