@@ -1,3 +1,4 @@
+require "defined"
 require "spec"
 require "db"
 require "./instrumentation/framework_lucky/mocks"

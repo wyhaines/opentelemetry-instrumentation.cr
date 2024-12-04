@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "defined"
 
 # This spec just tests the null case....an instrument that does not exist should, in fact,
 # not exist.
