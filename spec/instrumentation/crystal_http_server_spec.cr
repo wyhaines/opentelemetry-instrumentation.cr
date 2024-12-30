@@ -50,7 +50,7 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       # Ensure that the server is shut down, even if something weird happens and
       # the specs are slow to run or get stuck or something.
       spawn(name: "Kill Server") do
-        sleep 0.5
+        sleep(Time::Span.new(nanoseconds: (0.5 * 1_000_000_000).to_i))
         server.close
       end
 
@@ -59,12 +59,12 @@ describe HTTP::Server, tags: ["HTTP::Server"] do
       server.listen
     end
 
-    sleep 0.1
+    sleep(Time::Span.new(nanoseconds: (0.1 * 1_000_000_000).to_i))
 
     # Send requests to the server. These will generate OTel traces.
     1.times do
       HTTP::Client.get("http://127.0.0.1:#{HTTP_SERVER_TEST_PORT[0]}/")
-      sleep((rand() * 100) / 1000)
+      sleep(Time::Span.new(nanoseconds: ((rand() * 100) / 1000).to_i))
     end
 
     client_traces, server_traces = FindJson.from_io(memory)

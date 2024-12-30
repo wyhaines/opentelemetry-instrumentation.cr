@@ -514,7 +514,7 @@ describe HTTP::WebSocket, tags: ["HTTP::WebSocket"] do
       message.should eq("hello")
     end
 
-    sleep 1
+    sleep(Time::Span.new(seconds: 1))
 
     client_traces, server_traces = FindJson.from_io(memory)
 
