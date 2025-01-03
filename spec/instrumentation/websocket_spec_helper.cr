@@ -27,8 +27,8 @@ def run_server(server, &)
 
   f = spawn do
     server.listen
-  rescue exc
-    server_done.send exc
+  rescue ex
+    server_done.send ex
   else
     server_done.send nil
   end
@@ -41,8 +41,8 @@ def run_server(server, &)
   ensure
     server.close unless server.closed?
 
-    if exc = server_done.receive
-      raise exc
+    if ex = server_done.receive
+      raise ex
     end
   end
 end
@@ -57,8 +57,8 @@ def run_handler(handler, &)
       processor = HTTP::Server::RequestProcessor.new(handler)
       f = spawn do
         processor.process(server_io, server_io)
-      rescue exc
-        done.send exc
+      rescue ex
+        done.send ex
       else
         done.send nil
       end
@@ -72,8 +72,8 @@ def run_handler(handler, &)
       ensure
         processor.close
         server_io.close
-        if exc = done.receive
-          raise exc
+        if ex = done.receive
+          raise ex
         end
       end
     end

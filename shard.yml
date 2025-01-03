@@ -19,7 +19,7 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.5.0
+    version: ~> 1.6.4
   sqlite3:
     github: crystal-lang/crystal-sqlite3
   # Only one of these can be enabled, since they sit in the exact same namespace.

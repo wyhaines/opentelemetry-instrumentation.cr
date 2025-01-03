@@ -18,7 +18,7 @@ require "../instrument"
 # 300 seconds, it will wake, gather current GC stats, and create a span to record those. If there is a currently
 # active trace, the span will be injected into that trace. Otherwise, it will be a standalone trace.
 #
-# TODO: If the API adds a mechanism for creating what is essentially a trace future, this will be changed so that
+# NOTE: If the API adds a mechanism for creating what is essentially a trace future, this will be changed so that
 # it can, based on a config setting, use that. This will let people choose to have GC spans _always_ exist only
 # in their own traces, which is probably what makes the most sense in a world where we can't hook directly into
 # the GC cycle.

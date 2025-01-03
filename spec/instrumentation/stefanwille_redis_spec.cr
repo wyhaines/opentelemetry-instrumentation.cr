@@ -1186,7 +1186,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
                 new_cursor = new_cursor.as(String)
                 new_cursor.to_i.should be > 0
                 keys.is_a?(Array).should be_true
-                # TODO SW: This assertion fails randomly
+                # NOTE SW: This assertion fails randomly
                 # array(keys).size.should be > 0
               end
             else
@@ -2114,8 +2114,8 @@ if_defined?(Redis::Strategy::SingleStatement) do
           if redis_is_running
             it "#subscribe / #unsubscribe" do
               callbacks_received = [] of String
-              redis.not_nil!.subscribe("mychannel") do |on|
-                on.subscribe do |channel, subscriptions|
+              redis.not_nil!.subscribe("mychannel") do |handler|
+                handler.subscribe do |channel, subscriptions|
                   channel.should eq("mychannel")
                   subscriptions.should eq(1)
                   callbacks_received << "subscribe"
@@ -2127,7 +2127,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
                   end
                 end
 
-                on.message do |channel, message|
+                handler.message do |channel, message|
                   channel.should eq("mychannel")
                   message.should eq("just talking to myself")
                   callbacks_received << "message"
@@ -2136,7 +2136,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
                   redis.not_nil!.unsubscribe("mychannel")
                 end
 
-                on.unsubscribe do |channel, subscriptions|
+                handler.unsubscribe do |channel, subscriptions|
                   channel.should eq("mychannel")
                   subscriptions.should eq(0)
                   callbacks_received << "unsubscribe"
@@ -2151,9 +2151,9 @@ if_defined?(Redis::Strategy::SingleStatement) do
 
           if redis_is_running
             it "can be used after #unsubscribe" do
-              redis.not_nil!.subscribe("mychannel") do |on|
-                on.subscribe do |c, _s|
-                  redis.not_nil!.unsubscribe(c)
+              redis.not_nil!.subscribe("mychannel") do |handler|
+                handler.subscribe do |channel, _s|
+                  redis.not_nil!.unsubscribe(channel)
                 end
               end
               redis.not_nil!.set("temp", "temp1")
@@ -2169,8 +2169,8 @@ if_defined?(Redis::Strategy::SingleStatement) do
               res = [] of String
 
               spawn do
-                redis.not_nil!.subscribe("mychannel") do |on|
-                  on.message do |_channel, message|
+                redis.not_nil!.subscribe("mychannel") do |handler|
+                  handler.message do |_channel, message|
                     res << message
                     res << redis.not_nil!.ping
                     redis.not_nil!.unsubscribe("mychannel") if res.size >= 4
@@ -2198,8 +2198,8 @@ if_defined?(Redis::Strategy::SingleStatement) do
             it "#psubscribe / #punsubscribe" do
               callbacks_received = [] of String
 
-              redis.not_nil!.psubscribe("otherchan*") do |on|
-                on.psubscribe do |channel_pattern, subscriptions|
+              redis.not_nil!.psubscribe("otherchan*") do |handler|
+                handler.psubscribe do |channel_pattern, subscriptions|
                   channel_pattern.should eq("otherchan*")
                   subscriptions.should eq(1)
                   callbacks_received << "psubscribe"
@@ -2211,7 +2211,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
                   end
                 end
 
-                on.pmessage do |channel_pattern, channel, message|
+                handler.pmessage do |channel_pattern, channel, message|
                   channel_pattern.should eq("otherchan*")
                   channel.should eq("otherchannel")
                   message.should eq("hello subscriber")
@@ -2221,7 +2221,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
                   redis.not_nil!.punsubscribe("otherchan*")
                 end
 
-                on.punsubscribe do |channel_pattern, subscriptions|
+                handler.punsubscribe do |channel_pattern, subscriptions|
                   channel_pattern.should eq("otherchan*")
                   subscriptions.should eq(0)
                   callbacks_received << "punsubscribe"

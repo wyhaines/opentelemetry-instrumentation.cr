@@ -17,7 +17,7 @@ if_defined?(Redis::Strategy::SingleStatement) do
     a.map(&.to_s)
   end
 
-  # Same as \`sort\` except sorting feature
+  # Same as `sort` except sorting feature
   def array(a) : Array(String)
     (a.as(Array(Redis::RedisValue))).map(&.to_s)
   rescue

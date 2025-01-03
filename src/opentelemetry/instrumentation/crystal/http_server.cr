@@ -151,7 +151,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_SERVER") do
                   end
 
                   span.server!
-                  # TODO: When Span Links are supported, add a Link to the span that instrumented the actual connection.
+                  # NOTE: When Span Links are supported, add a Link to the span that instrumented the actual connection.
                   response.reset
 
                   if request.is_a?(HTTP::Status)

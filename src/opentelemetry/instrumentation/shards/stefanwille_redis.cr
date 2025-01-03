@@ -37,7 +37,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_STEFANWILLE_REDIS") do
     end
 
     # Monkeypatch a few things so that useful information is available for the spans.
-    # TODO: See if the maintainers would like some version of these patches contributed back to the main project.
+    # NOTE: See if the maintainers would like some version of these patches contributed back to the main project.
     class Redis
       getter database : Int32? = nil
       getter uri : URI? = nil

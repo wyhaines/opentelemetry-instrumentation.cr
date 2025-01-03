@@ -7,14 +7,14 @@ require "json"
 
 HTTP_SERVER_TEST_PORT = [8080]
 
-1000.times do |t|
+1000.times do |iteration|
   begin
     server = HTTP::Server.new do |context|
       context.response.content_type = "text/plain"
       context.response.print "Hello world!"
     end
 
-    try_port = 8080 + t
+    try_port = 8080 + iteration
     server.bind_tcp try_port
 
     HTTP_SERVER_TEST_PORT[0] = try_port

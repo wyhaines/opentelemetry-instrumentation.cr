@@ -55,7 +55,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
     end
 
     if_version?(Crystal, :>=, "1.0.0") do
-      # TODO: Offer these refactors as a PR to core Crystal.
+      # NOTE: Offer these refactors as a PR to core Crystal.
       class HTTP::Client
         private def io
           io = @io
@@ -86,10 +86,10 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
             tcp_socket = io
             begin
               io = OpenSSL::SSL::Socket::Client.new(tcp_socket, context: tls, sync_close: true, hostname: @host)
-            rescue exc
+            rescue ex
               # don't leak the TCP socket when the SSL connection failed
               tcp_socket.close
-              raise exc
+              raise ex
             end
           end
 

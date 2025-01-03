@@ -43,8 +43,8 @@ class FindJson
       traces << JSON.parse(json)
     end
 
-    client_traces = traces.reject { |t| t.size == 0 }.select { |t| t["spans"][0]["kind"] == 3 }
-    server_traces = traces.reject { |t| t.size == 0 }.reject { |t| t["spans"][0]["kind"] == 3 }
+    client_traces = traces.reject { |trace| trace.size == 0 }.select { |trace| trace["spans"][0]["kind"] == 3 }
+    server_traces = traces.reject { |trace| trace.size == 0 }.reject { |trace| trace["spans"][0]["kind"] == 3 }
 
     {client_traces, server_traces}
   end

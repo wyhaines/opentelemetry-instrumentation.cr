@@ -13,19 +13,19 @@ SetupIOAndOtel = ->do
 end
 
 SetupDB = ->do
-  DB.open "sqlite3://./data.db" do |db|
-    db.exec "create table contacts (name text, age integer, timestamp time)"
-    db.exec "insert into contacts values (?, ?, ?)", "John Doe", 30, Time.local
+  DB.open "sqlite3://./data.db" do |database|
+    database.exec "create table contacts (name text, age integer, timestamp time)"
+    database.exec "insert into contacts values (?, ?, ?)", "John Doe", 30, Time.local
 
     args = [] of DB::Any
     args << "Sarah"
     args << 33
     args << Time.utc
-    db.exec "insert into contacts values (?, ?, ?)", args: args
-    db.scalar "select max(age) from contacts" # => 33
-    db.query "select name, age, timestamp from contacts order by age desc" do |rs|
-      rs.each do
-        "#{rs.read(String)} (#{rs.read(Int32)})"
+    database.exec "insert into contacts values (?, ?, ?)", args: args
+    database.scalar "select max(age) from contacts" # => 33
+    database.query "select name, age, timestamp from contacts order by age desc" do |result_set|
+      result_set.each do
+        "#{result_set.read(String)} (#{result_set.read(Int32)})"
       end
     end
   end

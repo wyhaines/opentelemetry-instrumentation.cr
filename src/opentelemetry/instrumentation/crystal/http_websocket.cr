@@ -163,7 +163,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
 
         @[AlwaysInline]
         private def handle_continuation(info)
-          # TODO: (asterite) I think this is good, but this case wasn't originally handled
+          # NOTE: (asterite) I think this is good, but this case wasn't originally handled
         end
 
         def run : Nil
@@ -223,7 +223,7 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_WEBSOCKET") do
           OpenTelemetry.in_span("HTTP::WebSocket do stream") do |span|
             span.client!
             if binary
-              span["message"] = "[BINARY DATA]" # TODO: should this dump binary data as hexstrings? Or make that something that can be turned on if desired?
+              span["message"] = "[BINARY DATA]" # NOTE: should this dump binary data as hexstrings? Or make that something that can be turned on if desired?
             else
               span["message"] = message.to_s
             end
