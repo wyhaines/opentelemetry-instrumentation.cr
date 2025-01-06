@@ -1,7 +1,7 @@
 module OpenTelemetry
   module Instrumentation
     {% begin %}
-    VERSION = {{ read_file("#{__DIR__}/../../../VERSION").chomp }}
+    VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
     {% end %}
   end
 end
