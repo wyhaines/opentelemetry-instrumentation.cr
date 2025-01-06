@@ -47,5 +47,7 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
         self.class.apply_log_entry(entry, event)
       end
     end
+
+    nil # Returning an explicit nil here avoids a funky compiler error
   end
 end
