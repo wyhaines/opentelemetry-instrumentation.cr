@@ -13,6 +13,7 @@ dependencies:
     github: wyhaines/tracer.cr
   opentelemetry-sdk:
     github: wyhaines/opentelemetry-sdk.cr
+    branch: main
   defined:
     github: wyhaines/defined.cr
     
