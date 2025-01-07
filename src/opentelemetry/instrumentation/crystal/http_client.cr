@@ -55,7 +55,26 @@ unless_disabled?("OTEL_CRYSTAL_DISABLE_INSTRUMENTATION_HTTP_CLIENT") do
     end
 
     if_version?(Crystal, :>=, "1.0.0") do
-      # NOTE: Offer these refactors as a PR to core Crystal.
+      class HTTP::Request
+        def full_url
+          local_addr = local_address
+          port = if local_addr && local_addr.is_a?(Socket::IPAddress)
+                   ":#{local_addr.port}"
+                 else
+                   ""
+                 end
+          "#{scheme}://#{hostname}#{port}#{resource}"
+        end
+
+        def scheme
+          if u = uri
+            u.scheme.to_s.empty? ? version.split("/").first.downcase : u.scheme.to_s.downcase
+          else
+            ""
+          end
+        end
+      end
+
       class HTTP::Client
         private def io
           io = @io
