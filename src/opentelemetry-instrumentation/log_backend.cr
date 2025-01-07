@@ -41,7 +41,7 @@ class OpenTelemetry::Instrumentation::LogBackend < ::Log::Backend
     event["timestamp"] = entry.timestamp.to_s
   end
 
-  def write(entry : ::Log::Entry)
+  def write(entry : ::Log::Entry) : Nil
     if span = OpenTelemetry::Trace.current_span
       span.add_event("Log.#{entry.severity.label}#{" - #{entry.source}" unless entry.source.empty?}") do |event|
         self.class.apply_log_entry(entry, event)
