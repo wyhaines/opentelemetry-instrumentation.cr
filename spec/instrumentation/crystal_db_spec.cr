@@ -89,4 +89,33 @@ describe DB::Statement, tags: "DB::Statement" do
     traces[0]["spans"][1]["parentSpanId"].should eq parent_span_id
     traces[0]["spans"][5]["attributes"]["db.statement"].should eq "create table contacts (name text, age integer, timestamp time)"
   end
+
+  it "will create traces and spans for the DB.connect (single-connection) path" do
+    memory = SetupIOAndOtel.call
+
+    # Mirror SetupDB's multi-query shape so the async IO exporter fiber has
+    # natural yield points to drain before we read the memory buffer. Without
+    # the QUERY-with-iteration tail, the last span(s) can race with block exit
+    # and end up unflushed.
+    DB.connect "sqlite3://./data.db" do |connection|
+      connection.exec "create table contacts (name text, age integer, timestamp time)"
+      connection.exec "insert into contacts values (?, ?, ?)", "John Doe", 30, Time.local
+      connection.scalar "select max(age) from contacts"
+      connection.query "select name, age from contacts" do |result_set|
+        result_set.each do
+          "#{result_set.read(String)} (#{result_set.read(Int32)})"
+        end
+      end
+    end
+
+    traces = ExtractTraces.call(memory)
+    db_traces = traces.select { |trace| trace["spans"][0]["kind"] == 3 }
+
+    # Sanity: at least the CREATE span must have made it through.
+    db_traces.size.should be >= 1
+    create_trace = db_traces.find! { |trace| trace["spans"][0]["name"] == "data.db->CREATE" }
+    create_trace["spans"][0]["attributes"]["db.name"].should eq "data.db"
+    create_trace["spans"][0]["attributes"]["db.system"].should eq "sqlite3"
+    create_trace["spans"][0]["attributes"]["db.statement"].should eq "create table contacts (name text, age integer, timestamp time)"
+  end
 end
